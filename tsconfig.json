@@ -1,27 +1,47 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
+    "target": "es5", // 出力するJavaScriptのバージョン
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ], // 使用するライブラリ
+    "allowJs": true, // JavaScriptファイルを許可
+    "skipLibCheck": true, // ライブラリの型チェックをスキップ
+    "strict": true, // 厳格な型チェックを有効にする
+    "forceConsistentCasingInFileNames": true, // ファイル名の大文字小文字を強制
+    "noEmit": true, // 出力を生成しない
+    "esModuleInterop": true, // ESモジュールとの互換性を有効にする
+    "module": "esnext", // モジュールの形式
+    "moduleResolution": "node", // モジュール解決の方法
+    "resolveJsonModule": true, // JSONモジュールをインポート可能にする
+    "isolatedModules": true, // 各ファイルを独立したモジュールとして扱う
+    "jsx": "preserve", // JSXの変換方法
+    "baseUrl": ".", // ベースURL
+    "paths": {
+      "@/*": [
+        "src/*"
+      ] // エイリアスの設定
+    },
+    "typeRoots": [
+      "./types", // カスタム型定義のパス
+      "./node_modules/@types" // デフォルトの型定義のパス
+    ],
     "incremental": true,
     "plugins": [
       {
         "name": "next"
       }
-    ],
-    "paths": {
-      "@/*": ["./*"]
-    }
+    ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts", // Next.jsの型定義
+    "**/*.ts", // TypeScriptファイル
+    "**/*.tsx" // TypeScript JSXファイル
+    ,
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules" // 除外するディレクトリ
+  ]
 }
