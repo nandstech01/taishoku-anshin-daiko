@@ -1,14 +1,18 @@
-// src/components/ui/Label.tsx
-import { FormLabel } from '@chakra-ui/react';
-import React from 'react';
+"use client"
 
-interface LabelProps {
-  htmlFor?: string;
+import React from "react";
+
+interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
   children: React.ReactNode;
 }
 
-const Label: React.FC<LabelProps> = ({ htmlFor, children }) => {
-  return <FormLabel htmlFor={htmlFor}>{children}</FormLabel>;
-};
-
-export default Label;
+export function Label({ children, className = "", ...props }: LabelProps) {
+  return (
+    <label
+      className={`text-sm font-medium leading-none ${className}`}
+      {...props}
+    >
+      {children}
+    </label>
+  );
+}

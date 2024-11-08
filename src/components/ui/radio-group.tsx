@@ -1,23 +1,37 @@
-// src/components/ui/radio-group.tsx
-import { Radio, RadioGroup as ChakraRadioGroup, Stack } from '@chakra-ui/react';
-import React from 'react';
+"use client"
 
-interface RadioGroupProps {
-  value?: string;
-  onChange: (value: string) => void;
-  options: { label: string; value: string }[];
+import React from "react";
+
+interface RadioOption {
+  label: string;
+  value: string;
 }
 
-export const RadioGroup: React.FC<RadioGroupProps> = ({ value, onChange, options }) => {
+interface RadioGroupProps {
+  options: RadioOption[];
+  value: string;
+  onChange: (value: string) => void;
+  className?: string;
+}
+
+export function RadioGroup({ options, value, onChange, className = "" }: RadioGroupProps) {
   return (
-    <ChakraRadioGroup onChange={onChange} value={value}>
-      <Stack direction="row">
-        {options.map((option) => (
-          <Radio key={option.value} value={option.value}>
-            {option.label}
-          </Radio>
-        ))}
-      </Stack>
-    </ChakraRadioGroup>
+    <div className={`space-y-2 ${className}`}>
+      {options.map((option) => (
+        <label
+          key={option.value}
+          className="flex items-center space-x-2 cursor-pointer"
+        >
+          <input
+            type="radio"
+            value={option.value}
+            checked={value === option.value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-4 h-4 text-orange-500 border-gray-300 focus:ring-orange-500"
+          />
+          <span className="text-gray-700">{option.label}</span>
+        </label>
+      ))}
+    </div>
   );
-};
+}

@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, Clock, AlertCircle } from 'lucide-react';
+import { Users, MessageCircle, Sparkles } from 'lucide-react';
+import ChatBot from './ChatBot';
+import FixedButtons from './ui/FixedButtons';
 
 export default function RefinedCourseDates() {
   const [isVisible, setIsVisible] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
@@ -18,7 +21,7 @@ export default function RefinedCourseDates() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
-            className="bg-gradient-to-r from-teal-800 to-blue-900 text-white py-2 px-4 shadow-lg relative overflow-hidden"
+            className="bg-gradient-to-r from-slate-900 to-blue-950 text-white py-8 px-4 shadow-xl relative overflow-hidden z-[40]"
           >
             <motion.div
               className="absolute inset-0 bg-blue-500 opacity-10"
@@ -27,41 +30,41 @@ export default function RefinedCourseDates() {
               transition={{ repeat: Infinity, duration: 3, ease: 'linear' }}
             />
             <div className="container mx-auto relative z-10">
-              <div className="flex flex-wrap justify-between items-center">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-baseline">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    <span className="text-sm font-medium mr-2">次回開始日</span>
-                    <motion.span
-                      className="text-3xl font-bold tracking-tighter"
-                      initial={{ scale: 1 }}
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    >
-                      12/7
-                    </motion.span>
-                    <span className="text-lg ml-1">(月)</span>
-                  </div>
-                  <div className="h-8 w-px bg-white opacity-30" />
-                  <div className="flex flex-col">
-                    <motion.div 
-                      whileHover={{ scale: 1.05 }}
-                      className="flex items-center text-white text-sm"
-                    >
-                      <Clock className="w-4 h-4 mr-2" />
-                      お申し込み期限 11/30 (日)
-                    </motion.div>
-                    <div className="text-xs text-gray-300 mt-1 flex items-center">
-                      <AlertCircle className="w-3 h-3 mr-1" />
-                      開始日は選択可能です
-                    </div>
-                  </div>
+              <div className="flex flex-col items-center justify-center space-y-6">
+                <motion.div 
+                  className="flex items-center space-x-3 text-2xl font-bold text-amber-400"
+                  initial={{ scale: 1 }}
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                >
+                  <Users className="w-8 h-8" />
+                  <span>無料相談員５名</span>
+                  <Sparkles className="w-6 h-6" />
+                </motion.div>
+                
+                <div className="flex items-center space-x-2 text-lg text-gray-200">
+                  <MessageCircle className="w-5 h-5 text-cyan-400" />
+                  <span>あなたの相談にいつでも待機しています</span>
                 </div>
               </div>
+            </div>
+            
+            <div className="text-center mt-8">
+              <motion.button
+                onClick={() => setIsChatOpen(true)}
+                whileHover={{ scale: 1.03 }}
+                className="inline-block bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold py-5 px-10 rounded-lg shadow-lg transition-all duration-300 ease-in-out text-xl"
+              >
+                <span className="block text-sm mb-1">＼ 今すぐ無料相談 24時間対応 ／</span>
+                <span className="block">専門家にまるッと相談</span>
+              </motion.button>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ChatBot isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      <FixedButtons isVisible={!isChatOpen} />
     </div>
   );
 }

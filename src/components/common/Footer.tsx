@@ -10,9 +10,10 @@ interface FooterItemProps {
   label: string
   href?: string
   children?: React.ReactNode
+  isExternal?: boolean
 }
 
-const FooterItem: React.FC<FooterItemProps> = ({ label, href, children }) => {
+const FooterItem: React.FC<FooterItemProps> = ({ label, href, children, isExternal }) => {
   const [isOpen, setIsOpen] = useState(false)
 
   const content = (
@@ -47,51 +48,66 @@ const FooterItem: React.FC<FooterItemProps> = ({ label, href, children }) => {
     </div>
   )
 
-  return href ? (
-    <Link href={href} className="block">
-      {content}
-    </Link>
-  ) : content
+  if (href) {
+    const linkProps = isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {}
+    return (
+      <Link href={href} className="block" {...linkProps}>
+        {content}
+      </Link>
+    )
+  }
+
+  return content
 }
 
-const Footer: React.FC = () => {
+export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-white font-sans">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">NANDS 生成AIリスキリング研修</h2>
-          <nav className="space-y-2">
-            <FooterItem label="TOP" href="/" />
-            <FooterItem label="プロンプトエンジニアリング">
-              <FooterItem label="基礎コース" href="/courses/basic" />
-              <FooterItem label="応用コース" href="/courses/marketing" />
-              <FooterItem label="エキスパートコース" href="/courses/sales" />
+    <footer className="bg-gray-900 text-white py-12 relative z-[60]">
+      <div className="container mx-auto px-4 relative">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          {/* 会社情報 */}
+          <div>
+            <h3 className="text-lg font-bold mb-4">株式会社エヌアンドエス</h3>
+            <p className="text-gray-400 text-sm">
+              退職あんしん代行サービス
+            </p>
+          </div>
+
+          {/* サービス */}
+          <div>
+            <FooterItem label="サービス">
+              <FooterItem label="退職代行" href="/" />
+              <FooterItem label="会社概要" href="/about" />
+              <FooterItem label="よくある質問" href="/faq" />
             </FooterItem>
-            <FooterItem label="無料相談" href="/consultation" />
-            <FooterItem label="コース申し込み" href="/apply" />
-            <FooterItem label="法人研修" href="/corporate" />
-            <FooterItem label="よくある質問" href="/faq" />
-          </nav>
+          </div>
+
+          {/* キャリア支援 */}
+          <div>
+            <FooterItem label="キャリア支援">
+              <FooterItem label="生成AIリスキリング研修" href="#contact-form" />
+              <FooterItem label="転職エージェントセレクト" href="#contact-form" />
+              <FooterItem label="退職あんしんサポートプロ" href="#contact-form" />
+            </FooterItem>
+          </div>
+
+          {/* 法的情報とその他 */}
+          <div>
+            <FooterItem label="法的情報">
+              <FooterItem label="利用規約" href="/terms" />
+              <FooterItem label="プライバシーポリシー" href="/privacy" />
+              <FooterItem label="特定商取引法に基づく表記" href="/legal" />
+              <FooterItem label="サイトマップ" href="/sitemap.xml" />
+            </FooterItem>
+          </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-8">
-          <div className="flex items-center mb-4">
-          <span className="text-white font-bold text-lg mr-2">NANDS</span>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500 font-bold text-lg">TECH</span>
-          </div>
-          <div className="grid grid-cols-2 gap-4 text-sm">
-            <Link href="/company" className="text-gray-400 hover:text-white">運営会社</Link>
-            <Link href="/terms" className="text-gray-400 hover:text-white">利用規約</Link>
-            <Link href="/privacy" className="text-gray-400 hover:text-white">プライバシーポリシー</Link>
-            <Link href="/legal" className="text-gray-400 hover:text-white">特定商取引に関する表示</Link>
-          </div>
-          <div className="mt-8 text-xs text-gray-500">
-            ©2014 - {new Date().getFullYear()} Infratop Inc.
-          </div>
+        <div className="mt-8 pt-8 border-t border-gray-800 text-center">
+          <p className="text-gray-400 text-sm">
+            © {new Date().getFullYear()} NANDS All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
-
-export default Footer;
