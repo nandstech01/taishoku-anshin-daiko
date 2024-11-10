@@ -101,7 +101,7 @@ export default function ContactSection() {
 
                         {/* メール相談 */}
                         <motion.a
-                            href="mailto:contact@example.com"
+                            href="mailto:contact@taishoku-anshin-daiko.com"
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6 }}
@@ -130,13 +130,13 @@ export default function ContactSection() {
                         transition={{ delay: 0.8 }}
                         className="mt-8 grid grid-cols-2 gap-4"
                     >
-                        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 flex items-center gap-3">
-                            <Clock className="w-6 h-6 text-white" />
-                            <p className="text-white font-medium">24時間365日対応</p>
+                        <div className="bg-white rounded-xl p-4 flex items-center gap-3">
+                            <Clock className="w-6 h-6 text-orange-500" />
+                            <p className="text-gray-900 font-medium">365日受付</p>
                         </div>
-                        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 flex items-center gap-3">
-                            <Shield className="w-6 h-6 text-white" />
-                            <p className="text-white font-medium">相談無料</p>
+                        <div className="bg-white rounded-xl p-4 flex items-center gap-3">
+                            <Shield className="w-6 h-6 text-orange-500" />
+                            <p className="text-gray-900 font-medium">相談無料</p>
                         </div>
                     </motion.div>
                 </div>

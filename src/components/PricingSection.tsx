@@ -99,7 +99,7 @@ export default function PricingSection() {
                                 <div className="space-y-3 mb-6">
                                     <div className="flex items-center gap-3">
                                         <Check className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                                        <span className="text-gray-700">24時間365日対応可能</span>
+                                        <span className="text-gray-700">24時間365日受付可能</span>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <Check className="w-5 h-5 text-orange-500 flex-shrink-0" />
@@ -107,7 +107,7 @@ export default function PricingSection() {
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <Check className="w-5 h-5 text-orange-500 flex-shrink-0" />
-                                        <span className="text-gray-700">弁護士相談可能</span>
+                                        <span className="text-gray-700">弁護士紹介可能</span>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <Check className="w-5 h-5 text-orange-500 flex-shrink-0" />

@@ -31,7 +31,7 @@ export default function TroubleSection() {
                     className="text-center mb-12"
                 >
                     <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                        退職を検討される方の
+                    ひとりで悩まないでください<br/><br/>退職を検討される方の
                     </h2>
                     <p className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-orange-400 to-amber-300 bg-clip-text text-transparent">
                         よくある心配事

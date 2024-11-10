@@ -48,7 +48,7 @@ export default function FixedButtons({ isVisible: isChatVisible = true }: FixedB
                                 rel="noopener noreferrer"
                                 className="bg-[#06C755] hover:bg-[#05b34c] text-white font-bold py-2 px-6 rounded-md w-40 shadow-md text-center transition-all duration-300 flex items-center justify-center"
                             >
-                                <span>LINE無料相談</span>
+                                <span>LINE無料相談受付</span>
                             </a>
                         </div>
                     </motion.div>

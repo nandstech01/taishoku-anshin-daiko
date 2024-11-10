@@ -55,7 +55,7 @@ export default function RefinedCourseDates() {
                 whileHover={{ scale: 1.03 }}
                 className="inline-block bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white font-bold py-5 px-10 rounded-lg shadow-lg transition-all duration-300 ease-in-out text-xl"
               >
-                <span className="block text-sm mb-1">＼ 今すぐ無料相談 24時間対応 ／</span>
+                <span className="block text-sm mb-1">＼ 今すぐ無料相談 24時間受付 ／</span>
                 <span className="block">専門家にまるッと相談</span>
               </motion.button>
             </div>

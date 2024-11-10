@@ -167,12 +167,20 @@ export default function TestimonialsSection() {
                                 無料相談から始めませんか？
                             </p>
                             <motion.a
-                                href="https://lin.ee/ye1zwHn"
-                                target="_blank"
-                                rel="noopener noreferrer"
+                                href="#consultation"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="inline-block bg-white text-orange-600 font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                                className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    const element = document.getElementById('consultation');
+                                    if (element) {
+                                        element.scrollIntoView({
+                                            behavior: 'smooth',
+                                            block: 'start'
+                                        });
+                                    }
+                                }}
                             >
                                 まずは無料相談から
                             </motion.a>

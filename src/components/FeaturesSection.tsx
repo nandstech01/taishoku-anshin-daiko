@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Shield, Building2, CheckCircle, HeartPulse, Banknote, Users, Sparkles, Clock } from 'lucide-react';
+import { Shield, Building2, CheckCircle, HeartPulse, Banknote, Users, Sparkles, Scale, Building } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -26,7 +26,7 @@ export default function FeaturesSection() {
         "約束された給与より大幅に少ない",
         "昇給の見込みが全くない"
       ],
-      solution: "未払い残業代の請求も可能。法的サポート付き。"
+      solution: "未払い残業代の請求も可能。法サポート付き。"
     },
     {
       icon: <HeartPulse className="w-8 h-8" />,
@@ -172,76 +172,106 @@ export default function FeaturesSection() {
                   退職代行サービスです
                 </motion.p>
 
-                {/* 運営会社情報 */}
-                <div className="relative">
-                  <motion.div
-                    className="mb-8 p-6 bg-white rounded-xl border border-orange-100/50 backdrop-blur-sm"
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 400 }}
-                  >
-                    <div className="mb-4 relative">
-                      <motion.div
-                        className="absolute inset-0 bg-white/50 blur-xl"
-                        animate={{ opacity: [0.5, 0.8, 0.5] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                      <Image
-                        src="/images/clogo.svg"
-                        alt="株式会社エヌアンドエス"
-                        width={140}
-                        height={30}
-                        className="mx-auto h-auto relative z-10"
-                      />
-                    </div>
-                    <p className="text-gray-700 font-medium relative z-10 mb-4">
-                      株式会社エヌアンドエスが運営する退職代行サービス
-                    </p>
-                    <motion.div
-                      whileHover={{ x: 5 }}
-                      className="relative z-10"
-                    >
-                      <Link 
-                        href="/company"
-                        className="inline-flex items-center text-orange-600 hover:text-orange-700 font-medium transition-colors"
-                      >
-                        <span>エヌアンドエスについて</span>
-                        <svg 
-                          className="w-4 h-4 ml-1 transform transition-transform group-hover:translate-x-1" 
-                          fill="none" 
-                          stroke="currentColor" 
-                          viewBox="0 0 24 24"
-                        >
-                          <path 
-                            strokeLinecap="round" 
-                            strokeLinejoin="round" 
-                            strokeWidth={2} 
-                            d="M9 5l7 7-7 7" 
-                          />
-                        </svg>
-                      </Link>
-                    </motion.div>
-                  </motion.div>
-                </div>
+                {/* 絶対安心できる理由 - 追加 */}
+                <motion.h3
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  className="text-2xl md:text-3xl font-bold mb-8 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent"
+                >
+                  絶対安心できる理由
+                </motion.h3>
 
                 {/* 特徴ボックス */}
-                <div className="flex flex-col md:flex-row justify-center gap-4 max-w-2xl mx-auto">
+                <div className="flex flex-col space-y-6 max-w-2xl mx-auto">
+                  {/* 弁護士・労働組合のボックス */}
+                  <div className="flex flex-col md:flex-row justify-center gap-4">
+                    <motion.div
+                      whileHover={{ scale: 1.05, rotateX: 10 }}
+                      className="flex-1 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg shadow-lg border border-orange-400/20 backdrop-blur-sm transform perspective-1000"
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <Scale className="w-5 h-5" />
+                        <span className="font-bold">弁護士</span>
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      whileHover={{ scale: 1.05, rotateX: 10 }}
+                      className="flex-1 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg shadow-lg border border-orange-400/20 backdrop-blur-sm transform perspective-1000"
+                    >
+                      <div className="flex items-center justify-center space-x-2">
+                        <Building className="w-5 h-5" />
+                        <span className="font-bold">労働組合</span>
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* ダブル対応の説明 */}
                   <motion.div
-                    whileHover={{ scale: 1.05, rotateX: 10 }}
-                    className="flex-1 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg shadow-lg border border-orange-400/20 backdrop-blur-sm transform perspective-1000"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    whileHover={{ scale: 1.03 }}
+                    className="text-center bg-gradient-to-r from-orange-500 to-amber-500 text-white p-4 rounded-xl shadow-lg"
                   >
-                    <div className="flex items-center justify-center space-x-2">
-                      <Clock className="w-5 h-5" />
-                      <span className="font-bold">24時間対応可能</span>
-                    </div>
+                    <motion.p
+                      animate={{ 
+                        textShadow: [
+                          "0 0 10px rgba(255,255,255,0.5)",
+                          "0 0 20px rgba(255,255,255,0.7)",
+                          "0 0 10px rgba(255,255,255,0.5)"
+                        ]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="font-bold text-lg"
+                    >
+                      ダブル対応可能だから<br />
+                      万一のトラブルにも安心
+                    </motion.p>
                   </motion.div>
+
+                  {/* 価格表示 */}
                   <motion.div
-                    whileHover={{ scale: 1.05, rotateX: 10 }}
-                    className="flex-1 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg shadow-lg border border-orange-400/20 backdrop-blur-sm transform perspective-1000"
+                    initial={{ scale: 0.9, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    className="relative"
                   >
-                    <div className="flex items-center justify-center space-x-2">
-                      <Users className="w-5 h-5" />
-                      <span className="font-bold">スタッフが親身に対応</span>
-                    </div>
+                    <motion.div
+                      animate={{
+                        scale: [1, 1.05, 1],
+                        boxShadow: [
+                          "0 0 20px rgba(251,146,60,0.3)",
+                          "0 0 40px rgba(251,146,60,0.5)",
+                          "0 0 20px rgba(251,146,60,0.3)"
+                        ]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="bg-white text-center p-6 rounded-2xl border-2 border-orange-500"
+                    >
+                      <motion.p
+                        className="text-gray-700 font-bold mb-2"
+                      >
+                        安心価格 業界最安値の
+                      </motion.p>
+                      <motion.div
+                        animate={{
+                          scale: [1, 1.1, 1],
+                          color: [
+                            "rgb(234,88,12)",
+                            "rgb(251,146,60)",
+                            "rgb(234,88,12)"
+                          ]
+                        }}
+                        transition={{ duration: 2, repeat: Infinity }}
+                        className="text-4xl font-bold"
+                      >
+                        2,980円<span className="text-xl">(税込)</span>
+                      </motion.div>
+                      <motion.p
+                        className="text-gray-700 font-bold mt-2"
+                      >
+                        のみ
+                      </motion.p>
+                    </motion.div>
                   </motion.div>
                 </div>
               </div>
@@ -249,19 +279,7 @@ export default function FeaturesSection() {
           </motion.div>
         </motion.div>
 
-        {/* 絶対安心できる理由 */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
-          <h3 className="text-2xl md:text-3xl font-bold mb-4 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
-            絶対安心できる理由
-          </h3>
-        </motion.div>
-
-        {/* 悩みと解決策セクション - 残りは同じ ... */}
+        {/* 悩みと解決策セクション */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {troubles.map((trouble, index) => (
             <motion.div
@@ -334,7 +352,7 @@ export default function FeaturesSection() {
           ))}
         </div>
 
-        {/* フッターメッセージ - アップデート */}
+        {/* フッターメッセージ */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -372,12 +390,20 @@ export default function FeaturesSection() {
               あなたの状況に合わせた最適な解決策をご提案いたします。
             </p>
             <motion.a
-              href="https://lin.ee/ye1zwHn"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="#consultation"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="inline-block bg-white text-orange-600 font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+              onClick={(e) => {
+                e.preventDefault();
+                const element = document.getElementById('consultation');
+                if (element) {
+                    element.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+              }}
             >
               まずは無料相談から
             </motion.a>

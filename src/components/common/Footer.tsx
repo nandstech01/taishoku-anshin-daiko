@@ -86,8 +86,16 @@ export default function Footer() {
           <div>
             <FooterItem label="キャリア支援">
               <FooterItem label="生成AIリスキリング研修" href="#contact-form" />
-              <FooterItem label="転職エージェントセレクト" href="#contact-form" />
-              <FooterItem label="退職あんしんサポートプロ" href="#contact-form" />
+              <FooterItem 
+                label="転職エージェントセレクト" 
+                href="https://www.agent-select.net" 
+                isExternal={true} 
+              />
+              <FooterItem 
+                label="退職あんしんサポートプロ" 
+                href="https://lin.ee/pIY2wqR" 
+                isExternal={true} 
+              />
             </FooterItem>
           </div>
 
