@@ -229,7 +229,7 @@ export default function HamburgerMenu() {
                                             >
                                                 <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 backdrop-blur-sm rounded-lg px-6 py-3 border border-white/10">
                                                     <span className="text-xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
-                                                        NANDS.TECH
+                                                        - NANDS -
                                                     </span>
                                                     <motion.div
                                                         className="absolute -inset-px bg-gradient-to-r from-orange-500/50 to-amber-500/50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300"
