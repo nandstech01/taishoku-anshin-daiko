@@ -5,6 +5,7 @@ import { ChevronRight, Twitter, Instagram, Youtube } from 'lucide-react';
 import { useMenu } from '@/contexts/MenuContext';
 import Image from 'next/image';
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function HamburgerMenu() {
     const { isMenuOpen, setIsMenuOpen } = useMenu();
@@ -221,11 +222,10 @@ export default function HamburgerMenu() {
                                             whileHover={{ scale: 1.05 }}
                                             className="inline-block"
                                         >
-                                            <a
-                                                href="https://nands.tech"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
+                                            <Link
+                                                href="/about"
                                                 className="group relative"
+                                                onClick={() => setIsMenuOpen(false)}
                                             >
                                                 <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 backdrop-blur-sm rounded-lg px-6 py-3 border border-white/10">
                                                     <span className="text-xl font-bold bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
@@ -243,7 +243,7 @@ export default function HamburgerMenu() {
                                                         }}
                                                     />
                                                 </div>
-                                            </a>
+                                            </Link>
                                         </motion.div>
                                     </motion.div>
                                 </div>
