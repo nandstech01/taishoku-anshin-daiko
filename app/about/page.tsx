@@ -161,7 +161,7 @@ const AboutPage = () => {
       isHeading: false
     },
     {
-      text: "そして、私たちが最も大切にしているのは、「一人ひとりの人生に寄り添う」という姿勢です。退職は単なる離職ではなく、新たな人生の章を開く重要な転換点です。その瞬間に、私たちは最大限の敬意と配慮を持って、あなたの決断をサポートいたします。",
+      text: "そして、私たちが最も大切にしているのは、「一人ひとりの人生に寄り添う」という姿勢です。退職は単なる離職ではなく、新たな人生の章を開く重要な転換点です。その瞬間に、私たちは最大限の敬意と配慮を持って、あなたの決断をサポ���トいたします。",
       isHeading: false
     },
     {
@@ -347,9 +347,9 @@ const AboutPage = () => {
                     after:w-px after:bg-gradient-to-b after:from-black/20 after:via-black/10 after:to-transparent
                   "
                 >
-                  私たちは、急速に変化する時代において、
-                  一人ひとりの可能性を最大限に引き出し、
-                  確かな一歩を踏み出すためのソリューションを提供します。
+                  私たちは<br/>急速に変化する<br/>時代において<br/>
+                  一人ひとりの可能性を<br/>最大限に引き出し<br/>
+                  確かな一歩を<br/>踏み出すための<br/>ソリューションを<br/>提供します。
                 </motion.p>
               </div>
 
@@ -1243,7 +1243,7 @@ const AboutPage = () => {
 
             <dl className="space-y-8">
               {[
-                { label: "会社名", value: "株式会社NANDS" },
+                { label: "会社名", value: "株式会社エヌアンドエス" },
                 { label: "代表取締役", value: "原田 賢治" },
                 { label: "設立", value: "2008年4月" },
                 { label: "本社", value: "〒520-0025\n滋賀県大津市皇子ヶ丘２目１０番２５−３００４号" },
@@ -1575,7 +1575,7 @@ const AboutPage = () => {
                   </div>
 
                   {/* コンテンツ */}
-                  <div className="pl-[140px]">
+                  <div className="pl-[140px] w-full max-w-3xl"> {/* max-w-3xlを追加 */}
                     <motion.h3
                       initial={{ opacity: 0, y: 10 }}
                       whileInView={{ opacity: 1, y: 0 }}
