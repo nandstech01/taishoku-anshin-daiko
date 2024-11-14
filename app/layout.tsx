@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   // その他のメタデータ
   manifest: '/manifest.json',
   verification: {
-    google: 'AZzCr6PGDconYnUVtQF40DNyd4q5ieSLsoDvay-k5IY',  // この値が正しいか確認
+    google: 'AZzCr6PGDconYnUVtQF40DNyd4q5ieSLsoDvay-k5IY',
   },
   alternates: {
     canonical: 'https://taishoku-anshin-daiko.com',
