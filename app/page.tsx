@@ -44,6 +44,10 @@ const Home: React.FC = () => {
     setupVideo();
   }, []);
 
+  const handleEvent = React.useCallback(() => {
+    // 処理内容
+  }, []);
+
   return (
     <div className="flex flex-col">
       {!showMainContent ? (
