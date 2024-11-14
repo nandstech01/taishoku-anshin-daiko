@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   // その他のメタデータ
   manifest: '/manifest.json',
   verification: {
-    google: '提供された確認コード', // ここに新しいコードを貼り付け
+    google: 'AZzCr6PGDconYnUVtQF40DNyd4q5ieSLsoDvay-k5IY',  // 新しい確認コード
   },
   alternates: {
     canonical: 'https://taishoku-anshin-daiko.com',
