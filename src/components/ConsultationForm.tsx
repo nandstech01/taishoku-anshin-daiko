@@ -2,183 +2,187 @@
 
 import { motion } from 'framer-motion';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function ConsultationForm() {
-    const [formData, setFormData] = useState({
-        employment: '',
-        age: '',
-        name: '',
-        furigana: '',
-        email: '',
-        phone: '',
-        message: ''
-    });
+    const router = useRouter();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // フォーム送信処理
-        console.log(formData);
+        
+        // フォームデータの取得と検証
+        const formElement = e.currentTarget;
+        const nameInput = formElement.querySelector<HTMLInputElement>('[name="name"]');
+        const phoneInput = formElement.querySelector<HTMLInputElement>('[name="phone"]');
+        const emailInput = formElement.querySelector<HTMLInputElement>('[name="email"]');
+        const employmentTypeInput = formElement.querySelector<HTMLInputElement>('input[name="employmentType"]:checked');
+        const messageInput = formElement.querySelector<HTMLTextAreaElement>('[name="message"]');
+
+        // 値の取得
+        const name = nameInput?.value;
+        const phone = phoneInput?.value;
+        const email = emailInput?.value;
+        const employmentType = employmentTypeInput?.value;
+        const message = messageInput?.value;
+
+        console.log('Form values:', { name, phone, email, employmentType, message });
+
+        // 必須項目の検証
+        if (!name || !phone || !email || !message) {
+            console.log('Missing required fields');
+            alert('以下の必須項目を入力してください：\n・お名前\n・電話番号\n・メールアドレス\n・ご相談内容');
+            return;
+        }
+
+        const formData = {
+            name,
+            phone,
+            email,
+            employmentType: employmentType || '',
+            message
+        };
+
+        try {
+            console.log('Sending data:', formData);
+
+            const response = await fetch(
+                'https://script.google.com/macros/s/AKfycbxC3OSv3HQLwcwE4yArLVXDTDmum4yEK62uASJxkXmujAMOxZpoLu64uk97VXnRNUts/exec',
+                {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                }
+            );
+
+            console.log('Response:', response);
+
+            // no-corsモードでは response.ok が確認できないため、
+            // エラーが発生しなければ成功とみなす
+            router.push('/complete');
+            
+        } catch (error) {
+            console.error('Error details:', error);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            alert(`送信に失敗しました。時間をおいて再度お試しください。エラー詳細: ${errorMessage}`);
+        }
     };
 
     return (
         <motion.section
-            id="consultation"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="relative py-20 md:py-32 bg-gradient-to-b from-orange-50 to-white overflow-hidden"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="py-24 bg-gradient-to-b from-orange-50 to-white"
         >
-            <div className="container mx-auto px-4">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-12"
+            <div className="max-w-4xl mx-auto px-4">
+                <motion.h2
+                    initial={{ opacity: 0, y: -20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.2 }}
+                    className="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-900"
                 >
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-white text-lg font-bold px-6 py-2 rounded-full mb-6 shadow-lg"
-                    >
-                        無料相談フォーム
-                    </motion.div>
-                    <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-                        まずはお気軽にご相談ください
-                    </h3>
-                    <p className="text-gray-600 max-w-2xl mx-auto">
-                        24時間365日受付中！<br/>専門スタッフが丁寧にご対応いたします
-                    </p>
-                </motion.div>
+                    無料相談フォーム
+                </motion.h2>
 
                 <motion.form
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
                     onSubmit={handleSubmit}
-                    className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8"
+                    className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 md:p-12"
                 >
-                    <div className="space-y-6">
-                        {/* 雇用形態 */}
+                    <div className="space-y-8">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                雇用形態
-                                <span className="text-red-500 ml-1">必須</span>
+                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                                お名前 <span className="text-red-500">*</span>
                             </label>
-                            <div className="grid grid-cols-2 gap-4">
-                                {['正社員', '契約社員', 'パート・アルバイト', 'その他'].map((type) => (
-                                    <label key={type} className="flex items-center space-x-2 bg-gray-50 p-3 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">
+                            <input
+                                type="text"
+                                name="name"
+                                id="name"
+                                required
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                placeholder="山田 太郎"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                                電話番号 <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="tel"
+                                name="phone"
+                                id="phone"
+                                required
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                placeholder="090-1234-5678"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                メールアドレス <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                name="email"
+                                id="email"
+                                required
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                placeholder="example@email.com"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-3">
+                                現在の雇用形態
+                            </label>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                {['正社員', '契約社員', 'パート・アルバイト', '派遣社員', 'その他'].map((type) => (
+                                    <div key={type} className="flex items-center space-x-3">
                                         <input
                                             type="radio"
-                                            name="employment"
+                                            name="employmentType"
                                             value={type}
-                                            onChange={(e) => setFormData({ ...formData, employment: e.target.value })}
-                                            className="text-orange-500 focus:ring-orange-500"
-                                            required
+                                            id={`employment-${type}`}
+                                            className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
                                         />
-                                        <span className="text-gray-700">{type}</span>
-                                    </label>
+                                        <label htmlFor={`employment-${type}`} className="text-sm text-gray-700">
+                                            {type}
+                                        </label>
+                                    </div>
                                 ))}
                             </div>
                         </div>
 
-                        {/* 年齢 */}
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                年齢
-                                <span className="text-red-500 ml-1">必須</span>
-                            </label>
-                            <input
-                                type="number"
-                                value={formData.age}
-                                onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                required
-                            />
-                        </div>
-
-                        {/* お名前 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                お名前
-                                <span className="text-red-500 ml-1">必須</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                required
-                            />
-                        </div>
-
-                        {/* フリガナ */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                フリガナ
-                                <span className="text-red-500 ml-1">必須</span>
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.furigana}
-                                onChange={(e) => setFormData({ ...formData, furigana: e.target.value })}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                required
-                            />
-                        </div>
-
-                        {/* メールアドレス */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                メールアドレス
-                                <span className="text-red-500 ml-1">必須</span>
-                            </label>
-                            <input
-                                type="email"
-                                value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                required
-                            />
-                        </div>
-
-                        {/* 電話番号 - 必須に変更 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                電話番号
-                                <span className="text-red-500 ml-1">必須</span>
-                            </label>
-                            <input
-                                type="tel"
-                                value={formData.phone}
-                                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                                required  // 必須属性を追加
-                                pattern="[0-9]*"  // 数字のみ許可
-                                placeholder="例：09012345678"
-                            />
-                        </div>
-
-                        {/* お問い合わせ内容 */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                お問い合わせ内容
+                            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                                ご相談内容 <span className="text-red-500">*</span>
                             </label>
                             <textarea
-                                value={formData.message}
-                                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                                rows={4}
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
-                            />
+                                name="message"
+                                id="message"
+                                rows={5}
+                                required
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                placeholder="現在の状況やご相談内容をご記入ください"
+                            ></textarea>
                         </div>
 
-                        {/* 送信ボタン */}
-                        <motion.button
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            type="submit"
-                            className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-                        >
-                            無料相談する
-                        </motion.button>
+                        <div>
+                            <button
+                                type="submit"
+                                className="w-full bg-orange-500 text-white py-4 px-6 rounded-lg font-medium hover:bg-orange-600 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                            >
+                                無料相談する
+                            </button>
+                            <p className="mt-3 text-sm text-gray-500 text-center">
+                                ※ 送信後、担当者より翌日以内にご連絡いたします
+                            </p>
+                        </div>
                     </div>
                 </motion.form>
             </div>
