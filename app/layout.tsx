@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   // その他のメタデータ
   manifest: '/manifest.json',
   verification: {
-    google: 'あなたのGoogle Search Console確認コード',
+    google: 'xxxxxxxxxxxxx', // Google Search Consoleから提供されるコードの content="" の中身
   },
   alternates: {
     canonical: 'https://taishoku-anshin-daiko.com',

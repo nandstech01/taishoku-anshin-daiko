@@ -1,34 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /api/
 
-# クローラーへの指示
-Crawl-delay: 10
-
-# サイトマップの指定
+# Sitemap location
 Sitemap: https://taishoku-anshin-daiko.com/sitemap.xml
-
-# 重要なページの明示的な許可
-Allow: /about
-Allow: /faq
-Allow: /privacy
-Allow: /terms
-Allow: /legal
-
-# 画像とリソースへのアクセス許可
-Allow: /*.css$
-Allow: /*.js$
-Allow: /*.jpg$
-Allow: /*.jpeg$
-Allow: /*.gif$
-Allow: /*.png$
-Allow: /*.svg$
-
-# SNSクローラー向け設定
-User-agent: Twitterbot
-Allow: /
-Allow: /images/
-
-User-agent: facebookexternalhit
-Allow: /
-Allow: /images/
