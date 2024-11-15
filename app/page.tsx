@@ -17,6 +17,7 @@ import TestimonialsSection from '../src/components/TestimonialsSection';
 import PaymentSection from '../src/components/PaymentSection';
 import ContactSection from '../src/components/ContactSection';
 import FAQSection from '../src/components/FAQSection';
+import { openChat } from '@/components/ChatBot';
 
 const CommentAnimation = dynamic(() => import('../src/components/CommentAnimation'), {
   ssr: false
@@ -123,6 +124,18 @@ const Home: React.FC = () => {
           <ConsultationForm />
           <Footer />
           <FixedButtons />
+          <div className="text-center my-8">
+            <button
+              onClick={() => {
+                const event = new CustomEvent('openChatBot');
+                window.dispatchEvent(event);
+              }}
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors"
+            >
+              ＼ 今すぐ無料相談 24時間受付 ／<br />
+              専門家にまるッと相談
+            </button>
+          </div>
         </motion.div>
       )}
     </div>

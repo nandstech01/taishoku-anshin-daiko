@@ -1,327 +1,271 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, Loader2, MessageCircle, Sparkles } from 'lucide-react';
-import type { ChatMessage, ChatBotProps } from '../types/chat';
+import { MessageSquare, X, Send, Sparkles, Users, MessageCircle } from 'lucide-react';
+import FixedButtons from './ui/FixedButtons';
 
-interface ConversationHistory {
-  role: 'system' | 'user' | 'assistant';
+interface Message {
+  role: 'user' | 'assistant';
   content: string;
 }
 
-export default function ChatBot({ isOpen, onClose }: ChatBotProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    { 
-      text: 'こんにちは！退職代行サービスの専門相談員です。\n\nご相談内容について、以下からお選びいただけますと幸いです：',
-      isBot: true,
-      options: [
-        '職場でのパワハラやストレスについて相談したい',
-        '退職の手続きや費用について知りたい',
-        '明日から会社に行きたくない',
-        'メンタルヘルスのサポートについて知りたい'
-      ]
-    }
-  ]);
+const INITIAL_MESSAGES: Message[] = [{
+  role: 'assistant',
+  content: `こんにちは！退職あんしん代行専門相談員にご相談頂きありがとうございます。以下からご相談内容をお選び頂くか、直接メッセージをご入力ください。
+
+- ストレスを感じている
+- 明日から会社には行きたくない
+- 退職代行を使ったことを知られたくない
+- 退職の手続きや費用を知りたい`
+}];
+
+const STRESS_OPTIONS = `
+- 職場でハラスメントがあると感じている
+- 職場での人間関係に悩んでいる
+- 会社の待遇に悩んでいる
+- 会社とプライベートが両立できない`;
+
+export const openChat = () => {
+  const event = new CustomEvent('openChatBot');
+  window.dispatchEvent(event);
+};
+
+export default function ChatBot() {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [conversationHistory, setConversationHistory] = useState<ConversationHistory[]>([]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+    const handleOpenChat = () => {
+      setIsOpen(true);
+      const fixedButtons = document.querySelector('.fixed.bottom-0.flex.justify-center');
+      if (fixedButtons) {
+        fixedButtons.classList.add('hidden');
+      }
+    };
+
+    const handleCloseChat = () => {
+      const fixedButtons = document.querySelector('.fixed.bottom-0.flex.justify-center');
+      if (fixedButtons) {
+        fixedButtons.classList.remove('hidden');
+      }
+    };
+
+    window.addEventListener('openChatBot', handleOpenChat);
+    
+    return () => {
+      window.removeEventListener('openChatBot', handleOpenChat);
+      handleCloseChat();
+    };
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() && !isLoading) return;
 
-    const userMessage = input;
+    const userMessage = input.trim();
     setInput('');
-    setMessages(prev => [...prev, { text: userMessage, isBot: false }]);
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
 
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: userMessage,
-          conversationHistory 
+        body: JSON.stringify({
+          messages: [...messages, { role: 'user', content: userMessage }]
         }),
       });
+
+      if (!response.ok) throw new Error('Network response was not ok');
       
       const data = await response.json();
-      
-      // 段階的にメッセージを表示
-      for (const res of data.responses) {
-        await new Promise(resolve => setTimeout(resolve, res.delay));
-        setMessages(prev => [...prev, { 
-          text: res.text, 
-          isBot: true,
-          options: res.options 
-        }]);
+      let newMessage = data.content;
+
+      if (userMessage.includes('ストレスを感じている')) {
+        newMessage += STRESS_OPTIONS;
       }
 
-      setConversationHistory(data.conversationHistory);
+      setMessages(prev => [...prev, { role: 'assistant', content: newMessage }]);
     } catch (error) {
       console.error('Error:', error);
-      setMessages(prev => [...prev, { text: 'すみません、エラーが発生しました。', isBot: true }]);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: '申し訳ありません。エラーが発生しました。もう一度お試しください。' 
+      }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 選択肢をクリックしたときの処理を修正
-  const handleOptionClick = async (option: string) => {
-    setMessages(prev => [...prev, { text: option, isBot: false }]);
-    setIsLoading(true);
-
-    try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: option,
-          conversationHistory 
-        }),
-      });
-      
-      const data = await response.json();
-      
-      // 段階的にメッセージを表示
-      for (const res of data.responses) {
-        await new Promise(resolve => setTimeout(resolve, res.delay));
-        setMessages(prev => [...prev, { 
-          text: res.text, 
-          isBot: true,
-          options: res.options 
-        }]);
-      }
-
-      setConversationHistory(data.conversationHistory);
-    } catch (error) {
-      console.error('Error:', error);
-      setMessages(prev => [...prev, { text: 'すみません、エラーが発生しました。', isBot: true }]);
-    } finally {
-      setIsLoading(false);
+  const handleOptionClick = (option: string) => {
+    if (!isLoading) {
+      setInput(option);
+      handleSubmit({ preventDefault: () => {} } as React.FormEvent);
     }
   };
 
-  // 背景のアニメーション用の変数
-  const backgroundVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { duration: 0.5 }
-    }
+  const renderMessage = (message: Message, index: number) => {
+    const messageContent = message.content.split('\n').map((line, i) => {
+      if (line.startsWith('-')) {
+        return (
+          <motion.button
+            key={i}
+            whileHover={{ scale: 1.02 }}
+            onClick={() => handleOptionClick(line.substring(2))}
+            className="block text-left px-4 py-3 my-2 rounded-lg bg-gradient-to-r from-orange-500/10 to-amber-500/10 hover:from-orange-500/20 hover:to-amber-500/20 text-orange-600 transition-all duration-300 w-full border border-orange-200 shadow-sm"
+          >
+            {line}
+          </motion.button>
+        );
+      }
+      if (line.includes('【無料相談フォーム')) {
+        return (
+          <div key={i} className="mt-4">
+            <a
+              href="/consultation#consultation-form"
+              className="inline-block bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white px-6 py-3 rounded-lg transition-all duration-300 shadow-md"
+            >
+              無料相談フォーム
+            </a>
+          </div>
+        );
+      }
+      return <p key={i} className="mb-2 leading-relaxed">{line}</p>;
+    });
+
+    return (
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} mb-4`}
+      >
+        <div
+          className={`max-w-[80%] p-4 rounded-2xl shadow-md ${
+            message.role === 'user'
+              ? 'bg-gradient-to-r from-orange-600 to-amber-600 text-white'
+              : 'bg-white border border-gray-100 text-gray-800'
+          }`}
+        >
+          {messageContent}
+        </div>
+      </motion.div>
+    );
   };
 
-  // チャットウィンドウのアニメーション
-  const chatWindowVariants = {
-    hidden: { 
-      opacity: 0,
-      scale: 0.8,
-      y: 100
-    },
-    visible: {
-      opacity: 1,
-      scale: 1,
-      y: 0,
-      transition: {
-        type: "spring",
-        damping: 25,
-        stiffness: 120,
-        duration: 0.6
-      }
-    },
-    exit: {
-      opacity: 0,
-      scale: 0.8,
-      y: 100,
-      transition: {
-        duration: 0.3
-      }
-    }
-  };
-
-  // メッセージのアニメーション
-  const messageVariants = {
-    hidden: { 
-      opacity: 0,
-      x: -20
-    },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: {
-        duration: 0.3
-      }
+  const handleClose = () => {
+    setIsOpen(false);
+    const fixedButtons = document.querySelector('.fixed.bottom-0.flex.justify-center');
+    if (fixedButtons) {
+      fixedButtons.classList.remove('hidden');
     }
   };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          {/* オーバーレイ背景 - z-indexを100に変更 */}
+    <>
+      <AnimatePresence>
+        {isOpen && (
           <motion.div
-            variants={backgroundVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            className="fixed inset-0 bg-gradient-to-br from-slate-900/95 to-blue-900/95 backdrop-blur-sm z-[100]"
-            onClick={onClose}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-32 right-4 w-[90vw] max-w-[400px] h-[580px] bg-gradient-to-b from-white to-gray-50 rounded-2xl shadow-2xl z-50 flex flex-col overflow-hidden border border-gray-100"
           >
-            {/* デコレーティブな背景要素 */}
-            <motion.div
-              className="absolute inset-0 opacity-30"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.3 }}
-              transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-            >
-              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.1),transparent_50%)]" />
-            </motion.div>
-          </motion.div>
-
-          {/* メインチャットウィンドウ - z-indexを101に変更 */}
-          <motion.div
-            variants={chatWindowVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            className="fixed inset-4 md:inset-8 bg-white rounded-2xl shadow-2xl flex flex-col z-[101] overflow-hidden"
-          >
-            {/* ヘッダー */}
-            <motion.div 
-              className="p-6 bg-gradient-to-r from-blue-950 to-indigo-900 text-white"
-              initial={{ y: -20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-3">
+            <div className="flex justify-between items-center p-4 bg-gradient-to-r from-slate-900 to-blue-950 text-white">
+              <div className="flex items-center space-x-3">
+                <div className="relative flex items-center">
                   <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    animate={{ 
+                      rotate: 360,
+                      scale: [1, 1.1, 1],
+                    }}
+                    transition={{ 
+                      rotate: {
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "linear"
+                      },
+                      scale: {
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }
+                    }}
+                    className="absolute -left-2"
                   >
-                    <MessageCircle className="w-6 h-6 text-cyan-400" />
+                    <MessageCircle className="w-5 h-5 text-cyan-400" />
                   </motion.div>
-                  <h3 className="text-xl font-bold">退職相談チャット</h3>
-                  <Sparkles className="w-5 h-5 text-amber-400" />
+                  <Users className="w-5 h-5 text-amber-400 ml-6" />
                 </div>
-                <motion.button
-                  onClick={onClose}
-                  whileHover={{ scale: 1.1, rotate: 90 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                >
-                  <X size={24} />
-                </motion.button>
-              </div>
-            </motion.div>
-
-            {/* メッセージエリアを更新 */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {messages.map((message, index) => (
+                <h2 className="text-lg font-bold">退職相談チャット</h2>
                 <motion.div
-                  key={index}
-                  variants={messageVariants}
-                  initial="hidden"
-                  animate="visible"
-                  className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
+                  animate={{ 
+                    scale: [1, 1.2, 1],
+                    rotate: [0, 5, -5, 0]
+                  }}
+                  transition={{ 
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut"
+                  }}
                 >
-                  <div
-                    className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${
-                      message.isBot
-                        ? 'bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800'
-                        : 'bg-gradient-to-br from-blue-600 to-blue-700 text-white'
-                    }`}
-                  >
-                    {message.text}
-                    {message.options && (
-                      <div className="mt-4 space-y-2">
-                        {message.options.map((option, i) => (
-                          <motion.button
-                            key={i}
-                            onClick={() => handleOptionClick(option)}
-                            className="w-full text-left p-3 rounded-lg bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 transition-colors duration-200"
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                          >
-                            {option}
-                          </motion.button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  <Sparkles className="w-4 h-4 text-amber-400" />
                 </motion.div>
-              ))}
-              {isLoading && (
-                <motion.div 
-                  className="flex justify-start"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <div className="bg-gray-50 p-4 rounded-2xl shadow-sm">
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    >
-                      <Loader2 className="w-5 h-5 text-blue-600" />
-                    </motion.div>
-                  </div>
-                </motion.div>
-              )}
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.1, rotate: 90 }}
+                onClick={handleClose}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                aria-label="チャットを閉じる"
+              >
+                <X size={20} />
+              </motion.button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-gray-50/50 to-white/50">
+              {messages.map((message, index) => renderMessage(message, index))}
               <div ref={messagesEndRef} />
             </div>
 
-            {/* LINE誘導バナー - 新規追加 */}
-            <div className="px-6 py-3 bg-[#06C755]/10 border-t border-[#06C755]/20">
-              <a
-                href="https://lin.ee/ye1zwHn"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center space-x-2 text-[#06C755] hover:text-[#05b34c] transition-colors"
-              >
-                <span className="font-bold">より詳しい無料相談はLINEで</span>
-                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.95 8.17L8.83 16.29C8.44 16.68 7.81 16.68 7.42 16.29C7.03 15.9 7.03 15.27 7.42 14.88L15.54 6.76C15.93 6.37 16.56 6.37 16.95 6.76C17.34 7.15 17.34 7.78 16.95 8.17Z"/>
-                </svg>
-              </a>
-            </div>
-
-            {/* 入力エリア */}
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="p-6 border-t bg-white/80 backdrop-blur-sm"
-            >
-              <form onSubmit={handleSubmit} className="relative">
+            <form onSubmit={handleSubmit} className="p-4 border-t bg-white shadow-lg">
+              <div className="flex gap-2">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="メッセージを入力..."
-                  className="w-full p-4 pr-14 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white/50 backdrop-blur-sm transition-all"
+                  className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all duration-300"
+                  disabled={isLoading}
                 />
                 <motion.button
-                  type="submit"
-                  disabled={isLoading}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                  type="submit"
+                  disabled={isLoading}
+                  className="p-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl transition-all duration-300 disabled:opacity-50 shadow-md"
+                  aria-label="メッセージを送信"
                 >
                   <Send size={20} />
                 </motion.button>
-              </form>
-            </motion.div>
+              </div>
+            </form>
           </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+      <FixedButtons isVisible={!isOpen} />
+    </>
   );
 } 
