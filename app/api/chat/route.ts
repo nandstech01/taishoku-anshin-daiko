@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  timeout: 30000,
 });
 
 const INITIAL_MESSAGES = [
@@ -17,15 +18,18 @@ const INITIAL_MESSAGES = [
 export async function POST(req: Request) {
   try {
     if (!process.env.OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY is not set');
-      throw new Error('OpenAI API key is not configured');
+      console.error('OPENAI_API_KEY is not configured');
+      return NextResponse.json({ 
+        error: 'Configuration Error',
+        message: 'API key is not set'
+      }, { status: 500 });
     }
 
     const { messages } = await req.json();
     const conversationLength = messages.filter((msg: any) => msg.role === "assistant").length;
 
-    console.log('Attempting API call with key:', process.env.OPENAI_API_KEY ? 'Key exists' : 'No key');
-
+    console.log('Starting API call...');
+    
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
       messages: [
@@ -40,21 +44,25 @@ export async function POST(req: Request) {
       max_tokens: 1000,
     });
 
+    console.log('API call successful');
     return NextResponse.json(completion.choices[0].message);
 
   } catch (error: any) {
     console.error('Detailed API Error:', {
+      name: error.name,
       message: error.message,
       stack: error.stack,
-      name: error.name,
-      code: error.code
+      status: error.status,
+      response: error.response
     });
 
     return NextResponse.json({ 
-      error: 'Internal Server Error', 
-      details: error.message,
+      error: 'API Error',
+      message: error.message,
       type: error.name,
-      code: error.code
-    }, { status: 500 });
+      status: error.status || 500
+    }, { 
+      status: error.status === 504 ? 504 : 500 
+    });
   }
 } 
