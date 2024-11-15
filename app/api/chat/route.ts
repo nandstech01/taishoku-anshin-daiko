@@ -1,9 +1,11 @@
 import { OpenAI } from 'openai';
 import { NextResponse } from 'next/server';
 
+// APIキーが設定されているか確認するログ
+console.log('API Key exists:', !!process.env.OPENAI_API_KEY);
+
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  timeout: 30000,
+  apiKey: process.env.OPENAI_API_KEY || '',
 });
 
 const INITIAL_MESSAGES = [
@@ -17,52 +19,50 @@ const INITIAL_MESSAGES = [
 
 export async function POST(req: Request) {
   try {
+    // APIキーの存在確認
     if (!process.env.OPENAI_API_KEY) {
-      console.error('OPENAI_API_KEY is not configured');
+      console.error('OpenAI API key is not configured');
       return NextResponse.json({ 
         error: 'Configuration Error',
-        message: 'API key is not set'
+        message: 'OpenAI API key is not configured'
       }, { status: 500 });
     }
 
     const { messages } = await req.json();
-    const conversationLength = messages.filter((msg: any) => msg.role === "assistant").length;
+    console.log('Received messages:', messages.length);
 
-    console.log('Starting API call...');
-    
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        ...INITIAL_MESSAGES,
-        ...messages,
-        ...(conversationLength === 2 ? [{
-          role: "system",
-          content: "この返信には必ず「より詳しいご相談は、下記の無料相談フォームからお気軽にご連絡ください。」というメッセージを含めてください。"
-        }] : [])
-      ],
-      temperature: 0.7,
-      max_tokens: 1000,
-    });
+    try {
+      const completion = await openai.chat.completions.create({
+        model: "gpt-3.5-turbo",
+        messages: [
+          ...INITIAL_MESSAGES,
+          ...messages,
+          ...(messages.filter((msg: any) => msg.role === "assistant").length === 2 ? [{
+            role: "system",
+            content: "この返信には必ず「より詳しいご相談は、下記の無料相談フォームからお気軽にご連絡ください。」というメッセージを含めてください。"
+          }] : [])
+        ],
+        temperature: 0.7,
+        max_tokens: 500,
+      });
 
-    console.log('API call successful');
-    return NextResponse.json(completion.choices[0].message);
+      console.log('API response received');
+      return NextResponse.json(completion.choices[0].message);
+
+    } catch (apiError: any) {
+      console.error('OpenAI API Error:', apiError);
+      return NextResponse.json({ 
+        error: 'OpenAI API Error',
+        message: apiError.message,
+        details: apiError.response?.data || 'No additional details'
+      }, { status: 500 });
+    }
 
   } catch (error: any) {
-    console.error('Detailed API Error:', {
-      name: error.name,
-      message: error.message,
-      stack: error.stack,
-      status: error.status,
-      response: error.response
-    });
-
+    console.error('General Error:', error);
     return NextResponse.json({ 
-      error: 'API Error',
-      message: error.message,
-      type: error.name,
-      status: error.status || 500
-    }, { 
-      status: error.status === 504 ? 504 : 500 
-    });
+      error: 'Server Error',
+      message: error.message || 'An unexpected error occurred'
+    }, { status: 500 });
   }
 } 
