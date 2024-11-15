@@ -16,8 +16,15 @@ const INITIAL_MESSAGES = [
 
 export async function POST(req: Request) {
   try {
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('OPENAI_API_KEY is not set');
+      throw new Error('OpenAI API key is not configured');
+    }
+
     const { messages } = await req.json();
     const conversationLength = messages.filter((msg: any) => msg.role === "assistant").length;
+
+    console.log('Attempting API call with key:', process.env.OPENAI_API_KEY ? 'Key exists' : 'No key');
 
     const completion = await openai.chat.completions.create({
       model: "gpt-4",
@@ -35,8 +42,19 @@ export async function POST(req: Request) {
 
     return NextResponse.json(completion.choices[0].message);
 
-  } catch (error) {
-    console.error('API Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Detailed API Error:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      code: error.code
+    });
+
+    return NextResponse.json({ 
+      error: 'Internal Server Error', 
+      details: error.message,
+      type: error.name,
+      code: error.code
+    }, { status: 500 });
   }
 } 
