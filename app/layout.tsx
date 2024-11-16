@@ -79,6 +79,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        <meta name="google-site-verification" content="oUTFExqjpK3mJNvyXN1ggW61UkNYBipmSfPj51yorfY" />
         {/* 必要に応じて他のメタタグを追加 */}
       </head>
       <body>
