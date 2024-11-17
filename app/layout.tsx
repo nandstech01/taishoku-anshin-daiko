@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import '@/styles/globals.css'; // グローバルスタイルのインポート
 import Header from '@/components/common/Header'; // ヘッダーコンポーネントのインポート
 import { MenuProvider } from '@/contexts/MenuContext';
+import Script from 'next/script';  // Scriptコンポーネントをインポート
 
 // メタデータの設定
 export const metadata: Metadata = {
@@ -80,11 +81,23 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         <meta name="google-site-verification" content="oUTFExqjpK3mJNvyXN1ggW61UkNYBipmSfPj51yorfY" />
-        {/* 必要に応じて他のメタタグを追加 */}
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-X2C6W75QZZ"  // 新しい測定ID
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-X2C6W75QZZ');  // 新しい測定ID
+          `}
+        </Script>
       </head>
       <body>
         <MenuProvider>
-          <Header /> {/* ヘッダーを追加 */}
+          <Header />
           {children}
         </MenuProvider>
       </body>
