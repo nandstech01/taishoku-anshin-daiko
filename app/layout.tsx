@@ -81,9 +81,10 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         <meta name="google-site-verification" content="oUTFExqjpK3mJNvyXN1ggW61UkNYBipmSfPj51yorfY" />
-        {/* Google Analytics */}
+      </head>
+      <body>
         <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-X2C6W75QZZ"  // 新しい測定ID
+          src="https://www.googletagmanager.com/gtag/js?id=G-X2C6W75QZZ"
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -91,11 +92,9 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-X2C6W75QZZ');  // 新しい測定ID
+            gtag('config', 'G-X2C6W75QZZ');
           `}
         </Script>
-      </head>
-      <body>
         <MenuProvider>
           <Header />
           {children}
