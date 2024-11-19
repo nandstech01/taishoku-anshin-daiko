@@ -19,10 +19,6 @@ import ContactSection from '../src/components/ContactSection';
 import FAQSection from '../src/components/FAQSection';
 import { openChat } from '@/components/ChatBot';
 
-const CommentAnimation = dynamic(() => import('../src/components/CommentAnimation'), {
-  ssr: false
-});
-
 const Home: React.FC = () => {
   const [showMainContent, setShowMainContent] = React.useState(false);
   const videoRef = React.useRef<HTMLVideoElement>(null);
@@ -52,10 +48,18 @@ const Home: React.FC = () => {
   return (
     <div className="flex flex-col">
       {!showMainContent ? (
-        <CommentAnimation 
-          className="fixed inset-0 z-50" 
-          onComplete={() => setShowMainContent(true)}
-        />
+        <div className="fixed inset-0 z-50">
+          <video 
+            ref={videoRef}
+            src="/images/background.mp4"
+            autoPlay 
+            muted 
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover"
+            onEnded={() => setShowMainContent(true)}
+          />
+        </div>
       ) : (
         <motion.div
           initial={{ opacity: 0 }}
