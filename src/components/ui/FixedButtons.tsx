@@ -11,29 +11,68 @@ interface FixedButtonsProps {
 
 export default function FixedButtons({ isVisible: isChatVisible = true }: FixedButtonsProps) {
     const { ref: mainButtonRef, inView: isMainButtonVisible } = useInView({
-        threshold: 0.5,
+        threshold: 0.8,
+        rootMargin: '-10px 0px 0px 0px',
+        initialInView: true,
     });
     const { ref: footerRef, inView: isFooterVisible } = useInView({
         threshold: 0,
         rootMargin: '-120px 0px 0px 0px',
     });
+    
     const [isVisible, setIsVisible] = useState(false);
+    const [hasInitialized, setHasInitialized] = useState(false);
     const { isMenuOpen } = useMenu();
 
+    // 初期化の遅延を設定
     useEffect(() => {
-        setIsVisible(!isMainButtonVisible && !isFooterVisible && !isMenuOpen && isChatVisible);
-    }, [isMainButtonVisible, isFooterVisible, isMenuOpen, isChatVisible]);
+        const timer = setTimeout(() => {
+            setHasInitialized(true);
+        }, 2000); // 2秒後に初期化完了
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    // スクロール位置の監視
+    const [scrollPosition, setScrollPosition] = useState(0);
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrollPosition(window.scrollY);
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    useEffect(() => {
+        // 条件：
+        // 1. 初期化完了している
+        // 2. スクロールが一定以上
+        // 3. メインボタンが見えていない
+        // 4. フッターが見えていない
+        const shouldShow = 
+            hasInitialized && 
+            scrollPosition > window.innerHeight * 0.3 && 
+            !isMainButtonVisible && 
+            !isFooterVisible && 
+            !isMenuOpen && 
+            isChatVisible;
+
+        setIsVisible(shouldShow);
+    }, [hasInitialized, scrollPosition, isMainButtonVisible, isFooterVisible, isMenuOpen, isChatVisible]);
 
     return (
         <>
-            <div ref={mainButtonRef} className="absolute top-0 left-0 w-full h-[100vh] pointer-events-none" />
+            <div 
+                ref={mainButtonRef} 
+                className="absolute top-0 left-0 w-full h-screen opacity-0 pointer-events-none"
+            />
             <AnimatePresence>
                 {isVisible && (
                     <motion.div 
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 50 }}
-                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
                         className="fixed bottom-8 left-0 right-0 z-[55] px-4 mx-auto max-w-3xl"
                     >
                         <a
