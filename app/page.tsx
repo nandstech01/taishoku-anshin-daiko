@@ -99,7 +99,8 @@ const Home: React.FC = () => {
           </div>
           <div className="relative z-30">
             <div className="bg-white">
-              <RefinedCourseDates />
+              {/* RefinedCourseDatesをコメントアウト */}
+              {/* <RefinedCourseDates /> */}
               <TroubleSection />
               <FeaturesSection />
               <PricingSection />
@@ -161,7 +162,6 @@ const Home: React.FC = () => {
               </main>
             </div>
           </div>
-          <RefinedCourseDates />
           <TroubleSection />
           <FeaturesSection />
           <PricingSection />
