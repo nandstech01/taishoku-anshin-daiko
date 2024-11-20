@@ -17,30 +17,10 @@ import TestimonialsSection from '../src/components/TestimonialsSection';
 import PaymentSection from '../src/components/PaymentSection';
 import ContactSection from '../src/components/ContactSection';
 import FAQSection from '../src/components/FAQSection';
-import { openChat } from '@/components/ChatBot';
 import Header from '../src/components/common/Header';
 
 const Home: React.FC = () => {
   const [showMainContent, setShowMainContent] = React.useState(false);
-  const videoRef = React.useRef<HTMLVideoElement>(null);
-
-  React.useEffect(() => {
-    const setupVideo = async () => {
-      if (videoRef.current) {
-        videoRef.current.defaultMuted = true;
-        videoRef.current.muted = true;
-        videoRef.current.playsInline = true;
-        videoRef.current.setAttribute('playsinline', '');
-        videoRef.current.setAttribute('webkit-playsinline', '');
-        try {
-          await videoRef.current.play();
-        } catch (error) {
-          console.log("Auto-play failed", error);
-        }
-      }
-    };
-    setupVideo();
-  }, []);
 
   const handleEvent = React.useCallback(() => {
     // 処理内容
@@ -109,18 +89,9 @@ const Home: React.FC = () => {
             <Header />
           </div>
           <div className="relative h-screen z-40">
-            <video 
-              ref={videoRef}
-              src="/images/background.mp4"
-              autoPlay 
-              muted 
-              playsInline
-              preload="metadata"
-              className="w-full h-full object-cover"
-              onEnded={(e) => {
-                e.currentTarget.pause();
-                e.currentTarget.currentTime = e.currentTarget.duration - 0.1;
-              }}
+            <div 
+              className="w-full h-full bg-cover bg-center bg-no-repeat"
+              style={{ backgroundImage: 'url("/images/backgrounds.jpg")' }}
             />
             <div className="absolute inset-0">
               <LineButton />
@@ -142,18 +113,6 @@ const Home: React.FC = () => {
               <ConsultationForm />
               <Footer />
               <FixedButtons />
-              <div className="text-center my-8">
-                <button
-                  onClick={() => {
-                    const event = new CustomEvent('openChatBot');
-                    window.dispatchEvent(event);
-                  }}
-                  className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors"
-                >
-                  今すぐ無料相談 24時間受付 ／<br />
-                  専門家にまるッと相談
-                </button>
-              </div>
             </div>
           </div>
         </>
@@ -165,18 +124,9 @@ const Home: React.FC = () => {
         >
           <div className="relative min-h-screen flex flex-col">
             <div className="absolute inset-0 z-0">
-              <video 
-                ref={videoRef}
-                src="/images/background.mp4"
-                autoPlay 
-                muted 
-                playsInline
-                preload="metadata"
-                className="w-full h-full object-cover"
-                onEnded={(e) => {
-                  e.currentTarget.pause();
-                  e.currentTarget.currentTime = e.currentTarget.duration - 0.1;
-                }}
+              <div 
+                className="w-full h-full bg-cover bg-center bg-no-repeat"
+                style={{ backgroundImage: 'url("/images/backgrounds.jpg")' }}
               />
             </div>
             <div className="relative z-10 flex flex-col min-h-screen text-white">
@@ -226,18 +176,6 @@ const Home: React.FC = () => {
           
           <Footer />
           <FixedButtons />
-          <div className="text-center my-8">
-            <button
-              onClick={() => {
-                const event = new CustomEvent('openChatBot');
-                window.dispatchEvent(event);
-              }}
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-medium text-white bg-orange-500 rounded-lg hover:bg-orange-600 transition-colors"
-            >
-              ＼ 今すぐ無料相談 24時間受付 ／<br />
-              専門家にまるッと相談
-            </button>
-          </div>
         </motion.div>
       )}
     </div>

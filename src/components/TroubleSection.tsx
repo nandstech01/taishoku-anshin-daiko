@@ -21,7 +21,7 @@ export default function TroubleSection() {
                 priority
                 className="object-center"
             />
-            <div className="absolute inset-0 bg-black/50"></div>
+            <div className="absolute inset-0 bg-black/20"></div>
             
             <div className="relative container mx-auto px-4 flex flex-col items-center justify-center">
                 <motion.div
