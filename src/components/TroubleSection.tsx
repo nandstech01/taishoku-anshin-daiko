@@ -89,7 +89,7 @@ export default function TroubleSection() {
                     className="mt-12 text-center"
                 >
                     <motion.p 
-                        className="text-xl font-bold text-orange-400 mb-3"
+                        className="text-xl font-bold bg-gradient-to-r from-orange-400 to-amber-300 bg-clip-text text-transparent mb-3"
                         animate={{ 
                             scale: [1, 1.03, 1],
                             opacity: [0.8, 1, 0.8]

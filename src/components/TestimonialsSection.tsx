@@ -6,20 +6,22 @@ import { Star, TrendingUp, Brain, Sparkles } from 'lucide-react';
 
 const testimonials = [
     {
-        content: "退職を会社や同僚に一切バレることなく、スムーズに退職できました。派遣社員として働いていましたが、正社員としての転職先も紹介していただき、今は安定した収入で働けています。本当に感謝しています。",
+        content: "退職を上司や同僚に中々言えませんでしたが退職あんしん代行さんに依頼し、スムーズに退職できました。派遣社員として働いていましたが、正社員としての転職先も紹介していただき、今は安定した収入で働けています。本当に感謝しています。",
         job: "派遣事務 → 正社員事務",
         age: 28,
         income: "年収520万円に上昇",
         image: "/images/testimonials/03.png",
-        highlight: "正社員転換"
+        highlight: "正社員転換",
+        stars: 4.5
     },
     {
-        content: "担当者の方が本当に親身になってくれて、退職後の転職先まで一緒に考えてくれました。不安だった将来のキャリアプランも、具体的なアドバイスをいただき、今は希望を持って働けています。",
+        content: "担当者の方が本当に親身になってくれて、自分の強みにも気付く事ができ、退職後の転職先まで一緒に考えてくれました。不安だった将来のキャリアプランも、具体的なアドバイスをいただき、今は希望を持って働けています。",
         job: "アルバイト → 正社員",
         age: 32,
         income: "年収480万円に上昇",
         image: "/images/testimonials/01.png",
-        highlight: "キャリアアップ"
+        highlight: "キャリアアップ",
+        stars: 5
     },
     {
         content: "依頼した日から、パワハラ上司と一切連絡を取らなくて済みました。精神的に追い詰められていましたが、全て代行してくれたおかげで、心の余裕を持って次の仕事を探すことができました。",
@@ -27,16 +29,18 @@ const testimonials = [
         age: 26,
         income: "年収620万円に上昇",
         image: "/images/testimonials/02.png",
-        highlight: "安心対応"
+        highlight: "安心対応",
+        stars: 4
     },
     
     {
-        content: "残業代未払いに悩んでいましたが、適切なアドバイスのおかげで未払い分も受け取れ、新しい職場でも適正な評価を受けています。",
+        content: "残業代未払いに悩んでいましたが、適切なアドバイスのおかげで未払い分も無事に受け取れ、新しい職場でも自身の強みを生かし適正な評価を受けています。",
         job: "元SE → プロジェクトマネージャー",
         age: 34,
         income: "年収900万円に上昇",
         image: "/images/testimonials/04.png",
-        highlight: "キャリアアップ"
+        highlight: "キャリアアップ",
+        stars: 5
     },
     {
         content: "有給休暇を取得できない環境でしたが、退職後はワークライフバランスの取れる企業に転職でき、プライベートも充実しています。",
@@ -44,7 +48,8 @@ const testimonials = [
         age: 30,
         income: "年収650万円に上昇",
         image: "/images/testimonials/05.png",
-        highlight: "働き方改革"
+        highlight: "働き方改革",
+        stars: 4.5
     },
     {
         content: "AIスキル習得支援プログラムを利用し、未経験からAIエンジニアに。今では自分の市場価値を実感できています。",
@@ -52,7 +57,8 @@ const testimonials = [
         age: 27,
         income: "年収750万円に上昇",
         image: "/images/testimonials/06.png",
-        highlight: "キャリアチェンジ"
+        highlight: "キャリアチェンジ",
+        stars: 4
     }
 ];
 
@@ -122,7 +128,22 @@ export default function TestimonialsSection() {
                             </div>
                             <div className="mb-4 flex">
                                 {[...Array(5)].map((_, i) => (
-                                    <Star key={i} className="w-4 h-4 text-yellow-400" fill="#FBBF24" />
+                                    <Star 
+                                        key={i} 
+                                        className={`w-4 h-4 ${
+                                            i < Math.floor(testimonial.stars) 
+                                                ? 'text-yellow-400' 
+                                                : i < testimonial.stars 
+                                                    ? 'text-yellow-400 opacity-50' 
+                                                    : 'text-gray-300'
+                                        }`} 
+                                        fill={i < Math.floor(testimonial.stars) 
+                                            ? '#FBBF24' 
+                                            : i < testimonial.stars 
+                                                ? '#FBBF24' 
+                                                : '#D1D5DB'
+                                        }
+                                    />
                                 ))}
                             </div>
                             <p className="text-gray-600 leading-relaxed">{testimonial.content}</p>
@@ -167,17 +188,18 @@ export default function TestimonialsSection() {
                                 無料相談から始めませんか？
                             </p>
                             <motion.a
-                                href="#consultation"
+                                href="#consultation-form"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
-                                className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                                className="inline-block bg-white text-orange-600 font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
                                 onClick={(e) => {
                                     e.preventDefault();
-                                    const element = document.getElementById('consultation');
+                                    const element = document.getElementById('consultation-form');
                                     if (element) {
                                         element.scrollIntoView({
                                             behavior: 'smooth',
-                                            block: 'start'
+                                            block: 'start',
+                                            inline: 'nearest'
                                         });
                                     }
                                 }}

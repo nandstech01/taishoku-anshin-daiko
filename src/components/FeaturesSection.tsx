@@ -229,13 +229,16 @@ export default function FeaturesSection() {
                     </motion.p>
                   </motion.div>
 
-                  {/* 価格表示 */}
+                  {/* 価格表示を<a>タグでラップ */}
                   <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     className="relative"
                   >
-                    <motion.div
+                    <motion.a
+                      href="https://lin.ee/h1kk42r"
+                      target="_blank"
+                      rel="noopener noreferrer"
                       animate={{
                         scale: [1, 1.05, 1],
                         boxShadow: [
@@ -244,8 +247,9 @@ export default function FeaturesSection() {
                           "0 0 20px rgba(251,146,60,0.3)"
                         ]
                       }}
+                      whileHover={{ scale: 1.05 }}  // ホバーエフェクトを追加
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="bg-white text-center p-6 rounded-2xl border-2 border-orange-500"
+                      className="block bg-white text-center p-6 rounded-2xl border-2 border-orange-500 cursor-pointer"
                     >
                       <motion.p
                         className="text-gray-700 font-bold mb-2"
@@ -271,7 +275,7 @@ export default function FeaturesSection() {
                       >
                         のみ
                       </motion.p>
-                    </motion.div>
+                    </motion.a>
                   </motion.div>
                 </div>
               </div>
@@ -390,18 +394,19 @@ export default function FeaturesSection() {
               あなたの状況に合わせた最適な解決策をご提案いたします。
             </p>
             <motion.a
-              href="#consultation"
+              href="#consultation-form"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="inline-block bg-white text-orange-600 font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
               onClick={(e) => {
                 e.preventDefault();
-                const element = document.getElementById('consultation');
+                const element = document.getElementById('consultation-form');
                 if (element) {
-                    element.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                  element.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start',
+                    inline: 'nearest'
+                  });
                 }
               }}
             >

@@ -71,13 +71,7 @@ export default function ConsultationForm() {
     };
 
     return (
-        <motion.section
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="py-24 bg-gradient-to-b from-orange-50 to-white"
-        >
+        <section id="consultation-form" className="py-24 bg-gradient-to-b from-orange-50 to-white">
             <div className="max-w-4xl mx-auto px-4">
                 <motion.h2
                     initial={{ opacity: 0, y: -20 }}
@@ -186,6 +180,6 @@ export default function ConsultationForm() {
                     </div>
                 </motion.form>
             </div>
-        </motion.section>
+        </section>
     );
 } 
