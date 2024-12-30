@@ -1,21 +1,32 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "./app/**/*.{js,ts,jsx,tsx}",
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+    './src/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
-      colors: {
-        primary: {
-          50: '#e3f2f9',
-          100: '#c5e4f3',
-          // ... 他のカラーも必要に応じて
-        }
-      }
+      typography: {
+        DEFAULT: {
+          css: {
+            maxWidth: 'none',
+            h2: {
+              marginTop: '2em',
+              marginBottom: '1em',
+            },
+            h3: {
+              marginTop: '1.5em',
+              marginBottom: '0.75em',
+            },
+          },
+        },
+      },
     },
   },
   plugins: [
-    require('@tailwindcss/forms'), // フォーム要素のスタイリング
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/aspect-ratio'),
   ],
 }

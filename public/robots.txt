@@ -1,5 +1,6 @@
 User-agent: *
 Allow: /
+Allow: /favicon.ico
 
 # Sitemap location
 Sitemap: https://taishoku-anshin-daiko.com/sitemap.xml
