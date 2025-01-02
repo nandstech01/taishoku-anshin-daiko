@@ -6,6 +6,10 @@ import RelatedPosts from '@/components/RelatedPosts';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 
+// キャッシュを無効化
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const supabase = createClient();
   const { data: post, error: metaError } = await supabase
@@ -93,7 +97,11 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
   try {
     const { html, headings } = await parseMarkdown(post.content || '');
-    console.log('Markdown parsed:', { headingsCount: headings.length });
+    console.log('Markdown parsed:', { 
+      headingsCount: headings.length,
+      headings: JSON.stringify(headings, null, 2),
+      content: post.content
+    });
 
     const shareUrl = `https://taishoku-anshin.com/blog/${post.slug}`;
     const shareText = `${post.title}\n\n`;

@@ -4,9 +4,12 @@ import React, { useEffect, useState } from 'react';
 import { BlogPost, BlogPostFormData } from '@/types/blog';
 import { useCategoriesStore } from '@/stores/categories';
 import ImageUploader from './ImageUploader';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+import type { Database } from '@/types/database';
+import type { BasePost } from '@/types/blog';
 
 interface PostFormProps {
-  post?: BlogPost;
+  post?: Partial<BasePost>;
   onSubmit: (data: BlogPostFormData) => void;
 }
 
@@ -14,27 +17,45 @@ export default function PostForm({ post, onSubmit }: PostFormProps) {
   const { categories, fetchCategories, loading, error } = useCategoriesStore();
   const [content, setContent] = useState(post?.content || '');
   const [featuredImage, setFeaturedImage] = useState(post?.featuredImage || '');
+  const [formData, setFormData] = useState<Partial<BasePost>>({
+    title: post?.title || '',
+    content: post?.content || '',
+    excerpt: post?.excerpt || '',
+    category: post?.category,
+    tags: post?.tags || [],
+    featuredImage: post?.featuredImage || '',
+    description: post?.description || '',
+    status: post?.status || 'draft'
+  });
 
   useEffect(() => {
     fetchCategories();
   }, [fetchCategories]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleChange = (field: keyof BasePost, value: any) => {
+    setFormData((prev: Partial<BasePost>) => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data: BlogPostFormData = {
-      title: formData.get('title') as string,
-      content: content,
-      excerpt: formData.get('excerpt') as string,
-      categoryId: formData.get('categoryId') as string,
-      tags: formData.get('tags')?.toString().split(',') || [],
-      isPublished: formData.get('isPublished') === 'true',
-      slug: formData.get('title')?.toString().toLowerCase().replace(/\s+/g, '-') || '',
-      description: formData.get('excerpt') as string,
-      status: formData.get('isPublished') === 'true' ? 'published' : 'draft',
-      featuredImage: featuredImage,
-    };
-    onSubmit(data);
+    if (onSubmit) {
+      const blogPostData: BlogPostFormData = {
+        title: formData.title || '',
+        content: formData.content || '',
+        excerpt: formData.excerpt || '',
+        categoryId: formData.category?.id || '',
+        tags: formData.tags || [],
+        isPublished: formData.status === 'published',
+        slug: formData.slug || '',
+        description: formData.description || '',
+        status: formData.status || 'draft',
+        featuredImage: formData.featuredImage
+      };
+      await onSubmit(blogPostData);
+    }
   };
 
   return (
@@ -120,7 +141,7 @@ export default function PostForm({ post, onSubmit }: PostFormProps) {
           name="categoryId"
           id="categoryId"
           required
-          defaultValue={post?.category.id}
+          defaultValue={post?.category?.id}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         >
           <option value="">選択してください</option>
@@ -158,12 +179,24 @@ export default function PostForm({ post, onSubmit }: PostFormProps) {
         <select
           name="isPublished"
           id="isPublished"
-          defaultValue={post?.publishedAt ? 'true' : 'false'}
+          defaultValue={post?.published_at ? 'true' : 'false'}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         >
           <option value="true">公開</option>
           <option value="false">下書き</option>
         </select>
+      </div>
+
+      <div className="mt-4">
+        <label className="block text-sm font-medium text-gray-700">
+          公開日時
+        </label>
+        <input
+          type="datetime-local"
+          value={post?.published_at || ''}
+          onChange={(e) => handleChange('published_at', e.target.value)}
+          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        />
       </div>
 
       <div>

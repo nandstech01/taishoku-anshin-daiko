@@ -74,7 +74,7 @@ export function generateSlug(title: string): string {
     || 'untitled'; // 空文字列の場合はuntitledを返す
 }
 
-export async function ensureUniqueSlug(baseSlug: string, existingSlugs: string[]): Promise<string> {
+export function ensureUniqueSlug(baseSlug: string, existingSlugs: string[]): string {
   let slug = baseSlug;
   let counter = 1;
 

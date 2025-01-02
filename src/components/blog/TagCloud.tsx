@@ -4,7 +4,7 @@ import React from 'react';
 import { mockPosts } from '@/mock/posts';
 
 const allTags = mockPosts.reduce((tags, post) => {
-  post.tags.forEach(tag => {
+  post.tags?.forEach(tag => {
     tags[tag] = (tags[tag] || 0) + 1;
   });
   return tags;

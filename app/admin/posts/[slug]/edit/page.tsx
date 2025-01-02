@@ -87,7 +87,20 @@ export default function EditPostPage({
     }
 
     try {
-      const { error } = await supabase
+      console.log('Updating post with data:', {
+        title,
+        content,
+        status,
+        category_slug: categorySlug,
+        thumbnail_url: thumbnailUrl,
+        updated_at: new Date().toISOString(),
+        meta_description: metaDescription,
+        seo_keywords: seoKeywords,
+        is_indexable: isIndexable,
+        canonical_url: canonicalUrl || null,
+      });
+
+      const { error, data } = await supabase
         .from('posts')
         .update({
           title,
@@ -102,6 +115,8 @@ export default function EditPostPage({
           canonical_url: canonicalUrl || null,
         })
         .eq('slug', params.slug);
+
+      console.log('Update response:', { error, data });
 
       if (error) throw error;
 

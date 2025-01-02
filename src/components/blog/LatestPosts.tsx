@@ -9,8 +9,8 @@ interface LatestPostsProps {
 
 export default function LatestPosts({ posts }: LatestPostsProps) {
   const latestPosts = posts
-    .filter(post => post.publishedAt)
-    .sort((a, b) => new Date(b.publishedAt!).getTime() - new Date(a.publishedAt!).getTime())
+    .filter(post => post.published_at)
+    .sort((a, b) => new Date(b.published_at!).getTime() - new Date(a.published_at!).getTime())
     .slice(0, 5);
 
   return (
@@ -26,8 +26,8 @@ export default function LatestPosts({ posts }: LatestPostsProps) {
             {post.excerpt}
           </p>
           <div className="mt-2 flex items-center text-sm text-gray-500">
-            <time dateTime={post.publishedAt || ''}>
-              {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString() : '未公開'}
+            <time dateTime={post.published_at || ''}>
+              {post.published_at ? new Date(post.published_at).toLocaleDateString() : '未公開'}
             </time>
             <span className="mx-2">·</span>
             <span>{post.views} 閲覧</span>

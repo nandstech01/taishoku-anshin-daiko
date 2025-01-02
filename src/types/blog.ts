@@ -14,10 +14,11 @@ export interface Category {
 }
 
 export interface BasePost {
-  id?: string;
+  id: string;
   title: string;
   content: string;
   excerpt?: string;
+  description?: string;
   slug: string;
   category?: Category;
   category_slug?: string;
@@ -29,6 +30,7 @@ export interface BasePost {
   likes?: number;
   share_count?: number;
   thumbnail_url?: string;
+  featuredImage?: string;
   meta_description?: string;
   seo_keywords?: string[];
   is_indexable?: boolean;

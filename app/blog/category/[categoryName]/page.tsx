@@ -7,11 +7,15 @@ import BlogCard from '@/components/blog/BlogCard';
 
 export default function CategoryPage({ params }: { params: { categoryName: string } }) {
   const { posts } = usePostsStore();
-  const categoryPosts = posts.filter(post => post.category.slug === params.categoryName);
+  const categoryPosts = posts.filter(post => post.category?.slug === params.categoryName);
   const category = categoryPosts[0]?.category;
 
   if (!category) {
-    return <div>カテゴリーが見つかりません</div>;
+    return (
+      <div className="text-center py-10">
+        <h1 className="text-2xl font-bold">カテゴリーが見つかりません</h1>
+      </div>
+    );
   }
 
   const breadcrumbItems = [

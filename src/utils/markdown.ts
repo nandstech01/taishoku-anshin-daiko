@@ -32,6 +32,7 @@ const remarkExtractHeadings: Plugin<[], Root> = function() {
 
     visit(tree, 'heading', (node) => {
       const depth = node.depth;
+      console.log('Found heading:', { depth, text: toString(node) });
       if (depth >= 2 && depth <= 4) {
         const text = toString(node);
         const id = generateHeadingId(text);

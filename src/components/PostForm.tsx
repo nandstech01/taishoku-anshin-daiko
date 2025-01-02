@@ -27,10 +27,10 @@ export default function PostForm({
   const [title, setTitle] = useState(initialValues.title);
   const [content, setContent] = useState(initialValues.content);
   const [excerpt, setExcerpt] = useState(initialValues.excerpt);
-  const [categoryId, setCategoryId] = useState(initialValues.category.id);
+  const [categoryId, setCategoryId] = useState(initialValues.category?.id || '');
   const [tags, setTags] = useState<string[]>(initialValues.tags || []);
   const [tagInput, setTagInput] = useState('');
-  const [isPublished, setIsPublished] = useState(!!initialValues.publishedAt);
+  const [isPublished, setIsPublished] = useState(!!initialValues.published_at);
   const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,7 +46,7 @@ export default function PostForm({
         excerpt,
         category,
         tags,
-        publishedAt: isPublished ? new Date().toISOString() : null,
+        published_at: isPublished ? new Date().toISOString() : null,
       });
     } finally {
       setSaving(false);
