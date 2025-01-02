@@ -274,10 +274,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
           </div>
 
           {/* 目次 */}
-          <div className="bg-gray-50 p-6 rounded-lg mb-8">
-            <h2 className="text-xl font-bold mb-4">目次</h2>
-            <TableOfContents items={headings} />
-          </div>
+          <TableOfContents items={headings} />
 
           {/* リード文 */}
           {post.description && (

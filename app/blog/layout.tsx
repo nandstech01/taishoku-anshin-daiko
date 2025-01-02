@@ -1,4 +1,5 @@
 import './blog.css';
+import Header from '@/components/common/Header';
 
 export default function BlogLayout({
   children,
@@ -6,8 +7,13 @@ export default function BlogLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="blog-content">
-      {children}
-    </div>
+    <>
+      <Header />
+      <main className="blog-container">
+        <div className="blog-content">
+          {children}
+        </div>
+      </main>
+    </>
   );
 } 

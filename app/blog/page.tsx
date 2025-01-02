@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import Image from "next/image";
 import type { BlogPost } from '@/types/blog';
 import { supabase } from '@/lib/supabase';
-import Header from '@/components/common/Header';
 import Footer from '@/components/common/Footer';
 import './blog.css';
 import Link from 'next/link';
@@ -45,13 +44,9 @@ export default function BlogPage() {
 
   if (isLoading) {
     return (
-      <>
-        <Header />
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </div>
-        <Footer />
-      </>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
     );
   }
 
@@ -68,49 +63,47 @@ export default function BlogPage() {
 
   return (
     <>
-      <Header />
-      <div className="blog-container">
-        <main>
-          {/* PICKUP */}
-          <section className="blog-pickup">
-            <div className="blog-pickup-inner">
-              <div className="blog-pickup-header">
-                <h2 className="blog-pickup-title">PICKUP</h2>
-                <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
-                <div className="blog-pickup-catch">
-                  <h3 className="text-xl font-bold mb-4">あんしん退職コラム</h3>
-                  <p className="mb-2">退職に関する不安や悩みを解消する情報メディア</p>
-                  <p className="mb-2">退職のノウハウから、キャリアプランまで</p>
-                  <p>あなたの新しい一歩を、私たちがサポートします</p>
+      <section className="blog-pickup blog-pickup-top">
+        <div className="blog-pickup-inner">
+          <div className="blog-pickup-header">
+            <h2 className="blog-pickup-title">PICKUP</h2>
+            <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
+            <div className="blog-pickup-catch">
+              <h3 className="text-xl font-bold mb-4">あんしん退職コラム</h3>
+              <p className="mb-2">退職に関する不安や悩みを解消する情報メディア</p>
+              <p className="mb-2">退職のノウハウから、キャリアプランまで</p>
+              <p>あなたの新しい一歩を、私たちがサポートします</p>
+            </div>
+          </div>
+          {popularPosts && (
+            <Link href={`/blog/${popularPosts.slug}`} className="block">
+              <div className="blog-pickup-card">
+                {popularPosts.thumbnail_url && (
+                  <Image
+                    src={popularPosts.thumbnail_url}
+                    alt={popularPosts.title}
+                    width={600}
+                    height={300}
+                    className="blog-pickup-image"
+                  />
+                )}
+                <div className="blog-pickup-content">
+                  <span className="blog-tag">
+                    {popularPosts.category?.name}
+                  </span>
+                  <h3 className="blog-pickup-heading">{popularPosts.title}</h3>
+                  <p className="blog-pickup-excerpt">
+                    {popularPosts.meta_description || popularPosts.content.slice(0, 150)}
+                  </p>
                 </div>
               </div>
-              {popularPosts && (
-                <Link href={`/blog/${popularPosts.slug}`} className="block">
-                  <div className="blog-pickup-card">
-                    {popularPosts.thumbnail_url && (
-                      <Image
-                        src={popularPosts.thumbnail_url}
-                        alt={popularPosts.title}
-                        width={600}
-                        height={300}
-                        className="blog-pickup-image"
-                      />
-                    )}
-                    <div className="blog-pickup-content">
-                      <span className="blog-tag">
-                        {popularPosts.category?.name}
-                      </span>
-                      <h3 className="blog-pickup-heading">{popularPosts.title}</h3>
-                      <p className="blog-pickup-excerpt">
-                        {popularPosts.meta_description || popularPosts.content.slice(0, 150)}
-                      </p>
-                    </div>
-                  </div>
-                </Link>
-              )}
-            </div>
-          </section>
+            </Link>
+          )}
+        </div>
+      </section>
 
+      <div className="blog-container blog-container-top">
+        <main>
           {/* News Section */}
           <section className="blog-news">
             <h2 className="blog-news-title">ニュース・お知らせ</h2>

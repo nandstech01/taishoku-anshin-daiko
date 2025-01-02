@@ -1,17 +1,37 @@
+/* ブログ全体のコンテナ */
+.blog-container {
+  @apply min-h-screen bg-white;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding-top: 2rem;
+}
+
+/* トップページ専用のコンテナスタイル */
+.blog-container-top {
+  padding-top: 0;
+}
+
+/* トップページのピックアップセクション */
+.blog-pickup-top {
+  margin-top: 0;
+  padding-top: 4rem; /* ヘッダーの高さ分 */
+}
+
 /* ブログ記事のスタイル */
 .blog-content {
-  @apply max-w-3xl mx-auto px-4 sm:px-6 lg:px-8;
+  @apply max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-2;
 }
 
 /* ヘッダー部分 */
 .blog-header {
-  @apply mb-20 text-center;
+  @apply mb-2 text-center;
 }
 
 /* h1のサイズを調整 */
 .blog-content header h1,
 .blog-content .prose h1 {
-  @apply text-lg font-bold mb-4 !important;
+  @apply text-lg font-bold mb-2 !important;
 }
 
 .blog-category {
@@ -23,12 +43,12 @@
 }
 
 .blog-meta {
-  @apply flex flex-col gap-4 mb-6;
+  @apply flex flex-col gap-2 mb-3;
 }
 
 /* 日付スタイル */
 .blog-date {
-  @apply inline-flex items-center text-sm text-gray-600 mb-4 font-medium;
+  @apply inline-flex items-center text-sm text-gray-600 mb-2 font-medium;
   position: relative;
 }
 
@@ -39,17 +59,69 @@
 
 /* 目次 */
 .blog-toc {
-  @apply bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-xl mb-8 shadow-sm border border-orange-100/50 max-w-2xl mx-auto mt-8;
-  backdrop-filter: blur(8px);
+  @apply bg-white p-4 rounded-xl mb-4 shadow-sm border border-gray-100 max-w-2xl mx-auto mt-4;
+  position: relative;
+  overflow: hidden;
+}
+
+.blog-toc::before {
+  content: '';
+  @apply absolute top-0 left-0 w-full h-1;
+  background: linear-gradient(90deg, #FF6B2B 0%, #FF8F3E 100%);
+  opacity: 0.8;
 }
 
 .blog-toc-title {
-  @apply text-sm font-bold mb-4 text-gray-900 flex items-center uppercase tracking-wider;
+  @apply text-base font-bold mb-4 text-gray-900 flex items-center tracking-tight;
+  letter-spacing: -0.01em;
 }
 
 .blog-toc-title::before {
   content: "📑";
-  @apply mr-2;
+  @apply mr-2 opacity-80;
+}
+
+/* 目次のリストスタイル */
+.blog-toc ul {
+  @apply space-y-2;
+}
+
+.blog-toc ul ul {
+  @apply mt-2 ml-4;
+}
+
+.blog-toc li {
+  @apply relative;
+}
+
+.blog-toc a {
+  @apply text-gray-600 hover:text-orange-600 text-[0.9375rem] leading-relaxed transition-colors duration-200 flex items-start;
+  text-decoration: none !important;
+}
+
+/* ネストされた目次項目のスタイル */
+.blog-toc ul ul a {
+  @apply text-[0.875rem] text-gray-500;
+  padding-left: 1rem;
+}
+
+.blog-toc ul ul a::before {
+  content: '';
+  @apply absolute left-0 top-[0.6rem] w-2 h-px bg-gray-300;
+}
+
+/* アクティブな目次項目 */
+.blog-toc a.active {
+  @apply text-orange-600 font-medium;
+}
+
+/* スクロールインジケーター */
+.blog-toc-progress {
+  @apply absolute left-0 top-1 w-full h-1 bg-gradient-to-r from-orange-500 to-amber-500;
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform 0.2s ease-out;
+  opacity: 0.15;
 }
 
 /* リード文 */
@@ -287,7 +359,7 @@
 
 /* ブログトップバナー */
 .blog-top-banner {
-  @apply relative py-16 mb-12 overflow-hidden mt-16;
+  @apply relative py-8 mb-6 overflow-hidden mt-6;
   background: linear-gradient(95deg, #FF6B2B 0%, #FF8F3E 100%);
 }
 
@@ -406,20 +478,12 @@
   );
 }
 
-/* ブログ全体のコンテナ */
-.blog-container {
-  @apply min-h-screen bg-white;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-}
-
 /* PICKUPセクション */
 .blog-pickup {
   @apply relative overflow-hidden;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  padding: 6rem 1rem 2rem;
+  padding: 3rem 1rem 2rem;
   background: linear-gradient(135deg, #FF6B2B 0%, #FF8F3E 100%);
 }
 
