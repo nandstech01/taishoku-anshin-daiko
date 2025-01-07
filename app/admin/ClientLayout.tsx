@@ -1,18 +1,25 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase';
 
 interface ClientLayoutProps {
   children: React.ReactNode;
-  session: Session | null;
 }
 
-const ClientLayout = ({ children, session }: ClientLayoutProps) => {
-  const pathname = usePathname();
+export default function ClientLayout({ children }: ClientLayoutProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    // ... existing code ...
+  }, []);
 
   // ログインページの場合は、ヘッダーなしで表示
   if (pathname === '/admin') {
@@ -76,6 +83,4 @@ const ClientLayout = ({ children, session }: ClientLayoutProps) => {
       </main>
     </div>
   );
-};
-
-export { ClientLayout }; 
+} 

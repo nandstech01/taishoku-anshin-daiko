@@ -1,29 +1,30 @@
-import { BlogPost, Author, Category } from '@/types/blog';
+import { BlogPostWithAuthor, User, Category } from '@/types/blog';
 
-const mockAuthor: Author = {
-  id: '1',
+const mockAuthor: User = {
+  id: 1,
   name: 'John Doe',
   email: 'john@example.com',
-  avatarUrl: 'https://example.com/avatar.jpg'
+  avatar_url: 'https://example.com/avatar.jpg',
+  role: 'author'
 };
 
 const mockCategory: Category = {
-  id: '1',
+  id: 1,
   name: 'Technology',
   slug: 'technology',
   description: 'Technology related posts'
 };
 
 const newsCategory: Category = {
-  id: '2',
+  id: 2,
   name: 'お知らせ',
   slug: 'news',
   description: 'ニュースリリース'
 };
 
-export const mockPosts: BlogPost[] = [
+export const mockPosts: BlogPostWithAuthor[] = [
   {
-    id: 'news-1',
+    id: 1,
     slug: 'blog-launch',
     title: 'あんしん退職コラムをオープンしました',
     content: `
@@ -50,12 +51,13 @@ export const mockPosts: BlogPost[] = [
     updated_at: '2024-01-15T00:00:00Z',
     author: mockAuthor,
     category: newsCategory,
+    category_id: 2,
     tags: ['お知らせ', 'メディア', 'オープン'],
     views: 150,
-    likes: 45
+    status: 'published'
   },
   {
-    id: 'news-2',
+    id: 2,
     slug: 'ai-career-support',
     title: '株式会社エヌアンドエスがAI副業支援プログラムを開始',
     content: `
@@ -80,12 +82,13 @@ export const mockPosts: BlogPost[] = [
     updated_at: '2024-01-20T00:00:00Z',
     author: mockAuthor,
     category: newsCategory,
+    category_id: 2,
     tags: ['お知らせ', 'AI', '副業', 'キャリア'],
     views: 120,
-    likes: 38
+    status: 'published'
   },
   {
-    id: '1',
+    id: 3,
     slug: 'getting-started-with-nextjs',
     title: 'Getting Started with Next.js',
     content: '# Getting Started with Next.js\n\nNext.js is a powerful framework...',
@@ -96,12 +99,13 @@ export const mockPosts: BlogPost[] = [
     updated_at: '2024-01-01T00:00:00Z',
     author: mockAuthor,
     category: mockCategory,
+    category_id: 1,
     tags: ['nextjs', 'react', 'web-development'],
     views: 100,
-    likes: 50
+    status: 'published'
   },
   {
-    id: '2',
+    id: 4,
     slug: 'mastering-typescript',
     title: 'Mastering TypeScript',
     content: '# Mastering TypeScript\n\nTypeScript is a typed superset of JavaScript...',
@@ -112,12 +116,13 @@ export const mockPosts: BlogPost[] = [
     updated_at: '2024-01-02T00:00:00Z',
     author: mockAuthor,
     category: mockCategory,
+    category_id: 1,
     tags: ['typescript', 'javascript', 'programming'],
     views: 150,
-    likes: 75
+    status: 'published'
   },
   {
-    id: '3',
+    id: 5,
     slug: 'react-best-practices',
     title: 'React Best Practices',
     content: '# React Best Practices\n\nLearn how to write better React code...',
@@ -128,9 +133,10 @@ export const mockPosts: BlogPost[] = [
     updated_at: '2024-01-03T00:00:00Z',
     author: mockAuthor,
     category: mockCategory,
+    category_id: 1,
     tags: ['react', 'javascript', 'web-development'],
     views: 200,
-    likes: 100
+    status: 'published'
   }
 ];
 

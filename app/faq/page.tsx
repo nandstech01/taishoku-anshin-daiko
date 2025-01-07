@@ -4,12 +4,38 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import Footer from '@/components/common/Footer';
+import { Metadata } from 'next';
+import { generateFAQSchema } from '@/schemas/faq';
 
 interface FAQItem {
     question: string;
     answer: string;
     category: string;
 }
+
+export const generateMetadata = async (): Promise<Metadata> => {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
+    const faqSchema = generateFAQSchema(baseUrl);
+
+    return {
+        title: 'よくあるご質問 | タイショクアンシン',
+        description: '退職代行サービスに関するよくある質問をまとめています。サービスの合法性、料金、プライバシー保護、キャリア支援など、お客様からよくいただく質問に詳しくお答えします。',
+        alternates: {
+            canonical: `${baseUrl}/faq`
+        },
+        openGraph: {
+            title: 'よくあるご質問 | タイショクアンシン',
+            description: '退職代行サービスに関するよくある質問をまとめています。',
+            url: `${baseUrl}/faq`,
+            siteName: 'タイショクアンシン',
+            locale: 'ja_JP',
+            type: 'website',
+        },
+        other: {
+            'script:ld+json': JSON.stringify(faqSchema)
+        }
+    };
+};
 
 export default function FAQ() {
     const [openIndex, setOpenIndex] = useState<number | null>(null);

@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -7,4 +7,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey); 
+// シングルトンインスタンスを保持
+let supabaseInstance: ReturnType<typeof createSupabaseClient> | null = null;
+
+export const createClient = () => {
+  if (supabaseInstance) return supabaseInstance;
+  
+  supabaseInstance = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: true, // セッションを永続化
+      storageKey: 'supabase.auth.token',
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    },
+  });
+  
+  return supabaseInstance;
+}; 

@@ -11,7 +11,7 @@ export default function SearchPage() {
   const { posts } = usePostsStore();
 
   const searchResults = posts.filter(post => {
-    const searchText = `${post.title} ${post.content} ${post.excerpt}`.toLowerCase();
+    const searchText = `${post.title} ${post.content} ${post.meta_description || ''}`.toLowerCase();
     return searchText.includes(query.toLowerCase());
   });
 

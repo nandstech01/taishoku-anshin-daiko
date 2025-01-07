@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { BlogPost } from '@/types/blog';
+import type { BlogPost, Category } from '@/types/blog';
 
-const CATEGORIES = [
-  { id: '1', name: '退職準備', slug: 'preparation' },
-  { id: '2', name: '退職手続き', slug: 'procedure' },
-  { id: '3', name: '保険・年金', slug: 'insurance' },
-  { id: '4', name: 'キャリアプラン', slug: 'career-plan' },
-  { id: '5', name: 'メンタルヘルス', slug: 'mental-health' },
+const CATEGORIES: Category[] = [
+  { id: 1, name: '退職準備', slug: 'preparation', description: '退職の準備に関する情報' },
+  { id: 2, name: '退職手続き', slug: 'procedure', description: '退職手続きに関する情報' },
+  { id: 3, name: '保険・年金', slug: 'insurance', description: '保険と年金に関する情報' },
+  { id: 4, name: 'キャリアプラン', slug: 'career-plan', description: 'キャリアプランに関する情報' },
+  { id: 5, name: 'メンタルヘルス', slug: 'mental-health', description: 'メンタルヘルスに関する情報' },
 ];
 
 interface PostFormProps {
@@ -27,7 +27,7 @@ export default function PostForm({
   const [title, setTitle] = useState(initialValues.title);
   const [content, setContent] = useState(initialValues.content);
   const [excerpt, setExcerpt] = useState(initialValues.excerpt);
-  const [categoryId, setCategoryId] = useState(initialValues.category?.id || '');
+  const [categoryId, setCategoryId] = useState<number>(initialValues.category?.id || 1);
   const [tags, setTags] = useState<string[]>(initialValues.tags || []);
   const [tagInput, setTagInput] = useState('');
   const [isPublished, setIsPublished] = useState(!!initialValues.published_at);
@@ -104,7 +104,7 @@ export default function PostForm({
         <select
           id="category"
           value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
+          onChange={(e) => setCategoryId(Number(e.target.value))}
           className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
         >
           {CATEGORIES.map(category => (

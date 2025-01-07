@@ -1,19 +1,23 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { Session, User, SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase';
 
 interface AuthContextType {
   session: Session | null;
   loading: boolean;
   user: User | null;
+  supabase: SupabaseClient;
 }
+
+const supabase = createClient();
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   loading: true,
   user: null,
+  supabase,
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -27,7 +31,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function getInitialSession() {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
+        if (error) {
+          console.error('AuthContext - Error getting initial session:', error);
+          throw error;
+        }
         
         if (mounted) {
           if (session) {
@@ -36,6 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             console.log('AuthContext - Initial session loaded:', session.user.email);
           } else {
             console.log('AuthContext - No initial session');
+            setSession(null);
+            setUser(null);
           }
         }
       } catch (error) {
@@ -72,8 +81,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
+  const value = {
+    session,
+    loading,
+    user,
+    supabase,
+  };
+
   return (
-    <AuthContext.Provider value={{ session, loading, user }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

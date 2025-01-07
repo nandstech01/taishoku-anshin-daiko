@@ -3,12 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import type { Post } from '@/types/post';
 
 interface RelatedPostsProps {
-  popularPosts: any[];
-  recentPosts: any[];
-  columnPosts: any[];
-  currentPostId: string;
+  popularPosts: Post[];
+  recentPosts: Post[];
+  columnPosts: Post[];
+  currentPostId?: string;
 }
 
 export default function RelatedPosts({ popularPosts, recentPosts, columnPosts, currentPostId }: RelatedPostsProps) {

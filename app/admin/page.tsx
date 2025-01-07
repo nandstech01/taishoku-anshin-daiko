@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { useState } from 'react';
+import { createClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/contexts/AuthContext';
+
+const supabase = createClient();
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -11,18 +12,6 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const router = useRouter();
-  const { session, loading } = useAuth();
-
-  useEffect(() => {
-    if (session && !loading) {
-      console.log('Login page - Session exists, redirecting to dashboard...');
-      // リダイレクトループを防ぐために少し待つ
-      const timer = setTimeout(() => {
-        window.location.href = '/admin/dashboard';
-      }, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [session, loading]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +21,6 @@ export default function AdminLoginPage() {
     setError('');
 
     try {
-      console.log('Login page - Attempting login...');
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -41,32 +29,17 @@ export default function AdminLoginPage() {
       if (signInError) throw signInError;
 
       if (data?.session) {
-        console.log('Login page - Login successful:', data.session.user.email);
-        // セッションが確立されるまで少し待つ
-        await new Promise(resolve => setTimeout(resolve, 500));
-        window.location.href = '/admin/dashboard';
+        router.push('/admin/dashboard');
       } else {
-        throw new Error('セッションの確立に失敗しました');
+        throw new Error('ログインに失敗しました');
       }
     } catch (error) {
-      console.error('Login page - Login failed:', error);
+      console.error('Login failed:', error);
       setError(error instanceof Error ? error.message : 'ログインに失敗しました');
     } finally {
       setIsLoggingIn(false);
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
-
-  if (session) {
-    return null;
-  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">

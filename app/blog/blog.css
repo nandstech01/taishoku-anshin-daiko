@@ -4,7 +4,8 @@
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  padding-top: 2rem;
+  display: flex;
+  flex-direction: column;
 }
 
 /* トップページ専用のコンテナスタイル */
@@ -20,7 +21,7 @@
 
 /* ブログ記事のスタイル */
 .blog-content {
-  @apply max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-2;
+  @apply flex-grow;
 }
 
 /* ヘッダー部分 */
@@ -34,6 +35,7 @@
   @apply text-lg font-bold mb-2 !important;
 }
 
+/* カテゴリタグの基本スタイル */
 .blog-category {
   @apply inline-block bg-gradient-to-r from-orange-500/10 to-amber-500/10 text-orange-800 text-[0.625rem] tracking-wider uppercase font-medium px-3 py-1 rounded-full transition-all duration-200 hover:from-orange-500/20 hover:to-amber-500/20;
 }
@@ -214,19 +216,8 @@
 
 /* シェアボタン共通スタイル */
 .blog-share-buttons {
-  display: flex !important;
-  align-items: center !important;
-  justify-content: flex-end !important;
-  gap: 0.75rem !important;
-  margin: 2rem 0 !important;
-}
-
-/* 下部シェアボタン用の追加スタイル */
-.blog-share-buttons.border-t.border-b {
-  justify-content: center !important;
+  @apply flex items-center justify-center space-x-4 mb-16 border-t border-b border-gray-200 !important;
   padding: 2rem 0 !important;
-  margin-bottom: 4rem !important;
-  border-color: #e5e7eb !important;
 }
 
 .blog-share-button {
@@ -535,7 +526,7 @@ a:hover .blog-pickup-card {
 }
 
 .blog-pickup-content {
-  @apply p-6 bg-white;
+  @apply p-6 bg-white relative;
 }
 
 .blog-pickup-image {
@@ -548,9 +539,24 @@ a:hover .blog-pickup-card {
   transform: scale(1.05);
 }
 
-/* PICKUPセクションのタグとタイトル */
-.blog-pickup .blog-tag {
-  @apply bg-orange-50 text-orange-600 hover:bg-orange-100;
+/* Pickup記事のカテゴリタグ専用スタイル - 他のスタイルを上書き */
+.blog-pickup-card .blog-category {
+  display: inline-block !important;
+  font-size: 0.875rem !important;
+  padding: 0.5rem 1.25rem !important;
+  margin-bottom: 1rem !important;
+  background: linear-gradient(to right, rgba(249, 115, 22, 0.1), rgba(245, 158, 11, 0.1)) !important;
+  color: #9a3412 !important;
+  border-radius: 9999px !important;
+  text-transform: uppercase !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.05em !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.blog-pickup-card .blog-category:hover {
+  background: linear-gradient(to right, rgba(249, 115, 22, 0.2), rgba(245, 158, 11, 0.2)) !important;
+  transform: translateY(-1px) !important;
 }
 
 .blog-pickup-heading {
@@ -721,21 +727,27 @@ a:hover .blog-latest-item {
 }
 
 /* タグセクション */
+.blog-tags-section {
+  @apply w-full text-center;
+}
+
 .blog-tags {
-  @apply flex flex-wrap gap-2;
+  @apply flex flex-wrap justify-center gap-2;
 }
 
 .blog-tag {
-  @apply inline-block text-[0.625rem] tracking-wider uppercase font-medium px-3 py-1.5 rounded-full transition-all duration-200;
-  background: linear-gradient(to right, rgba(249, 115, 22, 0.05), rgba(245, 158, 11, 0.05));
-  color: #9a3412;
-  border: 1px solid rgba(249, 115, 22, 0.1);
+  @apply inline-flex items-center px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-200;
 }
 
-.blog-tag:hover {
-  background: linear-gradient(to right, rgba(249, 115, 22, 0.1), rgba(245, 158, 11, 0.1));
-  border-color: rgba(249, 115, 22, 0.2);
-  transform: translateY(-1px);
+/* PCサイズでのタグの調整 */
+@media (min-width: 1024px) {
+  .blog-tags {
+    @apply gap-3;
+  }
+  
+  .blog-tag {
+    @apply text-sm px-4 py-2;
+  }
 }
 
 /* カテゴリスタイル */
@@ -873,4 +885,144 @@ footer {
   border-color: #D1D5DB;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* カテゴリページのスタイル */
+.blog-categories {
+  @apply space-y-8;
+}
+
+.blog-category-card {
+  @apply bg-white rounded-lg shadow-md overflow-hidden transition-shadow hover:shadow-lg;
+}
+
+.blog-category-header {
+  @apply p-6 border-b border-gray-100;
+}
+
+.blog-category-title {
+  @apply text-xl font-bold text-gray-900 hover:text-orange-600 transition-colors;
+}
+
+.blog-category-count {
+  @apply text-sm text-gray-600;
+}
+
+.blog-category-posts {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-4 p-6;
+}
+
+.blog-category-post {
+  display: block;
+  position: relative;
+}
+
+.blog-category-post-image {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9のアスペクト比 */
+  margin-bottom: 0.5rem;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.blog-category-post-image img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.blog-category-post:hover img {
+  transform: scale(1.05);
+}
+
+.blog-category-post-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  transition: color 0.3s ease;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-category-post:hover .blog-category-post-title {
+  color: #f97316;
+}
+
+.blog-category-post-date {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+/* カテゴリページのレスポンシブ調整 */
+@media (max-width: 768px) {
+  .blog-category-posts {
+    @apply grid-cols-1;
+  }
+  
+  .blog-category-header {
+    @apply p-4;
+  }
+  
+  .blog-category-posts {
+    @apply p-4;
+  }
+}
+
+.blog-section-title {
+  @apply text-2xl font-bold mb-6 text-center;
+  font-family: 'Noto Sans JP', sans-serif;
+}
+
+/* Contact Section */
+.blog-contact {
+  @apply max-w-4xl mx-auto;
+}
+
+.blog-contact .blog-tags-title {
+  @apply mb-12;
+}
+
+.blog-contact-grid {
+  @apply grid gap-6;
+}
+
+.blog-contact-card {
+  @apply bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6;
+}
+
+.blog-contact-icon {
+  @apply p-3 bg-orange-100 rounded-xl;
+}
+
+.blog-contact-icon svg {
+  @apply w-8 h-8 text-orange-600;
+}
+
+.blog-contact-text {
+  @apply text-orange-600 font-bold mb-1;
+}
+
+.blog-contact-value {
+  @apply text-3xl font-bold text-gray-900;
+}
+
+/* カテゴリページのレスポンシブ調整 */
+@media (max-width: 768px) {
+  .blog-category-posts {
+    @apply grid-cols-1;
+  }
+  
+  .blog-category-header {
+    @apply p-4;
+  }
+  
+  .blog-category-posts {
+    @apply p-4;
+  }
 }

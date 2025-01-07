@@ -18,6 +18,8 @@ import PaymentSection from '../src/components/PaymentSection';
 import ContactSection from '../src/components/ContactSection';
 import FAQSection from '../src/components/FAQSection';
 import Header from '../src/components/common/Header';
+import { PageViewTracker } from '@/components/blog/PageViewTracker';
+import HomePageBlogSection from '@/components/blog/HomePageBlogSection';
 
 const Home: React.FC = () => {
   const [showMainContent, setShowMainContent] = React.useState(false);
@@ -83,6 +85,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="flex flex-col">
+      <PageViewTracker page_type="lp" />
       {!showMainContent ? (
         <>
           <div className="sticky top-0 z-[51]">
@@ -99,8 +102,6 @@ const Home: React.FC = () => {
           </div>
           <div className="relative z-30">
             <div className="bg-white">
-              {/* RefinedCourseDatesをコメントアウト */}
-              {/* <RefinedCourseDates /> */}
               <TroubleSection />
               <FeaturesSection />
               <PricingSection />
@@ -112,6 +113,7 @@ const Home: React.FC = () => {
               <ContactSection />
               <FAQSection />
               <ConsultationForm />
+              <HomePageBlogSection />
               <Footer />
               <FixedButtons />
             </div>
@@ -173,7 +175,7 @@ const Home: React.FC = () => {
           <ContactSection />
           <FAQSection />
           <ConsultationForm />
-          
+          <HomePageBlogSection />
           <Footer />
           <FixedButtons />
         </motion.div>

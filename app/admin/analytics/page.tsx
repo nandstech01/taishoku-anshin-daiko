@@ -1,143 +1,74 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Card } from '@/components/admin/Card';
-import { Chart } from '@/components/admin/Chart';
+import React from 'react';
+import { createClient } from '@/lib/supabase/supabase';
+import { Analytics } from '@/components/admin/Analytics';
+import { useOverallStats } from '@/hooks/useOverallStats';
+import type { Database } from '@/lib/supabase/database.types';
 
-interface PostAnalytics {
-  id: string;
-  title: string;
+type Post = {
   slug: string;
-  content: string;
-  description: string;
-  status: 'published';
-  published_at: string;
-  created_at: string;
-  updated_at: string;
-  views: number;
-  likes: number;
-  comments: number;
-}
+  title: string;
+};
 
 export default function AnalyticsPage() {
-  const [posts, setPosts] = useState<PostAnalytics[]>([]);
+  const [selectedSlug, setSelectedSlug] = React.useState<string>('');
+  const [posts, setPosts] = React.useState<Post[]>([]);
+  const { totalViews, deviceStats, countryStats, loading, error } = useOverallStats(30);
 
-  useEffect(() => {
-    // TODO: 実際のデータ取得処理に置き換える
-    const mockPosts: PostAnalytics[] = [
-      {
-        id: '1',
-        title: 'テスト記事1',
-        slug: 'test-article-1',
-        content: 'テスト記事1の本文',
-        description: 'テスト記事1の説明',
-        status: 'published',
-        published_at: '2023-12-29',
-        created_at: '2023-12-29',
-        updated_at: '2023-12-29',
-        views: 32,
-        likes: 5,
-        comments: 3,
-      },
-      {
-        id: '2',
-        title: 'テスト記事2',
-        slug: 'test-article-2',
-        content: 'テスト記事2の本文',
-        description: 'テスト記事2の説明',
-        status: 'published',
-        published_at: '2023-12-28',
-        created_at: '2023-12-28',
-        updated_at: '2023-12-28',
-        views: 45,
-        likes: 8,
-        comments: 6,
-      },
-      {
-        id: '3',
-        title: 'テスト記事3',
-        slug: 'test-article-3',
-        content: 'テスト記事3の本文',
-        description: 'テスト記事3の説明',
-        status: 'published',
-        published_at: '2023-12-27',
-        created_at: '2023-12-27',
-        updated_at: '2023-12-27',
-        views: 28,
-        likes: 4,
-        comments: 2,
-      },
-    ];
+  React.useEffect(() => {
+    async function fetchPosts() {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('posts')
+        .select('slug, title')
+        .eq('status', 'published')
+        .order('created_at', { ascending: false });
 
-    setPosts(mockPosts);
+      if (data) {
+        setPosts(data as Post[]);
+        if (data.length > 0) {
+          setSelectedSlug(data[0].slug as string);
+        }
+      }
+    }
+
+    fetchPosts();
   }, []);
+
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="p-6 text-red-500">Error: {error.message}</div>;
+  }
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">アナリティクス</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card title="総閲覧数" value={posts.reduce((sum, post) => sum + post.views, 0)} />
-        <Card title="総いいね数" value={posts.reduce((sum, post) => sum + post.likes, 0)} />
-        <Card title="総コメント数" value={posts.reduce((sum, post) => sum + post.comments, 0)} />
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">閲覧数の推移</h2>
-        <Chart
-          data={posts.map(post => ({
-            date: post.published_at,
-            views: post.views
-          }))}
-        />
-      </div>
-
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <h2 className="text-xl font-semibold p-6 border-b">記事別の統計</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  タイトル
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  公開日
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  閲覧数
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  いいね数
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  コメント数
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {posts.map((post) => (
-                <tr key={post.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {post.title}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {post.published_at}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {post.views}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {post.likes}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {post.comments}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">記事別の統計</h2>
+        <div className="mb-6">
+          <label htmlFor="post-select" className="block text-sm font-medium text-gray-700 mb-2">
+            記事を選択
+          </label>
+          <select
+            id="post-select"
+            value={selectedSlug}
+            onChange={(e) => setSelectedSlug(e.target.value)}
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          >
+            {posts.map((post) => (
+              <option key={post.slug} value={post.slug}>
+                {post.title}
+              </option>
+            ))}
+          </select>
         </div>
+
+        {selectedSlug && (
+          <Analytics slug={selectedSlug} showSearchData={true} />
+        )}
       </div>
     </div>
   );

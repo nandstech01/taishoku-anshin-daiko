@@ -14,7 +14,7 @@ export default function RecommendedPosts({
   currentPostId,
   maxPosts = 3
 }: RecommendedPostsProps) {
-  const filteredPosts = posts.filter(post => post.id !== currentPostId);
+  const filteredPosts = posts.filter(post => String(post.id) !== currentPostId);
 
   const recommendedPosts = filteredPosts
     .filter(post => post.published_at)

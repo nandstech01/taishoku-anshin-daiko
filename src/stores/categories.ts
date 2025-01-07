@@ -8,8 +8,8 @@ interface CategoriesStore {
   error: string | null;
   fetchCategories: () => Promise<void>;
   addCategory: (category: Category) => Promise<void>;
-  updateCategory: (id: string, category: Partial<Category>) => Promise<void>;
-  deleteCategory: (id: string) => Promise<void>;
+  updateCategory: (id: number, category: Partial<Category>) => Promise<void>;
+  deleteCategory: (id: number) => Promise<void>;
 }
 
 export const useCategoriesStore = create<CategoriesStore>((set) => ({
@@ -28,7 +28,7 @@ export const useCategoriesStore = create<CategoriesStore>((set) => ({
       if (error) throw error;
 
       const categories: Category[] = data.map(item => ({
-        id: item.id,
+        id: Number(item.id),
         name: item.name,
         slug: item.slug,
         description: item.description
@@ -63,7 +63,7 @@ export const useCategoriesStore = create<CategoriesStore>((set) => ({
     }
   },
 
-  updateCategory: async (id: string, category: Partial<Category>) => {
+  updateCategory: async (id: number, category: Partial<Category>) => {
     try {
       set({ loading: true, error: null });
       const { error } = await supabase
@@ -84,7 +84,7 @@ export const useCategoriesStore = create<CategoriesStore>((set) => ({
     }
   },
 
-  deleteCategory: async (id: string) => {
+  deleteCategory: async (id: number) => {
     try {
       set({ loading: true, error: null });
       const { error } = await supabase

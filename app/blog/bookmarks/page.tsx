@@ -1,37 +1,24 @@
 'use client';
 
 import type { Bookmark } from '@/types/blog';
-import { MOCK_BOOKMARKS } from '@/mock/bookmarks';
+import { MOCK_BOOKMARKS } from '@/src/mock/bookmarks';
 import BlogCard from '@/components/blog/BlogCard';
 
 export default function BookmarksPage() {
-  const sortedBookmarks = [...MOCK_BOOKMARKS].sort(
-    (a: Bookmark, b: Bookmark) =>
-      new Date(b.created).getTime() - new Date(a.created).getTime()
-  );
-
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            ブックマーク
-          </h1>
-          <p className="text-gray-600">
-            保存した記事の一覧です。
-          </p>
-        </header>
-
-        <div className="space-y-8">
-          {sortedBookmarks.map((bookmark) => (
-            bookmark.post && <BlogCard key={bookmark.id} post={bookmark.post} />
-          ))}
-          {sortedBookmarks.length === 0 && (
-            <p className="text-center text-gray-600">
-              ブックマークした記事はありません。
-            </p>
-          )}
-        </div>
+      <h1 className="text-2xl font-bold mb-6">ブックマーク一覧</h1>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {MOCK_BOOKMARKS.map((bookmark) => (
+          <BlogCard
+            key={bookmark.id}
+            title={bookmark.title}
+            description={bookmark.description}
+            thumbnailUrl={bookmark.thumbnail_url}
+            date={bookmark.created_at}
+            href={bookmark.url}
+          />
+        ))}
       </div>
     </div>
   );

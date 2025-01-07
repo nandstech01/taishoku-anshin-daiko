@@ -1,100 +1,120 @@
-export interface Author {
-  id: string;
-  name: string;
-  email: string;
-  avatarUrl?: string;
-  avatar?: string;
-}
-
-export interface Category {
-  id: string;
-  name: string;
-  slug: string;
-  description?: string;
-}
-
 export interface BasePost {
-  id: string;
+  id?: number;
   title: string;
-  content: string;
-  excerpt?: string;
-  description?: string;
   slug: string;
-  category?: Category;
-  category_slug?: string;
-  tags?: string[];
-  author?: Author;
-  author_slug?: string;
-  published_at?: string | null;
-  views?: number;
-  likes?: number;
-  share_count?: number;
+  content: string;
+  meta_description?: string;
+  description?: string;
   thumbnail_url?: string;
   featuredImage?: string;
-  meta_description?: string;
-  seo_keywords?: string[];
-  is_indexable?: boolean;
-  canonical_url?: string;
-  status?: 'published' | 'draft';
+  created_at?: string;
+  updated_at?: string;
+  status: 'draft' | 'published';
+  category_id?: number;
+  category?: Category;
+  view_count?: number;
+  tags?: string[];
+  published_at?: string | null;
+  excerpt?: string;
+  views?: number;
+}
+
+export interface Post extends BasePost {
+  id: number;
+  category_id: number;
   created_at: string;
   updated_at: string;
 }
 
-export type BlogPost = BasePost;
-export type Post = BasePost;
-
-export interface BlogPostFormData {
-  title: string;
-  content: string;
-  excerpt: string;
-  categoryId: string;
-  tags: string[];
-  isPublished: boolean;
+export interface Category {
+  id: number;
+  name: string;
   slug: string;
-  description: string;
-  status: 'published' | 'draft';
-  featuredImage?: string;
-  thumbnailUrl?: string;
+  description?: string;
+}
+
+export interface BlogPost extends Post {
+  category: Category;
+}
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  avatar_url?: string;
+  role: 'admin' | 'author' | 'user';
+}
+
+export interface Author {
+  id: string;
+  name: string;
+  email: string;
+  avatar?: string;
+}
+
+export interface Comment {
+  id: string;
+  postSlug: string;
+  content: string;
+  authorId: string;
+  author?: Author;
+  created_at: string;
+  updated_at: string;
+  likes?: number;
+  isReported?: boolean;
+  replies?: Comment[];
 }
 
 export interface BlogPostWithAuthor extends BlogPost {
-  author: Author;
+  author: User;
 }
 
 export interface BlogPostWithRelated extends BlogPost {
   relatedPosts?: BlogPost[];
 }
 
+export interface BlogPostFormData {
+  title: string;
+  content: string;
+  excerpt: string;
+  categoryId: number | string;
+  tags: string[];
+  isPublished: boolean;
+  slug: string;
+  description: string;
+  status: 'draft' | 'published';
+  featuredImage?: string;
+}
+
 export interface Bookmark {
   id: string;
-  userId: string;
-  postId: string;
-  post: Post;
-  created: string;
-}
-
-export interface Comment {
-  id: string;
-  content: string;
-  postSlug: string;
-  authorId: string;
-  author?: Author;
+  title: string;
+  description: string;
+  thumbnail_url: string;
   created_at: string;
-  updated_at: string;
-  parentId?: string;
-  replies?: Comment[];
-  isReported?: boolean;
-  likes?: number;
+  url: string;
 }
 
-export type SortOption = {
+export interface SortOption {
   value: string;
   label: string;
-};
+  sortFn: (a: BlogPost, b: BlogPost) => number;
+}
 
 export const SORT_OPTIONS: SortOption[] = [
-  { value: 'latest', label: '最新順' },
-  { value: 'oldest', label: '古い順' },
-  { value: 'views', label: '閲覧数順' },
-  { value: 'likes', label: 'いいね順' }
+  {
+    value: 'latest',
+    label: '新着順',
+    sortFn: (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  },
+  {
+    value: 'oldest',
+    label: '古い順',
+    sortFn: (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  },
+  {
+    value: 'views',
+    label: '閲覧数順',
+    sortFn: (a, b) => (b.views || 0) - (a.views || 0)
+  }
 ]; 

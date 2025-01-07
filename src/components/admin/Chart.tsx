@@ -1,16 +1,57 @@
+'use client';
+
+import React from 'react';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
+import { Line } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
 interface ChartProps {
   data: {
-    date: string;
-    views: number;
-  }[];
+    labels: string[];
+    datasets: {
+      label: string;
+      data: number[];
+      borderColor: string;
+      tension: number;
+    }[];
+  };
+  height?: number;
 }
 
-export function Chart({ data }: ChartProps) {
+export function Chart({ data, height = 300 }: ChartProps) {
   return (
-    <div className="h-64 bg-gray-50 rounded p-4">
-      <div className="text-center text-gray-500">
-        グラフ表示用のライブラリを実装予定
-      </div>
+    <div style={{ height: `${height}px` }}>
+      <Line
+        data={data}
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { stepSize: 1 }
+            }
+          }
+        }}
+      />
     </div>
   );
 } 

@@ -25,7 +25,16 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*", "./app/*", "./components/*", "./lib/*", "./utils/*", "./contexts/*", "./types/*"]
+      "@/*": ["./*"],
+      "@/components/*": ["src/components/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/utils/*": ["src/utils/*"],
+      "@/contexts/*": ["src/contexts/*"],
+      "@/types/*": ["src/types/*"],
+      "@/stores/*": ["src/stores/*"],
+      "@/mock/*": ["src/mock/*"],
+      "@/schemas/*": ["src/schemas/*"]
     }
   },
   "include": [

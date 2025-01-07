@@ -1,26 +1,28 @@
-import { Bookmark } from '@/types/blog';
-import { mockPosts } from './posts';
+import type { Bookmark } from '@/types/blog';
 
 export const MOCK_BOOKMARKS: Bookmark[] = [
   {
     id: '1',
-    userId: 'guest',
-    postId: '1',
-    post: mockPosts[0],
-    created: '2023-12-25T10:00:00Z'
+    title: '退職代行サービスの選び方',
+    description: '退職代行サービスを選ぶ際のポイントや注意点について解説します。',
+    thumbnail_url: '/images/article-1.jpg',
+    created_at: '2023-12-01',
+    url: '/blog/how-to-choose-service'
   },
   {
     id: '2',
-    userId: 'guest',
-    postId: '3',
-    post: mockPosts[2],
-    created: '2023-12-26T15:30:00Z'
+    title: 'メンタルヘルスケアの重要性',
+    description: '職場でのメンタルヘルスケアの重要性と対策について解説します。',
+    thumbnail_url: '/images/article-2.jpg',
+    created_at: '2023-12-02',
+    url: '/blog/mental-health-care'
   },
   {
     id: '3',
-    userId: 'guest',
-    postId: '5',
-    post: mockPosts[4],
-    created: '2023-12-27T09:15:00Z'
+    title: '労働法の基礎知識',
+    description: '知っておくべき労働法の基礎知識について解説します。',
+    thumbnail_url: '/images/article-3.jpg',
+    created_at: '2023-12-03',
+    url: '/blog/labor-law-basics'
   }
 ]; 

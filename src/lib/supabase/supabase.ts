@@ -1,20 +1,25 @@
 import { createClient as createSupabaseClient } from '@supabase/supabase-js';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type { Database } from './database.types';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables. Please check your .env file.');
-}
+// シングルトンインスタンスを保持
+let supabaseInstance: SupabaseClient<Database> | null = null;
 
-export const createClient = () => {
-  console.log('Creating Supabase client with URL:', supabaseUrl);
-  return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
-  });
-};
+export const supabase = (() => {
+  if (!supabaseInstance) {
+    supabaseInstance = createSupabaseClient<Database>(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: true
+      }
+    });
+  }
+  return supabaseInstance;
+})();
 
-export const supabase = createClient(); 
+// サーバーコンポーネント用のクライアント作成関数
+export const createClient = (): SupabaseClient<Database> => {
+  return supabase;
+}; 

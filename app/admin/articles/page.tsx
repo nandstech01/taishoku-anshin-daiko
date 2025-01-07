@@ -1,55 +1,57 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
+import { PostgrestResponse } from '@supabase/supabase-js';
 import Link from 'next/link';
 import type { BlogPost } from '@/types/blog';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase';
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const supabase = createClient();
 
   useEffect(() => {
     const fetchArticles = async () => {
       try {
         const { data, error } = await supabase
-          .from('articles')
-          .select('*')
+          .from('posts')
+          .select(`
+            *,
+            category:categories(*)
+          `)
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error('Error fetching articles:', error);
           throw error;
         }
 
-        setArticles(data || []);
+        if (data) {
+          const typedData = data.map((item: any) => ({
+            id: item.id,
+            title: item.title,
+            content: item.content,
+            slug: item.slug,
+            status: item.status,
+            meta_description: item.meta_description,
+            thumbnail_url: item.thumbnail_url,
+            created_at: item.created_at,
+            updated_at: item.updated_at,
+            category_id: item.category_id,
+            view_count: item.view_count,
+            category: item.category
+          } as BlogPost));
+          setArticles(typedData);
+        }
       } catch (error) {
-        console.error('Failed to fetch articles:', error);
+        console.error('Error fetching articles:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchArticles();
-  }, []);
-
-  const handleDelete = async (slug: string) => {
-    try {
-      const { error } = await supabase
-        .from('articles')
-        .delete()
-        .eq('slug', slug);
-
-      if (error) throw error;
-
-      // 記事一覧を更新
-      setArticles(articles.filter(article => article.slug !== slug));
-      alert('記事を削除しました');
-    } catch (error) {
-      console.error('Failed to delete article:', error);
-      alert('記事の削除に失敗しました');
-    }
-  };
+  }, [supabase]);
 
   if (isLoading) {
     return (
@@ -60,53 +62,34 @@ export default function ArticlesPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">記事一覧</h1>
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">記事一覧</h1>
         <Link
           href="/admin/articles/new"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           新規作成
         </Link>
       </div>
 
-      <div className="bg-white shadow-sm rounded-lg">
-        {articles.length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-500">
-            記事がありません
-          </div>
-        ) : (
-          <ul className="divide-y divide-gray-200">
-            {articles.map((article) => (
-              <li key={article.slug} className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-medium text-gray-900">{article.title}</h2>
-                    <p className="mt-1 text-sm text-gray-500">{article.description}</p>
-                    <p className="mt-1 text-xs text-gray-400">
-                      {new Date(article.published_at || article.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex space-x-3">
-                    <Link
-                      href={`/admin/articles/${article.slug}/edit`}
-                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      編集
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(article.slug)}
-                      className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                    >
-                      削除
-                    </button>
-                  </div>
+      <div className="grid gap-4">
+        {articles.map((article) => (
+          <div
+            key={article.id}
+            className="bg-white p-4 rounded-lg shadow hover:shadow-md transition-shadow"
+          >
+            <Link href={`/admin/articles/${article.id}`}>
+              <div>
+                <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
+                <p className="text-gray-600 mb-2">{article.meta_description}</p>
+                <div className="text-sm text-gray-500">
+                  作成日: {new Date(article.created_at).toLocaleDateString('ja-JP')}
                 </div>
-              </li>
-            ))}
-          </ul>
-        )}
+              </div>
+            </Link>
+          </div>
+        ))}
       </div>
     </div>
   );

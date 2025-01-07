@@ -1,14 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/lib/supabase/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Database } from '@/lib/supabase/database.types';
+import type { Database } from '@/lib/supabase/database.types';
 
 type Post = Database['public']['Tables']['posts']['Row'];
+type Analytics = Database['public']['Tables']['analytics']['Row'];
 type DashboardPost = Pick<Post, 'id' | 'title' | 'slug' | 'published_at' | 'created_at'>;
+
+interface PageTypeStat {
+  page_type: string;
+  label: string;
+  count: number;
+}
 
 interface DashboardStats {
   totalPosts: number;
@@ -17,6 +24,99 @@ interface DashboardStats {
   recentPosts: DashboardPost[];
   monthlyViews: number;
   recentVisitors: number;
+  deviceStats: Array<{ device_type: string; count: number }>;
+  countryStats: Array<{ country: string; count: number }>;
+  pageTypeStats: PageTypeStat[];
+}
+
+// ページタイプのラベルを取得する関数
+function getPageTypeLabel(pageType: string): string {
+  switch (pageType) {
+    case 'lp':
+      return 'トップページ';
+    case 'blog_top':
+      return 'ブログトップ';
+    case 'blog_post':
+      return 'ブログ記事';
+    default:
+      return 'その他';
+  }
+}
+
+// 集計用のヘルパー関数
+function aggregateAnalytics(analyticsData: Analytics[] | null) {
+  if (!analyticsData) return {
+    deviceStats: [],
+    countryStats: [],
+    monthlyViews: 0,
+    recentVisitors: 0,
+    pageTypeStats: []
+  };
+
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const recentData = analyticsData.filter(d => 
+    d.created_at && new Date(d.created_at) >= thirtyDaysAgo
+  );
+
+  // デバイス別統計
+  const deviceMap = recentData.reduce((acc, curr) => {
+    const device = curr.device_type || 'unknown';
+    acc[device] = (acc[device] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const deviceStats = Object.entries(deviceMap).map(([device_type, count]) => ({
+    device_type,
+    count
+  }));
+
+  // 国別統計
+  const countryMap = recentData.reduce((acc, curr) => {
+    const country = curr.country || 'unknown';
+    acc[country] = (acc[country] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const countryStats = Object.entries(countryMap)
+    .map(([country, count]) => ({
+      country,
+      count
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  // ページタイプ別統計（URLパスから判定）
+  const pageTypeMap = recentData.reduce((acc, curr) => {
+    // URLパスからページタイプを判定
+    const path = curr.page_path;
+    let pageType = 'unknown';
+    
+    if (path === '/') {
+      pageType = 'lp';
+    } else if (path === '/blog') {
+      pageType = 'blog_top';
+    } else if (path.startsWith('/blog/')) {
+      pageType = 'blog_post';
+    }
+
+    acc[pageType] = (acc[pageType] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const pageTypeStats = Object.entries(pageTypeMap)
+    .map(([page_type, count]) => ({
+      page_type,
+      label: getPageTypeLabel(page_type),
+      count
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  return {
+    deviceStats,
+    countryStats,
+    monthlyViews: recentData.length,
+    recentVisitors: new Set(recentData.map(d => d.visitor_id).filter(Boolean)).size,
+    pageTypeStats
+  };
 }
 
 export default function DashboardPage() {
@@ -29,6 +129,9 @@ export default function DashboardPage() {
     recentPosts: [],
     monthlyViews: 0,
     recentVisitors: 0,
+    deviceStats: [],
+    countryStats: [],
+    pageTypeStats: []
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,23 +150,34 @@ export default function DashboardPage() {
         setLoading(true);
         setError(null);
 
-        console.log('[Dashboard] Fetching stats...');
+        const supabase = createClient();
+
+        // 記事データの取得
         const { data: posts, error: queryError } = await supabase
           .from('posts')
           .select('id, title, slug, published_at, created_at')
           .order('created_at', { ascending: false });
 
-        if (queryError) {
-          console.error('[Dashboard] Query error:', queryError);
-          throw new Error(queryError.message);
-        }
+        if (queryError) throw queryError;
 
-        // アナリティクスデータの取得（仮のデータ）
-        const monthlyViews = Math.floor(Math.random() * 1000);
-        const recentVisitors = Math.floor(Math.random() * 100);
+        // アナリティクスデータの取得
+        const { data: analyticsData, error: analyticsError } = await supabase
+          .from('analytics')
+          .select('*')
+          .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString());
+
+        if (analyticsError) throw analyticsError;
+
+        // 統計データの集計
+        const {
+          deviceStats,
+          countryStats,
+          monthlyViews,
+          recentVisitors,
+          pageTypeStats
+        } = aggregateAnalytics(analyticsData);
 
         if (!posts) {
-          console.log('[Dashboard] No posts found');
           setStats({
             totalPosts: 0,
             publishedPosts: 0,
@@ -71,11 +185,13 @@ export default function DashboardPage() {
             recentPosts: [],
             monthlyViews,
             recentVisitors,
+            deviceStats,
+            countryStats,
+            pageTypeStats
           });
           return;
         }
 
-        console.log('[Dashboard] Posts fetched:', posts);
         const publishedPosts = posts.filter(post => post.published_at !== null);
         const draftPosts = posts.filter(post => post.published_at === null);
 
@@ -86,6 +202,9 @@ export default function DashboardPage() {
           recentPosts: posts.slice(0, 5),
           monthlyViews,
           recentVisitors,
+          deviceStats,
+          countryStats,
+          pageTypeStats
         });
       } catch (err) {
         console.error('[Dashboard] Error:', err);
@@ -184,148 +303,204 @@ export default function DashboardPage() {
                 </Link>
               </nav>
             </div>
-            <div className="flex-shrink-0 p-4 border-t">
-              <button
-                onClick={() => supabase.auth.signOut()}
-                className="flex items-center w-full px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900 group"
-              >
-                <svg className="w-6 h-6 mr-3 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                ログアウト
-              </button>
-            </div>
           </div>
         </div>
       </div>
 
       {/* メインコンテンツ */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <main className="flex-1 overflow-y-auto bg-gray-100">
-          <div className="py-6">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
-            </div>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex-1 overflow-auto">
+        <main className="flex-1 relative pb-8 z-0 overflow-y-auto">
+          <div className="mt-8">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h1 className="text-2xl font-semibold text-gray-900">ダッシュボード</h1>
+
               {/* 統計カード */}
-              <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mt-4">
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
-                      </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">総記事数</dt>
-                          <dd className="text-lg font-medium text-gray-900">{stats.totalPosts}</dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                      </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">公開済み</dt>
-                          <dd className="text-lg font-medium text-gray-900">{stats.publishedPosts}</dd>
-                        </dl>
+              <div className="mt-8">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {/* 総記事数 */}
+                  <div className="bg-white overflow-hidden shadow rounded-lg">
+                    <div className="p-5">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15" />
+                          </svg>
+                        </div>
+                        <div className="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">総記事数</dt>
+                            <dd className="flex items-baseline">
+                              <div className="text-2xl font-semibold text-gray-900">{stats.totalPosts}</div>
+                            </dd>
+                          </dl>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                      </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">下書き</dt>
-                          <dd className="text-lg font-medium text-gray-900">{stats.draftPosts}</dd>
-                        </dl>
+                  {/* 月間PV */}
+                  <div className="bg-white overflow-hidden shadow rounded-lg">
+                    <div className="p-5">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </div>
+                        <div className="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">月間PV</dt>
+                            <dd className="flex items-baseline">
+                              <div className="text-2xl font-semibold text-gray-900">{stats.monthlyViews}</div>
+                            </dd>
+                          </dl>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* アナリティクス */}
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                        </svg>
-                      </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">今月の閲覧数</dt>
-                          <dd className="text-lg font-medium text-gray-900">{stats.monthlyViews.toLocaleString()}</dd>
-                        </dl>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 直近の訪問者数 */}
-                <div className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="p-5">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0">
-                        <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                        </svg>
-                      </div>
-                      <div className="ml-5 w-0 flex-1">
-                        <dl>
-                          <dt className="text-sm font-medium text-gray-500 truncate">直近の訪問者数</dt>
-                          <dd className="text-lg font-medium text-gray-900">{stats.recentVisitors.toLocaleString()}</dd>
-                        </dl>
+                  {/* ユニークビジター */}
+                  <div className="bg-white overflow-hidden shadow rounded-lg">
+                    <div className="p-5">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                        </div>
+                        <div className="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">月間ユニークビジター</dt>
+                            <dd className="flex items-baseline">
+                              <div className="text-2xl font-semibold text-gray-900">{stats.recentVisitors}</div>
+                            </dd>
+                          </dl>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* 最近の記事 */}
+              {/* ページタイプ別統計 */}
               <div className="mt-8">
                 <div className="bg-white shadow rounded-lg">
-                  <div className="px-4 py-5 sm:p-6">
-                    <h2 className="text-lg font-medium text-gray-900 mb-4">最近の記事</h2>
+                  <div className="px-5 py-4 border-b border-gray-200">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      ページタイプ別アクセス数（月間）
+                    </h3>
+                  </div>
+                  <div className="p-5">
+                    <div className="grid grid-cols-1 gap-4">
+                      {stats.pageTypeStats.map((stat) => (
+                        <div key={stat.page_type} className="flex items-center justify-between py-3 border-b border-gray-200 last:border-0">
+                          <div className="flex items-center">
+                            <span className="text-sm font-medium text-gray-900">{stat.label}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <span className="px-2.5 py-1.5 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">
+                              {stat.count} PV
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 最近の記事 */}
+              <div className="bg-white shadow rounded-lg mb-8">
+                <div className="px-5 py-4 border-b border-gray-200">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    最近の記事
+                  </h3>
+                </div>
+                <div className="p-5">
+                  <div className="flow-root">
+                    <ul className="-my-5 divide-y divide-gray-200">
+                      {stats.recentPosts.map((post) => (
+                        <li key={post.id} className="py-4">
+                          <div className="flex items-center space-x-4">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {post.title}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {new Date(post.created_at).toLocaleDateString('ja-JP')}
+                              </p>
+                            </div>
+                            <div>
+                              <Link
+                                href={`/admin/posts/${post.slug}/edit`}
+                                className="inline-flex items-center shadow-sm px-2.5 py-0.5 border border-gray-300 text-sm leading-5 font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                              >
+                                編集
+                              </Link>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* デバイス統計 */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white shadow rounded-lg">
+                  <div className="px-5 py-4 border-b border-gray-200">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      デバイス別アクセス
+                    </h3>
+                  </div>
+                  <div className="p-5">
                     <div className="flow-root">
-                      <ul className="divide-y divide-gray-200">
-                        {stats.recentPosts.map((post) => (
-                          <li key={post.id} className="py-4">
+                      <ul className="-my-4 divide-y divide-gray-200">
+                        {stats.deviceStats.map(({ device_type, count }) => (
+                          <li key={device_type} className="py-4">
                             <div className="flex items-center space-x-4">
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate">{post.title}</p>
-                                <p className="text-sm text-gray-500">
-                                  {new Date(post.created_at).toLocaleDateString()}
+                                <p className="text-sm font-medium text-gray-900">
+                                  {device_type}
                                 </p>
                               </div>
                               <div>
-                                <Link
-                                  href={`/admin/posts/${post.slug}/edit`}
-                                  className="inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-                                >
-                                  編集
-                                </Link>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  {count}
+                                </span>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 国別統計 */}
+                <div className="bg-white shadow rounded-lg">
+                  <div className="px-5 py-4 border-b border-gray-200">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      国別アクセス
+                    </h3>
+                  </div>
+                  <div className="p-5">
+                    <div className="flow-root">
+                      <ul className="-my-4 divide-y divide-gray-200">
+                        {stats.countryStats.map(({ country, count }) => (
+                          <li key={country} className="py-4">
+                            <div className="flex items-center space-x-4">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {country}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  {count}
+                                </span>
                               </div>
                             </div>
                           </li>
