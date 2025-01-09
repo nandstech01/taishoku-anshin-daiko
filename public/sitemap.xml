@@ -42,4 +42,16 @@
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
+  <url>
+    <loc>https://taishoku-anshin-daiko.com/faq</loc>
+    <lastmod>2024-02-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://taishoku-anshin-daiko.com/blog/pawaharanishimuanatahewo-1</loc>
+    <lastmod>2024-02-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
 </urlset>
