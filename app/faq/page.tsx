@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import Footer from '@/components/common/Footer';
-import { generateFAQSchema } from '@/schemas/faq';
 
 interface FAQItem {
     question: string;
@@ -75,8 +74,27 @@ export default function FAQ() {
 
     const categories = Array.from(new Set(faqs.map(faq => faq.category)));
 
+    const faqSchema = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqs.map(faq => ({
+            "@type": "Question",
+            "name": faq.question,
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": faq.answer
+            }
+        }))
+    };
+
     return (
         <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{
+                    __html: JSON.stringify(faqSchema)
+                }}
+            />
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
