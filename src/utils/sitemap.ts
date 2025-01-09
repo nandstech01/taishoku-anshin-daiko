@@ -1,4 +1,3 @@
-
 interface BlogPost {
   slug: string;
   published_at: string;
@@ -44,11 +43,11 @@ export const generateSitemapXml = (
       priority: 0.8
     },
     // その他の固定ページ
-    ...['about', 'privacy', 'terms', 'legal'].map(page => ({
+    ...['about', 'privacy', 'terms', 'legal', 'faq'].map(page => ({
       loc: `${baseUrl}/${page}`,
       lastmod: today,
       changefreq: 'monthly' as const,
-      priority: page === 'about' ? 0.8 : 0.5
+      priority: page === 'about' || page === 'faq' ? 0.8 : 0.5
     })),
     // ブログ記事
     ...posts.map(post => ({
