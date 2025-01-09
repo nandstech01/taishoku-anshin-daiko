@@ -21,6 +21,12 @@ import Header from '../src/components/common/Header';
 import { PageViewTracker } from '@/components/blog/PageViewTracker';
 import HomePageBlogSection from '@/components/blog/HomePageBlogSection';
 
+declare module 'react' {
+  interface JSX {
+    IntrinsicElements: any;
+  }
+}
+
 const Home: React.FC = () => {
   const [showMainContent, setShowMainContent] = React.useState(false);
 

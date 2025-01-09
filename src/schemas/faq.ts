@@ -90,13 +90,34 @@ export const generateFAQSchema = (baseUrl: string) => {
     ),
     provider: {
       '@type': 'Organization',
-      name: 'タイショクアンシン',
-      url: baseUrl
+      name: '退職あんしん代行',
+      url: baseUrl,
+      description: '退職代行サービスを提供する株式会社エヌアンドエスが運営するサービスです。',
+      sameAs: [
+        'https://lin.ee/h1kk42r'
+      ]
     },
     about: {
       '@type': 'Service',
       name: '退職代行サービス',
-      description: '業界最安値2,980円の退職代行サービス。24時間365日対応、弁護士・労働組合と連携し、あなたの退職を完全サポート。'
+      description: '業界最安値2,980円の退職代行サービス。24時間365日対応、弁護士・労働組合と連携し、あなたの退職を完全サポート。',
+      provider: {
+        '@type': 'Organization',
+        name: '退職あんしん代行'
+      },
+      areaServed: {
+        '@type': 'Country',
+        name: '日本'
+      },
+      audience: {
+        '@type': 'Audience',
+        audienceType: '退職を考えている方'
+      }
+    },
+    isPartOf: {
+      '@type': 'WebSite',
+      name: '退職あんしん代行',
+      url: baseUrl
     }
   };
 }; 
