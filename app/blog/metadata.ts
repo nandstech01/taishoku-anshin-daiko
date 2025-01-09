@@ -57,7 +57,10 @@ export const metadata = {
     description: '退職に関する不安や悩みを解消する情報メディア。退職のノウハウから、キャリアプランまで、あなたの新しい一歩を、私たちがサポートします。',
   },
   other: {
-    'format-detection': 'telephone=no',
-    'script:ld+json': JSON.stringify([blogSchema, breadcrumbSchema])
+    'format-detection': 'telephone=no'
+  },
+  // Next.js 13でJSON-LDを正しく出力するための方法
+  verification: {
+    'ld+json': JSON.stringify([blogSchema, breadcrumbSchema])
   }
 }; 
