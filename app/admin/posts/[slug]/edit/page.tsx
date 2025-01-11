@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/supabase';
 import ImageUploader from '@/components/ImageUploader';
 import PostPreview from '@/components/PostPreview';
 import { useAuth } from '@/contexts/AuthContext';
+import ContentImageManager from '@/components/admin/ContentImageManager';
 
 type Category = {
   slug: string;
@@ -32,6 +33,7 @@ export default function EditPostPage({
   const [isIndexable, setIsIndexable] = React.useState(true);
   const [canonicalUrl, setCanonicalUrl] = React.useState('');
   const [seoKeywordInput, setSeoKeywordInput] = React.useState('');
+  const [postId, setPostId] = React.useState<string>('');
 
   React.useEffect(() => {
     const fetchPost = async () => {
@@ -56,6 +58,7 @@ export default function EditPostPage({
         setSeoKeywords(post.seo_keywords || []);
         setIsIndexable(post.is_indexable ?? true);
         setCanonicalUrl(post.canonical_url || '');
+        setPostId(post.id);
       }
     };
 
@@ -87,20 +90,7 @@ export default function EditPostPage({
     }
 
     try {
-      console.log('Updating post with data:', {
-        title,
-        content,
-        status,
-        category_slug: categorySlug,
-        thumbnail_url: thumbnailUrl,
-        updated_at: new Date().toISOString(),
-        meta_description: metaDescription,
-        seo_keywords: seoKeywords,
-        is_indexable: isIndexable,
-        canonical_url: canonicalUrl || null,
-      });
-
-      const { error, data } = await supabase
+      const { error: postError } = await supabase
         .from('posts')
         .update({
           title,
@@ -116,9 +106,16 @@ export default function EditPostPage({
         })
         .eq('slug', params.slug);
 
-      console.log('Update response:', { error, data });
+      if (postError) throw postError;
 
-      if (error) throw error;
+      const { error: imageError } = await supabase
+        .from('post_images')
+        .update({ updated_at: new Date().toISOString() })
+        .eq('post_id', postId);
+
+      if (imageError) {
+        console.error('Error updating image timestamps:', imageError);
+      }
 
       router.push('/admin/posts');
     } catch (error) {
@@ -148,16 +145,33 @@ export default function EditPostPage({
     setIsPreviewMode(!isPreviewMode);
   };
 
+  const handleImageSelect = (imageId: string) => {
+    const textarea = document.getElementById('content') as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const { selectionStart, selectionEnd } = textarea;
+    const currentContent = textarea.value;
+    const newContent = 
+      currentContent.substring(0, selectionStart) +
+      `![[${imageId}]]` +
+      currentContent.substring(selectionEnd);
+
+    setContent(newContent);
+  };
+
   if (isPreviewMode) {
     return (
       <div className="p-6">
-        <div className="max-w-4xl mx-auto mb-6">
+        <div className="max-w-4xl mx-auto mb-6 flex justify-between items-center">
           <button
             onClick={togglePreview}
             className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             編集に戻る
           </button>
+          <div className="text-sm text-gray-500">
+            {status === 'published' ? '公開' : '下書き'}
+          </div>
         </div>
         <PostPreview
           title={title}
@@ -217,14 +231,26 @@ export default function EditPostPage({
           <label htmlFor="content" className="block text-sm font-medium text-gray-700">
             本文
           </label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={10}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={10}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div>
+              {postId && (
+                <ContentImageManager
+                  postId={postId}
+                  onImageSelect={handleImageSelect}
+                />
+              )}
+            </div>
+          </div>
         </div>
 
         <div className="border-t pt-6 mt-8">

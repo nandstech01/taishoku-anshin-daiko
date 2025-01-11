@@ -1,6 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import SeoMeta from './blog/SeoMeta';
+import MarkdownContent from './blog/MarkdownContent';
 
 type PostPreviewProps = {
   title: string;
@@ -31,13 +32,7 @@ export default function PostPreview({ title, content, thumbnailUrl, metaDescript
         )}
         <div className="p-6">
           <h1 className="text-3xl font-bold mb-6">{title}</h1>
-          <div className="prose max-w-none">
-            {content.split('\n').map((paragraph, index) => (
-              <p key={index} className="mb-4">
-                {paragraph}
-              </p>
-            ))}
-          </div>
+          <MarkdownContent content={content} />
           {metaDescription && (
             <div className="mt-8 p-4 bg-gray-50 rounded-lg">
               <h2 className="text-sm font-medium text-gray-700 mb-2">メタディスクリプション プレビュー</h2>

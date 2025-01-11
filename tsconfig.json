@@ -34,7 +34,8 @@
       "@/types/*": ["src/types/*"],
       "@/stores/*": ["src/stores/*"],
       "@/mock/*": ["src/mock/*"],
-      "@/schemas/*": ["src/schemas/*"]
+      "@/schemas/*": ["src/schemas/*"],
+      "@/services/*": ["src/services/*"]
     }
   },
   "include": [

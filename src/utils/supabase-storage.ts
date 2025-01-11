@@ -6,12 +6,17 @@ export const uploadImage = async (file: File): Promise<string> => {
     const fileName = `${Math.random()}.${fileExt}`;
     const filePath = `${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadError, data } = await supabase.storage
       .from('blog')
       .upload(filePath, file);
 
     if (uploadError) {
-      throw uploadError;
+      console.error('Upload error details:', uploadError);
+      throw new Error(`画像のアップロードに失敗しました: ${uploadError.message}`);
+    }
+
+    if (!data) {
+      throw new Error('アップロードデータが見つかりません');
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -21,7 +26,10 @@ export const uploadImage = async (file: File): Promise<string> => {
     return publicUrl;
   } catch (error) {
     console.error('Error uploading image:', error);
-    throw error;
+    if (error instanceof Error) {
+      throw new Error(`画像のアップロードに失敗しました: ${error.message}`);
+    }
+    throw new Error('画像のアップロードに失敗しました');
   }
 };
 

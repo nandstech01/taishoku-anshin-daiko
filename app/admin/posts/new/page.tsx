@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase/supabase';
 import ImageUploader from '@/components/ImageUploader';
 import PostPreview from '@/components/PostPreview';
 import { generateSlug, ensureUniqueSlug } from '@/utils/slug';
 import { useAuth } from '@/contexts/AuthContext';
+import ContentImageManager from '@/components/admin/ContentImageManager';
 
 type Category = {
   slug: string;
@@ -29,6 +30,7 @@ export default function NewPostPage() {
   const [isIndexable, setIsIndexable] = React.useState(true);
   const [canonicalUrl, setCanonicalUrl] = React.useState('');
   const [seoKeywordInput, setSeoKeywordInput] = React.useState('');
+  const [tempPostId, setTempPostId] = React.useState<string>('');
 
   React.useEffect(() => {
     const fetchCategories = async () => {
@@ -48,14 +50,21 @@ export default function NewPostPage() {
     fetchCategories();
   }, []);
 
+  React.useEffect(() => {
+    setTempPostId(crypto.randomUUID());
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
+    
+    if (isSubmitting) return; // 二重送信防止
+    
     if (!user) {
       alert('ログインが必要です');
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
       const { data: existingPosts, error: slugError } = await supabase
@@ -74,14 +83,15 @@ export default function NewPostPage() {
         throw new Error('Failed to generate slug');
       }
 
-      const { data, error } = await supabase
+      // 記事を作成
+      const { data: newPost, error: postError } = await supabase
         .from('posts')
         .insert([
           {
             title,
             content,
             status,
-            category_slug: categorySlug,
+            category_slug: categorySlug || null,
             thumbnail_url: thumbnailUrl,
             slug,
             author_slug: user.user_metadata?.username || user.email,
@@ -93,15 +103,29 @@ export default function NewPostPage() {
             canonical_url: canonicalUrl || null,
           }
         ])
-        .select();
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (postError) throw postError;
 
-      router.push('/admin/posts');
-    } catch (error) {
+      // 画像の関連付けを更新
+      if (tempPostId && newPost?.id) {
+        const { error: imageError } = await supabase
+          .from('post_images')
+          .update({ post_id: newPost.id })
+          .eq('post_id', tempPostId);
+
+        if (imageError) {
+          console.error('Error updating image associations:', imageError);
+        }
+      }
+
+      // すべての処理が完了してから遷移
+      await new Promise(resolve => setTimeout(resolve, 100)); // 短い遅延を追加
+      window.location.href = '/admin/posts'; // router.pushの代わりに直接遷移
+    } catch (error: any) {
       console.error('Error creating post:', error);
-      alert('記事の作成に失敗しました');
-    } finally {
+      alert(error.message || '記事の作成に失敗しました');
       setIsSubmitting(false);
     }
   };
@@ -125,16 +149,33 @@ export default function NewPostPage() {
     setIsPreviewMode(!isPreviewMode);
   };
 
+  const handleImageSelect = (imageId: string) => {
+    const textarea = document.getElementById('content') as HTMLTextAreaElement;
+    if (!textarea) return;
+
+    const { selectionStart, selectionEnd } = textarea;
+    const currentContent = textarea.value;
+    const newContent = 
+      currentContent.substring(0, selectionStart) +
+      `![[${imageId}]]` +
+      currentContent.substring(selectionEnd);
+
+    setContent(newContent);
+  };
+
   if (isPreviewMode) {
     return (
       <div className="p-6">
-        <div className="max-w-4xl mx-auto mb-6">
+        <div className="max-w-4xl mx-auto mb-6 flex justify-between items-center">
           <button
             onClick={togglePreview}
             className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             編集に戻る
           </button>
+          <div className="text-sm text-gray-500">
+            {status === 'published' ? '公開' : '下書き'}
+          </div>
         </div>
         <PostPreview
           title={title}
@@ -194,14 +235,24 @@ export default function NewPostPage() {
           <label htmlFor="content" className="block text-sm font-medium text-gray-700">
             本文
           </label>
-          <textarea
-            id="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={10}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={10}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div>
+              <ContentImageManager
+                postId={tempPostId}
+                onImageSelect={handleImageSelect}
+              />
+            </div>
+          </div>
         </div>
         <div className="border-t pt-6 mt-8">
           <h2 className="text-lg font-medium text-gray-900 mb-4">SEO設定</h2>
