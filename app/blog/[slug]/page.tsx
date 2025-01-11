@@ -49,6 +49,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       category:categories(*)
     `)
     .eq('slug', params.slug)
+    .eq('status', 'published')
     .single();
 
   if (!post || metaError) {
@@ -109,6 +110,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       category:categories(*)
     `)
     .eq('slug', params.slug)
+    .eq('status', 'published')
     .single();
 
   const { data: post, error } = postResponse;
