@@ -7,29 +7,12 @@ import { PageViewTracker } from '@/components/blog/PageViewTracker';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { Database } from '@/lib/supabase/database.types';
+import type { Database, Post, Category } from '@/lib/supabase/database.types';
 import { MessageCircle, Mail } from 'lucide-react';
 import Footer from '@/components/common/Footer';
 import { generateArticleSchema } from '@/schemas/article';
 import { generateBreadcrumbSchema } from '@/schemas/breadcrumb';
 import { AuthorInfo } from '@/components/blog/AuthorInfo';
-
-type Post = Database['public']['Tables']['posts']['Row'] & {
-  description?: string;
-  thumbnail_url?: string;
-  category_slug?: string;
-  status: string;
-  views: number;
-  tags?: string[];
-  seo_keywords?: string[];
-  category?: Category;
-};
-
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
-}
 
 interface Tag {
   name: string;
@@ -42,83 +25,125 @@ export const dynamic = 'force-dynamic';
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const supabase = createClient();
-  const { data: post, error: metaError } = await supabase
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
+
+  try {
+    const { data: post, error } = await supabase
     .from('posts')
     .select(`
-      *,
-      category:categories(*)
+        id,
+        title,
+        content,
+        slug,
+        status,
+        views,
+        tags,
+        likes,
+        published_at,
+        created_at,
+        updated_at,
+        thumbnail_url,
+        meta_description,
+        seo_keywords,
+        category_slug,
+        description
     `)
     .eq('slug', params.slug)
     .eq('status', 'published')
     .single();
 
-  if (!post || metaError) {
+    if (error || !post) {
     return {
-      title: 'Not Found',
-      description: 'The page you are looking for does not exist.',
-    };
-  }
+        title: 'Blog Post Not Found',
+        description: 'The requested blog post could not be found.'
+      };
+    }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
+    // カテゴリー情報を取得
+    const { data: category } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('slug', post.category_slug)
+      .single();
+
+    const postWithCategory: Post = {
+      ...post,
+      category: category as Category | null,
+      description: post.description || null
+    };
 
   // Generate breadcrumb items
   const breadcrumbItems = [
     { name: 'ホーム', url: '/' },
     { name: 'ブログ', url: '/blog' },
-    { name: post.title, url: `/blog/${post.slug}` }
+      { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
   ];
 
   // Generate structured data
   const structuredData = [
-    generateArticleSchema(post, baseUrl),
+      generateArticleSchema(postWithCategory, baseUrl),
     generateBreadcrumbSchema(breadcrumbItems, baseUrl)
   ];
 
-  // 画像URLの正規化
-  const normalizeImageUrl = (url: string) => {
-    return url.startsWith('http') ? url : `${baseUrl}${url}`;
-  };
-
   return {
-    title: post.title || 'Blog Post',
-    description: post.description || '',
-    keywords: post.seo_keywords?.join(', ') || '',
+      title: postWithCategory.title,
+      description: postWithCategory.description || '',
+      keywords: postWithCategory.seo_keywords?.join(', ') || '',
     alternates: {
-      canonical: `${baseUrl}/blog/${post.slug}`
+        canonical: `${baseUrl}/blog/${postWithCategory.slug}`
     },
     openGraph: {
-      title: post.title,
-      description: post.description || '',
-      url: `${baseUrl}/blog/${post.slug}`,
+        title: postWithCategory.title,
+        description: postWithCategory.description || '',
+        url: `${baseUrl}/blog/${postWithCategory.slug}`,
       type: 'article',
-      images: post.thumbnail_url ? [{ url: normalizeImageUrl(post.thumbnail_url) }] : undefined,
+        images: postWithCategory.thumbnail_url ? [{ url: postWithCategory.thumbnail_url }] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: post.description || '',
-      images: post.thumbnail_url ? [normalizeImageUrl(post.thumbnail_url)] : undefined,
+        title: postWithCategory.title,
+        description: postWithCategory.description || '',
+        images: postWithCategory.thumbnail_url ? [postWithCategory.thumbnail_url] : undefined,
     },
     other: {
       'application/ld+json': structuredData.map(item => JSON.stringify(item)).join('\n')
     }
   };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Error',
+      description: 'An error occurred while loading the blog post.'
+    };
+  }
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
   const supabase = createClient();
   
-  const postResponse = await supabase
+  const { data: post, error } = await supabase
     .from('posts')
     .select(`
-      *,
-      category:categories(*)
+      id,
+      title,
+      content,
+      slug,
+      status,
+      views,
+      tags,
+      likes,
+      published_at,
+      created_at,
+      updated_at,
+      thumbnail_url,
+      meta_description,
+      seo_keywords,
+      category_slug,
+      description
     `)
     .eq('slug', params.slug)
     .eq('status', 'published')
     .single();
-
-  const { data: post, error } = postResponse;
 
   if (error) {
     console.error('Error fetching post:', error);
@@ -136,50 +161,52 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     return notFound();
   }
 
-  const [categoryResponse, tagsResponse] = await Promise.all([
-    supabase
+  // カテゴリー情報を取得
+  const { data: category } = await supabase
       .from('categories')
-      .select('*'),
-    Promise.resolve({ 
-      data: post.seo_keywords?.map((keyword: string) => ({ 
+    .select('*')
+    .eq('slug', post.category_slug)
+    .single();
+
+  const postWithCategory: Post = {
+    ...post,
+    category: category as Category | null,
+    description: post.description || null
+  };
+
+  // タグ情報を生成
+  const tags: Tag[] = postWithCategory.seo_keywords?.map((keyword: string) => ({ 
         name: keyword, 
         slug: keyword.toLowerCase().replace(/\s+/g, '-')
-      })) || [], 
-      error: null 
-    })
-  ]);
-
-  const categories = (categoryResponse.data || []) as Category[];
-  const category = categories.find(cat => cat.slug === post.category_slug);
-  const tags = tagsResponse.data as Tag[];
+  })) || [];
 
   // 同じカテゴリの関連記事を取得
   const { data: relatedPosts } = await supabase
     .from('posts')
     .select('*')
-    .eq('category_slug', post.category_slug)
-    .neq('slug', post.slug)
+    .eq('category_slug', postWithCategory.category_slug)
+    .neq('slug', postWithCategory.slug)
     .eq('status', 'published')
     .order('created_at', { ascending: false })
     .limit(3);
 
   try {
-    const { html, headings } = await parseMarkdown(post.content || '');
-    const shareUrl = `https://taishoku-anshin.com/blog/${post.slug}`;
-    const shareText = `${post.title}\n\n`;
+    const { html, headings } = await parseMarkdown(postWithCategory.content || '');
+    const shareUrl = `https://taishoku-anshin.com/blog/${postWithCategory.slug}`;
+    const shareText = `${postWithCategory.title}\n\n`;
 
     // Generate breadcrumb items
     const breadcrumbItems = [
       { name: 'ホーム', url: '/' },
       { name: 'ブログ', url: '/blog' },
-      { name: post.title, url: `/blog/${post.slug}` }
+      { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
     ];
 
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
 
     // Generate structured data
     const pageStructuredData = [
-      generateArticleSchema(post, baseUrl),
+      generateArticleSchema(postWithCategory, baseUrl),
       generateBreadcrumbSchema(breadcrumbItems, baseUrl)
     ];
 
@@ -188,7 +215,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
         <div className="blog-content">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             {/* 構造化データの出力 */}
-            {pageStructuredData.map((item: any, index: number) => (
+            {pageStructuredData.map((item, index) => (
               <script
                 key={index}
                 type="application/ld+json"
@@ -198,15 +225,15 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
             <PageViewTracker slug={params.slug} page_type="blog_post" />
             <article>
               <header className="mb-8">
-                {category && (
-                  <Link href={`/blog/category/${category.slug}`} className="blog-category mb-4">
-                    {category.name}
+                {postWithCategory.category && (
+                  <Link href={`/blog/category/${postWithCategory.category.slug}`} className="blog-category mb-4">
+                    {postWithCategory.category.name}
                   </Link>
                 )}
-                <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
+                <h1 className="text-4xl font-bold mb-4">{postWithCategory.title}</h1>
                 <div className="blog-meta">
                   <div className="blog-date">
-                    {new Date(post.created_at).toLocaleDateString('ja-JP', {
+                    {new Date(postWithCategory.created_at).toLocaleDateString('ja-JP', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'
@@ -215,7 +242,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                   {tags?.length > 0 && (
                     <div className="blog-tags-section">
                       <div className="blog-tags">
-                        {tags.map((tag) => (
+                        {tags.map((tag: Tag) => (
                           <Link
                             key={tag.slug}
                             href={`/blog/tag/${tag.slug}`}
@@ -229,11 +256,11 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                     </div>
                   )}
                 </div>
-                {post.thumbnail_url && (
+                {postWithCategory.thumbnail_url && (
                   <div className="aspect-w-16 aspect-h-9 mb-8 rounded-lg overflow-hidden">
                     <Image
-                      src={post.thumbnail_url}
-                      alt={post.title}
+                      src={postWithCategory.thumbnail_url}
+                      alt={postWithCategory.title}
                       width={1200}
                       height={675}
                       className="object-cover"
@@ -274,9 +301,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
               <TableOfContents items={headings} />
 
               {/* リード文 */}
-              {post.description && (
+              {postWithCategory.description && (
                 <div className="text-lg text-gray-600 mb-8 leading-relaxed">
-                  {post.description}
+                  {postWithCategory.description}
                 </div>
               )}
 
@@ -298,25 +325,26 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
               <section className="blog-categories mt-12 mb-24">
                 <h2 className="blog-tags-title">CATEGORIES</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {categories.map((category) => (
+                  {postWithCategory.category && (
                     <Link
-                      key={category.slug}
-                      href={`/blog/category/${category.slug}`}
+                      key={postWithCategory.category.slug}
+                      href={`/blog/category/${postWithCategory.category.slug}`}
                       className="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
                     >
                       <h3 className="text-lg font-semibold text-gray-900">
-                        {category.name}
+                        {postWithCategory.category.name}
                       </h3>
                     </Link>
-                  ))}
+                  )}
                 </div>
               </section>
 
               {/* Tags Section */}
-              <section className="blog-tags-section mt-24 mb-24">
+              {tags?.length > 0 && (
+                <section className="blog-tags mt-12 mb-24">
                 <h2 className="blog-tags-title">TAGS</h2>
-                <div className="blog-tags max-w-4xl mx-auto px-4">
-                  {tags.map((tag) => (
+                  <div className="blog-tags-grid">
+                    {tags.map((tag: Tag) => (
                     <Link
                       key={tag.slug}
                       href={`/blog/tag/${tag.slug}`}
@@ -327,74 +355,19 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                   ))}
                 </div>
               </section>
-
-              {/* Career Support */}
-              <section className="blog-career mt-24">
-                <h2 className="blog-career-title">キャリアサポートのお知らせ</h2>
-                <Link href="https://nands.tech/" target="_blank" rel="noopener noreferrer" className="block">
-                  <div className="blog-career-card">
-                    <Image
-                      src="/images/career-support.jpg"
-                      alt="Career Support"
-                      width={600}
-                      height={300}
-                      className="blog-career-image"
-                    />
-                    <div className="blog-career-content">
-                      退職あんしん代行を運営する「株式会社エヌアンドエス」では、
-                      AI時代に合わせた副業・リスキリング支援プログラムを開始しました。
-                      退職後のキャリア形成を一緒に考えませんか？
-                    </div>
-                  </div>
-                </Link>
-              </section>
-
-              {/* Contact Section */}
-              <section className="blog-contact mt-24 mb-24">
-                <h2 className="blog-tags-title">ご相談はこちら</h2>
-                <div className="blog-contact-grid">
-                  {/* LINE相談 */}
-                  <div className="blog-contact-card text-center">
-                    <MessageCircle className="w-12 h-12 text-[#06C755] mx-auto mb-2" />
-                    <h4 className="text-xl font-bold text-gray-900 mb-2">
-                      公式LINEでお気軽に相談
-                    </h4>
-                    <p className="text-gray-600 mb-4">
-                      LINEなら、いつでも気軽にご相談いただけます
-                    </p>
-                    <a
-                      href="https://lin.ee/h1kk42r"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block bg-[#06C755] hover:bg-[#05b34c] text-white text-lg font-bold py-4 px-6 rounded-lg text-center transition-colors"
-                    >
-                      LINEで相談する
-                    </a>
-                  </div>
-
-                  {/* メール相談 */}
-                  <a href="mailto:contact@taishoku-anshin-daiko.com" className="blog-contact-card text-center">
-                    <Mail className="w-12 h-12 text-orange-500 mx-auto mb-2" />
-                    <h4 className="text-xl font-bold text-gray-900 mb-2">
-                      メールでのご相談
-                    </h4>
-                    <p className="text-lg text-gray-600">24時間受付中</p>
-                  </a>
-                </div>
-              </section>
+              )}
             </article>
           </div>
         </div>
-        <Footer />
       </div>
     );
   } catch (error) {
-    console.error('Error rendering post:', error);
+    console.error('Error rendering blog post:', error);
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-red-500">
-          <h1 className="text-2xl font-bold mb-4">記事の表示に失敗しました</h1>
-          <p>申し訳ありませんが、記事の表示中にエラーが発生しました。</p>
+          <h1 className="text-2xl font-bold mb-4">記事の読み込みに失敗しました</h1>
+          <p>申し訳ありませんが、記事の読み込み中にエラーが発生しました。</p>
         </div>
       </div>
     );

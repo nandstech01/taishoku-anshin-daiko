@@ -18,13 +18,13 @@ interface BlogPost {
   status: string;
   views: number;
   tags?: string[];
-  seo_keywords?: string[];
   likes: number;
   published_at?: string;
   created_at: string;
   updated_at?: string;
   thumbnail_url?: string;
   meta_description?: string;
+  seo_keywords?: string[];
   category?: {
     id: number;
     name: string;
@@ -47,11 +47,7 @@ interface RawPost {
   thumbnail_url: string | null;
   meta_description: string | null;
   seo_keywords: string[] | null;
-  category: Array<{
-    id: number;
-    name: string;
-    slug: string;
-  }> | null;
+  category_slug: string | null;
 }
 
 const supabase = createClient();
@@ -82,7 +78,7 @@ export default function BlogContent() {
             thumbnail_url,
             meta_description,
             seo_keywords,
-            category:categories!inner(id, name, slug)
+            category_slug
           `)
           .eq('status', 'published')
           .order('created_at', { ascending: false }) as PostgrestResponse<RawPost>;
@@ -92,21 +88,19 @@ export default function BlogContent() {
           throw postsError;
         }
 
-        // より詳細なデバッグログ
-        console.log('Posts data:', postsData);
-
+        // カテゴリーを別途取得
         const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
-          .select('id, name, slug')
-          .order('name');
+          .select('*');
 
         if (categoriesError) {
           console.error('Error fetching categories:', categoriesError);
           throw categoriesError;
         }
 
-        // 型を適切に変換
-        const typedPostsData = postsData?.map((post: RawPost) => {
+        // 記事データにカテゴリー情報を追加
+        const typedPostsData = (postsData || []).map((post: RawPost) => {
+          const category = categoriesData?.find(cat => cat.slug === post.category_slug);
           let parsedTags = [];
           try {
             if (post.tags) {
@@ -131,7 +125,7 @@ export default function BlogContent() {
             thumbnail_url: post.thumbnail_url,
             meta_description: post.meta_description,
             seo_keywords: post.seo_keywords ?? [],
-            category: post.category?.[0]
+            category: category
           } as BlogPost;
         }) || [];
         

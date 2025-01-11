@@ -19,7 +19,7 @@ export interface Database {
           created_at: string;
           updated_at: string;
           thumbnail_url: string | null;
-          thumbnail_variants: string[] | null;
+          thumbnail_variants?: string[] | null;
           description: string | null;
           category_slug: string | null;
           status: string;
