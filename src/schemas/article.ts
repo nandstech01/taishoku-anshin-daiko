@@ -1,35 +1,47 @@
-import { Post } from '@/types/post';
+import type { Post } from '@/lib/supabase/database.types';
 
 export const generateArticleSchema = (post: Post, baseUrl: string) => {
+  // 画像URLの生成（バリアントを使用）
+  const imageUrls = post.thumbnail_variants?.map((url: string) => `${baseUrl}${url}`) || 
+    (post.thumbnail_url ? [`${baseUrl}${post.thumbnail_url}`] : undefined);
+
+  // 日付の処理（タイムゾーン付き）
+  const publishDate = post.published_at || post.created_at;
+  const modifyDate = post.updated_at || publishDate;
+
   return {
     '@context': 'https://schema.org',
-    '@type': 'Article',
+    '@type': 'BlogPosting',
     headline: post.title,
-    description: post.description,
-    image: post.thumbnail_url ? `${baseUrl}${post.thumbnail_url}` : undefined,
-    datePublished: post.published_at,
-    dateModified: post.updated_at || post.published_at,
+    description: post.description || undefined,
+    image: imageUrls,
+    datePublished: publishDate,
+    dateModified: modifyDate,
     author: {
       '@type': 'Organization',
-      name: 'タイショクアンシン編集部',
-      url: baseUrl
+      name: '退職あんしん代行編集部',
+      description: '退職代行サービスの現場で培った10年以上の経験を活かし、法的知識に基づいた正確な情報を提供。月間100件以上の退職相談実績を持つ専門チーム。',
+      url: `${baseUrl}/blog/about`
     },
     publisher: {
       '@type': 'Organization',
       name: '株式会社エヌアンドエス',
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/images/logo.png`
+        url: `${baseUrl}/images/logo.png`,
+        width: 600,
+        height: 60
       }
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': `${baseUrl}/blog/${post.slug}`
     },
+    articleBody: post.content ? post.content.substring(0, 500) + '...' : undefined,
     isPartOf: {
       '@type': 'Blog',
       name: 'あんしん退職コラム',
-      description: '退職に関する不安や悩みを解消する情報メディア',
+      description: '退職に関する不安や悩みを解消する情報メディア。退職のノウハウから、キャリアプランまで、あなたの新しい一歩を、私たちがサポートします。',
       url: `${baseUrl}/blog`
     },
     keywords: [

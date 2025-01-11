@@ -6,6 +6,12 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+export interface ICategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -18,6 +24,15 @@ export interface Database {
           published_at: string | null;
           created_at: string;
           updated_at: string;
+          thumbnail_url: string | null;
+          thumbnail_variants: string[] | null;
+          description: string | null;
+          category_slug: string | null;
+          status: string;
+          views: number;
+          tags: string[] | null;
+          seo_keywords: string[] | null;
+          category: ICategory | null;
         };
         Insert: {
           id?: string;
@@ -27,6 +42,15 @@ export interface Database {
           published_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          thumbnail_url?: string | null;
+          thumbnail_variants?: string[] | null;
+          description?: string | null;
+          category_slug?: string | null;
+          status?: string;
+          views?: number;
+          tags?: string[] | null;
+          seo_keywords?: string[] | null;
+          category?: ICategory | null;
         };
         Update: {
           id?: string;
@@ -36,6 +60,15 @@ export interface Database {
           published_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          thumbnail_url?: string | null;
+          thumbnail_variants?: string[] | null;
+          description?: string | null;
+          category_slug?: string | null;
+          status?: string;
+          views?: number;
+          tags?: string[] | null;
+          seo_keywords?: string[] | null;
+          category?: ICategory | null;
         };
       };
       analytics: {
@@ -131,4 +164,25 @@ export interface Database {
       };
     };
   };
+}
+
+export type Category = ICategory;
+
+export interface Post {
+  id: string;
+  title: string;
+  content: string;
+  slug: string;
+  published_at: string | null;
+  created_at: string;
+  updated_at: string;
+  thumbnail_url: string | null;
+  thumbnail_variants: string[] | null;
+  description: string | null;
+  category_slug: string | null;
+  status: string;
+  views: number;
+  tags: string[] | null;
+  seo_keywords: string[] | null;
+  category: Category | null;
 } 

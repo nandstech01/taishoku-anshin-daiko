@@ -12,6 +12,7 @@ import { MessageCircle, Mail } from 'lucide-react';
 import Footer from '@/components/common/Footer';
 import { generateArticleSchema } from '@/schemas/article';
 import { generateBreadcrumbSchema } from '@/schemas/breadcrumb';
+import { AuthorInfo } from '@/components/blog/AuthorInfo';
 
 type Post = Database['public']['Tables']['posts']['Row'] & {
   description?: string;
@@ -253,6 +254,12 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
               <div className="blog-content prose prose-lg max-w-none">
                 <div dangerouslySetInnerHTML={{ __html: html }} />
               </div>
+
+              {/* 著者情報 */}
+              <AuthorInfo author={{
+                name: '退職あんしん代行編集部',
+                avatar: '/images/editorial/editorial-team.png'
+              }} />
 
               {/* 関連記事 */}
               <RelatedPosts relatedPosts={relatedPosts || []} />
