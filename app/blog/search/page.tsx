@@ -1,11 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { usePostsStore } from '@/stores/posts';
 import BlogCard from '@/components/blog/BlogCard';
 
-export default function SearchPage() {
+function SearchResults() {
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
   const { posts } = usePostsStore();
@@ -16,7 +16,7 @@ export default function SearchPage() {
   });
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
       <h1 className="text-3xl font-bold mb-6">
         検索結果: {query}
       </h1>
@@ -32,6 +32,16 @@ export default function SearchPage() {
           ))}
         </div>
       )}
+    </>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <Suspense fallback={<div>検索中...</div>}>
+        <SearchResults />
+      </Suspense>
     </div>
   );
 } 

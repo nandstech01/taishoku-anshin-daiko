@@ -5,6 +5,9 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   optimizeFonts: false,
+  experimental: {
+    optimizePackageImports: ['@heroicons/react'],
+  },
   images: {
     domains: ['sfdtkxypnfwwjranlnug.supabase.co'],
   },
