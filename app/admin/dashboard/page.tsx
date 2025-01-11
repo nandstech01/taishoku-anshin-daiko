@@ -1,402 +1,545 @@
-import { Metadata } from 'next';
+'use client';
+
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/supabase';
-import { parseMarkdown } from '@/utils/markdown';
-import TableOfContents from '@/components/TableOfContents';
-import RelatedPosts from '@/components/RelatedPosts';
-import { PageViewTracker } from '@/components/blog/PageViewTracker';
-import { notFound } from 'next/navigation';
-import Image from 'next/image';
+import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { Database } from '@/lib/supabase/database.types';
-import { MessageCircle, Mail } from 'lucide-react';
-import Footer from '@/components/common/Footer';
-import { generateArticleSchema } from '@/schemas/article';
-import { generateBreadcrumbSchema } from '@/schemas/breadcrumb';
-import { AuthorInfo } from '@/components/blog/AuthorInfo';
 
-type Post = Database['public']['Tables']['posts']['Row'] & {
-  description?: string;
-  thumbnail_url?: string;
-  category_slug?: string;
-  status: string;
-  views: number;
-  tags?: string[];
-  seo_keywords?: string[];
-  category?: Category;
-};
+type Post = Database['public']['Tables']['posts']['Row'];
+type Analytics = Database['public']['Tables']['analytics']['Row'];
+type DashboardPost = Pick<Post, 'id' | 'title' | 'slug' | 'published_at' | 'created_at'>;
 
-interface Category {
-  id: number;
-  name: string;
-  slug: string;
+interface PageTypeStat {
+  page_type: string;
+  label: string;
+  count: number;
 }
 
-interface Tag {
-  name: string;
-  slug: string;
+interface DashboardStats {
+  totalPosts: number;
+  publishedPosts: number;
+  draftPosts: number;
+  recentPosts: DashboardPost[];
+  monthlyViews: number;
+  recentVisitors: number;
+  deviceStats: Array<{ device_type: string; count: number }>;
+  countryStats: Array<{ country: string; count: number }>;
+  pageTypeStats: PageTypeStat[];
 }
 
-// キャッシュを無効化
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
-
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const supabase = createClient();
-  const { data: post, error: metaError } = await supabase
-    .from('posts')
-    .select(`
-      *,
-      category:categories(*)
-    `)
-    .eq('slug', params.slug)
-    .eq('status', 'published')
-    .single();
-
-  if (!post || metaError) {
-    return {
-      title: 'Not Found',
-      description: 'The page you are looking for does not exist.',
-    };
+// ページタイプのラベルを取得する関数
+function getPageTypeLabel(pageType: string): string {
+  switch (pageType) {
+    case 'lp':
+      return 'トップページ';
+    case 'blog_top':
+      return 'ブログトップ';
+    case 'blog_post':
+      return 'ブログ記事';
+    default:
+      return 'その他';
   }
+}
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
-
-  // Generate breadcrumb items
-  const breadcrumbItems = [
-    { name: 'ホーム', url: '/' },
-    { name: 'ブログ', url: '/blog' },
-    { name: post.title, url: `/blog/${post.slug}` }
-  ];
-
-  // Generate structured data
-  const structuredData = [
-    generateArticleSchema(post, baseUrl),
-    generateBreadcrumbSchema(breadcrumbItems, baseUrl)
-  ];
-
-  // 画像URLの正規化
-  const normalizeImageUrl = (url: string) => {
-    return url.startsWith('http') ? url : `${baseUrl}${url}`;
+// 集計用のヘルパー関数
+function aggregateAnalytics(analyticsData: Analytics[] | null) {
+  if (!analyticsData) return {
+    deviceStats: [],
+    countryStats: [],
+    recentVisitors: 0,
+    pageTypeStats: []
   };
+
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const recentData = analyticsData.filter(d => 
+    d.created_at && new Date(d.created_at) >= thirtyDaysAgo
+  );
+
+  // デバイス別統計
+  const deviceMap = recentData.reduce((acc, curr) => {
+    const device = curr.device_type || 'unknown';
+    acc[device] = (acc[device] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const deviceStats = Object.entries(deviceMap).map(([device_type, count]) => ({
+    device_type,
+    count
+  }));
+
+  // 国別統計
+  const countryMap = recentData.reduce((acc, curr) => {
+    const country = curr.country || 'unknown';
+    acc[country] = (acc[country] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const countryStats = Object.entries(countryMap)
+    .map(([country, count]) => ({
+      country,
+      count
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  // ページタイプ別統計
+  const pageTypeMap = recentData.reduce((acc, curr) => {
+    const path = curr.page_path;
+    let pageType = 'unknown';
+    
+    if (path === '/') {
+      pageType = 'lp';
+    } else if (path === '/blog') {
+      pageType = 'blog_top';
+    } else if (path.startsWith('/blog/')) {
+      pageType = 'blog_post';
+    }
+
+    acc[pageType] = (acc[pageType] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const pageTypeStats = Object.entries(pageTypeMap)
+    .map(([page_type, count]) => ({
+      page_type,
+      label: getPageTypeLabel(page_type),
+      count
+    }))
+    .sort((a, b) => b.count - a.count);
 
   return {
-    title: post.title || 'Blog Post',
-    description: post.description || '',
-    keywords: post.seo_keywords?.join(', ') || '',
-    alternates: {
-      canonical: `${baseUrl}/blog/${post.slug}`
-    },
-    openGraph: {
-      title: post.title,
-      description: post.description || '',
-      url: `${baseUrl}/blog/${post.slug}`,
-      type: 'article',
-      images: post.thumbnail_url ? [{ url: normalizeImageUrl(post.thumbnail_url) }] : undefined,
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: post.title,
-      description: post.description || '',
-      images: post.thumbnail_url ? [normalizeImageUrl(post.thumbnail_url)] : undefined,
-    },
-    other: {
-      'application/ld+json': structuredData.map(item => JSON.stringify(item)).join('\n')
-    }
+    deviceStats,
+    countryStats,
+    recentVisitors: new Set(recentData.map(d => d.visitor_id).filter(Boolean)).size,
+    pageTypeStats
   };
 }
 
-export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const supabase = createClient();
-  
-  const postResponse = await supabase
-    .from('posts')
-    .select(`
-      *,
-      category:categories(*)
-    `)
-    .eq('slug', params.slug)
-    .eq('status', 'published')
-    .single();
+export default function DashboardPage() {
+  const router = useRouter();
+  const { session, loading: authLoading } = useAuth();
+  const [stats, setStats] = useState<DashboardStats>({
+    totalPosts: 0,
+    publishedPosts: 0,
+    draftPosts: 0,
+    recentPosts: [],
+    monthlyViews: 0,
+    recentVisitors: 0,
+    deviceStats: [],
+    countryStats: [],
+    pageTypeStats: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const { data: post, error } = postResponse;
+  // 認証チェック
+  useEffect(() => {
+    if (!authLoading && !session) {
+      console.log('Dashboard - No session, redirecting to login...');
+      router.replace('/admin');
+    }
+  }, [session, authLoading, router]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const supabase = createClient();
+
+        // 記事データの取得
+        const { data: posts, error: queryError } = await supabase
+          .from('posts')
+          .select(`
+            id,
+            title,
+            slug,
+            published_at,
+            created_at,
+            category_slug,
+            tags
+          `)
+          .order('created_at', { ascending: false });
+
+        if (queryError) throw queryError;
+
+        // カテゴリー情報を別途取得
+        const { data: categories } = await supabase
+          .from('categories')
+          .select('*');
+
+        // 記事データにカテゴリー情報を追加
+        const postsWithCategories = posts?.map(post => ({
+          ...post,
+          category: categories?.find(cat => cat.slug === post.category_slug)
+        })) || [];
+
+        // 月間PV数の取得（count集計を使用）
+        const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+        const { count: monthlyViewCount, error: viewCountError } = await supabase
+          .from('analytics')
+          .select('*', { count: 'exact', head: true })
+          .gte('created_at', thirtyDaysAgo);
+
+        if (viewCountError) throw viewCountError;
+
+        // 詳細な分析用のデータ取得（最新1000件）
+        const { data: analyticsData, error: analyticsError } = await supabase
+          .from('analytics')
+          .select('*')
+          .gte('created_at', thirtyDaysAgo)
+          .order('created_at', { ascending: false })
+          .limit(1000);
+
+        if (analyticsError) throw analyticsError;
+
+        // 統計データの集計
+        const {
+          deviceStats,
+          countryStats,
+          recentVisitors,
+          pageTypeStats
+        } = aggregateAnalytics(analyticsData);
+
+        if (!posts) {
+          setStats({
+            totalPosts: 0,
+            publishedPosts: 0,
+            draftPosts: 0,
+            recentPosts: [],
+            monthlyViews: monthlyViewCount || 0,
+            recentVisitors,
+            deviceStats,
+            countryStats,
+            pageTypeStats
+          });
+          return;
+        }
+
+        const publishedPosts = postsWithCategories.filter(post => post.published_at !== null);
+        const draftPosts = postsWithCategories.filter(post => post.published_at === null);
+
+        setStats({
+          totalPosts: postsWithCategories.length,
+          publishedPosts: publishedPosts.length,
+          draftPosts: draftPosts.length,
+          recentPosts: postsWithCategories.slice(0, 5),
+          monthlyViews: monthlyViewCount || 0,
+          recentVisitors,
+          deviceStats,
+          countryStats,
+          pageTypeStats
+        });
+      } catch (err) {
+        console.error('[Dashboard] Error:', err);
+        setError(err instanceof Error ? err.message : '統計情報の取得に失敗しました。');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (!authLoading && session) {
+      fetchStats();
+    }
+  }, [session, authLoading]);
+
+  // 認証のローディング中
+  if (authLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+        <span className="ml-2 text-gray-600">認証状態を確認中...</span>
+      </div>
+    );
+  }
+
+  // データ取得のローディング中
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+        <span className="ml-2 text-gray-600">データを読み込み中...</span>
+      </div>
+    );
+  }
 
   if (error) {
-    console.error('Error fetching post:', error);
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-red-500">
-          <h1 className="text-2xl font-bold mb-4">記事の読み込みに失敗しました</h1>
-          <p>申し訳ありませんが、記事の読み込み中にエラーが発生しました。</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!post) {
-    return notFound();
-  }
-
-  const [categoryResponse, tagsResponse] = await Promise.all([
-    supabase
-      .from('categories')
-      .select('*'),
-    Promise.resolve({ 
-      data: post.seo_keywords?.map((keyword: string) => ({ 
-        name: keyword, 
-        slug: keyword.toLowerCase().replace(/\s+/g, '-')
-      })) || [], 
-      error: null 
-    })
-  ]);
-
-  const categories = (categoryResponse.data || []) as Category[];
-  const category = categories.find(cat => cat.slug === post.category_slug);
-  const tags = tagsResponse.data as Tag[];
-
-  // 同じカテゴリの関連記事を取得
-  const { data: relatedPosts } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('category_slug', post.category_slug)
-    .neq('slug', post.slug)
-    .eq('status', 'published')
-    .order('created_at', { ascending: false })
-    .limit(3);
-
-  try {
-    const { html, headings } = await parseMarkdown(post.content || '');
-    const shareUrl = `https://taishoku-anshin.com/blog/${post.slug}`;
-    const shareText = `${post.title}\n\n`;
-
-    // Generate breadcrumb items
-    const breadcrumbItems = [
-      { name: 'ホーム', url: '/' },
-      { name: 'ブログ', url: '/blog' },
-      { name: post.title, url: `/blog/${post.slug}` }
-    ];
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
-
-    // Generate structured data
-    const pageStructuredData = [
-      generateArticleSchema(post, baseUrl),
-      generateBreadcrumbSchema(breadcrumbItems, baseUrl)
-    ];
-
-    return (
-      <div className="blog-container">
-        <div className="blog-content">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            {/* 構造化データの出力 */}
-            {pageStructuredData.map((item: any, index: number) => (
-              <script
-                key={index}
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
-              />
-            ))}
-            <PageViewTracker slug={params.slug} page_type="blog_post" />
-            <article>
-              <header className="mb-8">
-                {category && (
-                  <Link href={`/blog/category/${category.slug}`} className="blog-category mb-4">
-                    {category.name}
-                  </Link>
-                )}
-                <h1 className="text-4xl font-bold mb-4">{post.title}</h1>
-                <div className="blog-meta">
-                  <div className="blog-date">
-                    {new Date(post.created_at).toLocaleDateString('ja-JP', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </div>
-                  {tags?.length > 0 && (
-                    <div className="blog-tags-section">
-                      <div className="blog-tags">
-                        {tags.map((tag) => (
-                          <Link
-                            key={tag.slug}
-                            href={`/blog/tag/${tag.slug}`}
-                            className="blog-tag"
-                            aria-label={`${tag.name}のタグが付いた記事一覧を見る`}
-                          >
-                            {tag.name}
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-                {post.thumbnail_url && (
-                  <div className="aspect-w-16 aspect-h-9 mb-8 rounded-lg overflow-hidden">
-                    <Image
-                      src={post.thumbnail_url}
-                      alt={post.title}
-                      width={1200}
-                      height={675}
-                      className="object-cover"
-                      priority
-                    />
-                  </div>
-                )}
-              </header>
-
-              {/* 上部シェアボタン */}
-              <div className="blog-share-buttons">
-                <a
-                  href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="blog-share-button twitter"
-                >
-                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                  X でシェア
-                </a>
-                <a
-                  href={`https://line.me/R/msg/text/?${encodeURIComponent(shareText + shareUrl)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="blog-share-button line"
-                >
-                  <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.84 14.52C16.51 15.03 15.94 15.59 15.35 15.95C14.49 16.47 13.5 16.85 12.45 16.85C11.88 16.85 11.33 16.77 10.8 16.61C9.78 16.3 8.81 15.79 7.94 15.12C6.54 14.06 5.5 12.66 4.95 11.06C4.67 10.25 4.51 9.4 4.51 8.54C4.51 7.02 5.16 5.64 6.28 4.63C7.4 3.62 8.92 3 10.57 3H13.43C15.08 3 16.6 3.62 17.72 4.63C18.84 5.64 19.49 7.02 19.49 8.54C19.49 9.4 19.33 10.25 19.05 11.06C18.5 12.66 17.46 14.06 16.84 14.52Z"/>
-                    <path d="M16.42 11.38C16.42 11.15 16.23 10.97 16 10.97H14.97L15.17 9.93C15.21 9.71 15.05 9.5 14.83 9.46C14.61 9.42 14.4 9.58 14.36 9.8L14.12 11.02H12.54L12.74 9.98C12.78 9.76 12.62 9.55 12.4 9.51C12.18 9.47 11.97 9.63 11.93 9.85L11.69 11.07H10.58C10.35 11.07 10.17 11.25 10.17 11.48C10.17 11.71 10.35 11.89 10.58 11.89H11.57L11.33 13.03H10.22C9.99 13.03 9.81 13.21 9.81 13.44C9.81 13.67 9.99 13.85 10.22 13.85H11.21L11.01 14.89C10.97 15.11 11.13 15.32 11.35 15.36C11.37 15.36 11.39 15.37 11.42 15.37C11.61 15.37 11.78 15.23 11.82 15.04L12.06 13.82H13.64L13.44 14.86C13.4 15.08 13.56 15.29 13.78 15.33C13.8 15.33 13.82 15.34 13.85 15.34C14.04 15.34 14.21 15.2 14.25 15.01L14.49 13.79H15.52C15.75 13.79 15.93 13.61 15.93 13.38C15.93 13.15 15.75 12.97 15.52 12.97H14.61L14.85 11.83H15.88C16.11 11.83 16.29 11.65 16.29 11.42L16.42 11.38ZM13.76 11.83L13.52 12.97H11.94L12.18 11.83H13.76Z"/>
-                  </svg>
-                  LINE でシェア
-                </a>
-              </div>
-
-              {/* 目次 */}
-              <TableOfContents items={headings} />
-
-              {/* リード文 */}
-              {post.description && (
-                <div className="text-lg text-gray-600 mb-8 leading-relaxed">
-                  {post.description}
-                </div>
-              )}
-
-              {/* 本文 */}
-              <div className="blog-content prose prose-lg max-w-none">
-                <div dangerouslySetInnerHTML={{ __html: html }} />
-              </div>
-
-              {/* 著者情報 */}
-              <AuthorInfo author={{
-                name: '退職あんしん代行編集部',
-                avatar: '/images/editorial/editorial-team.png'
-              }} />
-
-              {/* 関連記事 */}
-              <RelatedPosts relatedPosts={relatedPosts || []} />
-
-              {/* Categories Section */}
-              <section className="blog-categories mt-12 mb-24">
-                <h2 className="blog-tags-title">CATEGORIES</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {categories.map((category) => (
-                    <Link
-                      key={category.slug}
-                      href={`/blog/category/${category.slug}`}
-                      className="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
-                    >
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {category.name}
-                      </h3>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-
-              {/* Tags Section */}
-              <section className="blog-tags-section mt-24 mb-24">
-                <h2 className="blog-tags-title">TAGS</h2>
-                <div className="blog-tags max-w-4xl mx-auto px-4">
-                  {tags.map((tag) => (
-                    <Link
-                      key={tag.slug}
-                      href={`/blog/tag/${tag.slug}`}
-                      className="blog-tag"
-                    >
-                      {tag.name}
-                    </Link>
-                  ))}
-                </div>
-              </section>
-
-              {/* Career Support */}
-              <section className="blog-career mt-24">
-                <h2 className="blog-career-title">キャリアサポートのお知らせ</h2>
-                <Link href="https://nands.tech/" target="_blank" rel="noopener noreferrer" className="block">
-                  <div className="blog-career-card">
-                    <Image
-                      src="/images/career-support.jpg"
-                      alt="Career Support"
-                      width={600}
-                      height={300}
-                      className="blog-career-image"
-                    />
-                    <div className="blog-career-content">
-                      退職あんしん代行を運営する「株式会社エヌアンドエス」では、
-                      AI時代に合わせた副業・リスキリング支援プログラムを開始しました。
-                      退職後のキャリア形成を一緒に考えませんか？
-                    </div>
-                  </div>
-                </Link>
-              </section>
-
-              {/* Contact Section */}
-              <section className="blog-contact mt-24 mb-24">
-                <h2 className="blog-tags-title">ご相談はこちら</h2>
-                <div className="blog-contact-grid">
-                  {/* LINE相談 */}
-                  <div className="blog-contact-card text-center">
-                    <MessageCircle className="w-12 h-12 text-[#06C755] mx-auto mb-2" />
-                    <h4 className="text-xl font-bold text-gray-900 mb-2">
-                      公式LINEでお気軽に相談
-                    </h4>
-                    <p className="text-gray-600 mb-4">
-                      LINEなら、いつでも気軽にご相談いただけます
-                    </p>
-                    <a
-                      href="https://lin.ee/h1kk42r"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="block bg-[#06C755] hover:bg-[#05b34c] text-white text-lg font-bold py-4 px-6 rounded-lg text-center transition-colors"
-                    >
-                      LINEで相談する
-                    </a>
-                  </div>
-
-                  {/* メール相談 */}
-                  <a href="mailto:contact@taishoku-anshin-daiko.com" className="blog-contact-card text-center">
-                    <Mail className="w-12 h-12 text-orange-500 mx-auto mb-2" />
-                    <h4 className="text-xl font-bold text-gray-900 mb-2">
-                      メールでのご相談
-                    </h4>
-                    <p className="text-lg text-gray-600">24時間受付中</p>
-                  </a>
-                </div>
-              </section>
-            </article>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-red-50 border-l-4 border-red-400 p-4">
+          <div className="flex">
+            <div className="flex-shrink-0">
+              <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <div className="ml-3">
+              <p className="text-sm text-red-700">{error}</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="mt-2 text-sm text-red-600 hover:text-red-500"
+              >
+                再読み込み
+              </button>
+            </div>
           </div>
         </div>
-        <Footer />
-      </div>
-    );
-  } catch (error) {
-    console.error('Error rendering post:', error);
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-red-500">
-          <h1 className="text-2xl font-bold mb-4">記事の表示に失敗しました</h1>
-          <p>申し訳ありませんが、記事の表示中にエラーが発生しました。</p>
-        </div>
       </div>
     );
   }
+
+  return (
+    <div className="flex h-screen bg-gray-100">
+      {/* サイドバー */}
+      <div className="hidden md:flex md:flex-shrink-0">
+        <div className="flex flex-col w-64">
+          <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white border-r">
+            <div className="flex flex-col flex-grow px-4">
+              <nav className="flex-1 space-y-1">
+                <Link
+                  href="/admin/dashboard"
+                  className="flex items-center px-2 py-2 text-sm font-medium text-gray-900 bg-gray-100 rounded-md group"
+                >
+                  <svg className="w-6 h-6 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                  </svg>
+                  ダッシュボード
+                </Link>
+
+                <Link
+                  href="/admin/posts"
+                  className="flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900 group"
+                >
+                  <svg className="w-6 h-6 mr-3 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15" />
+                  </svg>
+                  記事一覧
+                </Link>
+
+                <Link
+                  href="/admin/posts/new"
+                  className="flex items-center px-2 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-50 hover:text-gray-900 group"
+                >
+                  <svg className="w-6 h-6 mr-3 text-gray-400 group-hover:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  新規作成
+                </Link>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* メインコンテンツ */}
+      <div className="flex-1 overflow-auto">
+        <main className="flex-1 relative pb-8 z-0 overflow-y-auto">
+          <div className="mt-8">
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+              <h1 className="text-2xl font-semibold text-gray-900">ダッシュボード</h1>
+
+              {/* 統計カード */}
+              <div className="mt-8">
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {/* 総記事数 */}
+                  <div className="bg-white overflow-hidden shadow rounded-lg">
+                    <div className="p-5">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15" />
+                          </svg>
+                        </div>
+                        <div className="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">総記事数</dt>
+                            <dd className="flex items-baseline">
+                              <div className="text-2xl font-semibold text-gray-900">{stats.totalPosts}</div>
+                            </dd>
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 月間PV */}
+                  <div className="bg-white overflow-hidden shadow rounded-lg">
+                    <div className="p-5">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </div>
+                        <div className="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">月間PV</dt>
+                            <dd className="flex items-baseline">
+                              <div className="text-2xl font-semibold text-gray-900">{stats.monthlyViews}</div>
+                            </dd>
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ユニークビジター */}
+                  <div className="bg-white overflow-hidden shadow rounded-lg">
+                    <div className="p-5">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0">
+                          <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                          </svg>
+                        </div>
+                        <div className="ml-5 w-0 flex-1">
+                          <dl>
+                            <dt className="text-sm font-medium text-gray-500 truncate">月間ユニークビジター</dt>
+                            <dd className="flex items-baseline">
+                              <div className="text-2xl font-semibold text-gray-900">{stats.recentVisitors}</div>
+                            </dd>
+                          </dl>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* ページタイプ別統計 */}
+              <div className="mt-8">
+                <div className="bg-white shadow rounded-lg">
+                  <div className="px-5 py-4 border-b border-gray-200">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      ページタイプ別アクセス数（月間）
+                    </h3>
+                  </div>
+                  <div className="p-5">
+                    <div className="grid grid-cols-1 gap-4">
+                      {stats.pageTypeStats.map((stat) => (
+                        <div key={stat.page_type} className="flex items-center justify-between py-3 border-b border-gray-200 last:border-0">
+                          <div className="flex items-center">
+                            <span className="text-sm font-medium text-gray-900">{stat.label}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <span className="px-2.5 py-1.5 text-sm font-medium bg-blue-100 text-blue-800 rounded-full">
+                              {stat.count} PV
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 最近の記事 */}
+              <div className="bg-white shadow rounded-lg mb-8">
+                <div className="px-5 py-4 border-b border-gray-200">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                    最近の記事
+                  </h3>
+                </div>
+                <div className="p-5">
+                  <div className="flow-root">
+                    <ul className="-my-5 divide-y divide-gray-200">
+                      {stats.recentPosts.map((post) => (
+                        <li key={post.id} className="py-4">
+                          <div className="flex items-center space-x-4">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {post.title}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                {new Date(post.created_at).toLocaleDateString('ja-JP')}
+                              </p>
+                            </div>
+                            <div>
+                              <Link
+                                href={`/admin/posts/${post.slug}/edit`}
+                                className="inline-flex items-center shadow-sm px-2.5 py-0.5 border border-gray-300 text-sm leading-5 font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50"
+                              >
+                                編集
+                              </Link>
+                            </div>
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* デバイス統計 */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="bg-white shadow rounded-lg">
+                  <div className="px-5 py-4 border-b border-gray-200">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      デバイス別アクセス
+                    </h3>
+                  </div>
+                  <div className="p-5">
+                    <div className="flow-root">
+                      <ul className="-my-4 divide-y divide-gray-200">
+                        {stats.deviceStats.map(({ device_type, count }) => (
+                          <li key={device_type} className="py-4">
+                            <div className="flex items-center space-x-4">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {device_type}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                  {count}
+                                </span>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 国別統計 */}
+                <div className="bg-white shadow rounded-lg">
+                  <div className="px-5 py-4 border-b border-gray-200">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900">
+                      国別アクセス
+                    </h3>
+                  </div>
+                  <div className="p-5">
+                    <div className="flow-root">
+                      <ul className="-my-4 divide-y divide-gray-200">
+                        {stats.countryStats.map(({ country, count }) => (
+                          <li key={country} className="py-4">
+                            <div className="flex items-center space-x-4">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium text-gray-900">
+                                  {country}
+                                </p>
+                              </div>
+                              <div>
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  {count}
+                                </span>
+                              </div>
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
 } 
