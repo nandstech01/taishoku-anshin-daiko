@@ -189,10 +189,19 @@ export default function NewPostPage() {
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">新規記事作成</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">新規記事作成</h1>
+        <button
+          type="button"
+          onClick={togglePreview}
+          className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+          プレビュー
+        </button>
+      </div>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
             タイトル
           </label>
           <input
@@ -205,14 +214,14 @@ export default function NewPostPage() {
           />
         </div>
         <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-2">
             カテゴリー
           </label>
           <select
             id="category"
             value={categorySlug}
             onChange={(e) => setCategorySlug(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+            className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
           >
             <option value="">カテゴリーを選択</option>
             {categories.map((category) => (
@@ -223,7 +232,7 @@ export default function NewPostPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             サムネイル画像
           </label>
           <ImageUploader
@@ -232,17 +241,17 @@ export default function NewPostPage() {
           />
         </div>
         <div>
-          <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+          <label htmlFor="content" className="block text-sm font-semibold text-gray-700 mb-2">
             本文
           </label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="relative">
               <textarea
                 id="content"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                rows={10}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                rows={15}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono text-sm"
                 required
               />
             </div>
@@ -254,70 +263,66 @@ export default function NewPostPage() {
             </div>
           </div>
         </div>
-        <div className="border-t pt-6 mt-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">SEO設定</h2>
-          
+
+        <div className="border-t border-gray-200 pt-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">SEO設定</h2>
           <div className="space-y-6">
             <div>
-              <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="metaDescription" className="block text-sm font-semibold text-gray-700 mb-2">
                 メタディスクリプション
               </label>
-              <p className="text-sm text-gray-500 mb-1">
-                検索結果に表示される説明文（120文字以内推奨）
-              </p>
               <textarea
                 id="metaDescription"
                 value={metaDescription}
                 onChange={(e) => setMetaDescription(e.target.value)}
-                rows={2}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                maxLength={160}
+                rows={3}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                placeholder="検索結果に表示される説明文を入力してください"
               />
-              <p className="text-sm text-gray-500 mt-1">
-                {metaDescription.length}/160文字
-              </p>
             </div>
 
             <div>
-              <label htmlFor="seoKeywords" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="seoKeywords" className="block text-sm font-semibold text-gray-700 mb-2">
                 SEOキーワード
               </label>
-              <div className="mt-1 flex rounded-md shadow-sm">
+              <div className="flex gap-2 mb-2">
                 <input
                   type="text"
                   id="seoKeywords"
                   value={seoKeywordInput}
                   onChange={(e) => setSeoKeywordInput(e.target.value)}
+                  className="block flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                  placeholder="キーワードを入力"
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       handleAddKeyword();
                     }
                   }}
-                  className="flex-1 rounded-l-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                  placeholder="キーワードを入力"
                 />
                 <button
                   type="button"
                   onClick={handleAddKeyword}
-                  className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
+                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   追加
                 </button>
               </div>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2">
                 {seoKeywords.map((keyword) => (
                   <span
                     key={keyword}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800"
                   >
                     {keyword}
                     <button
                       type="button"
                       onClick={() => handleRemoveKeyword(keyword)}
-                      className="ml-1 inline-flex items-center p-0.5 text-blue-400 hover:text-blue-600"
+                      className="ml-2 inline-flex items-center p-0.5 rounded-full text-indigo-600 hover:bg-indigo-200 focus:outline-none"
                     >
-                      ×
+                      <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
                     </button>
                   </span>
                 ))}
@@ -325,19 +330,16 @@ export default function NewPostPage() {
             </div>
 
             <div>
-              <label htmlFor="canonicalUrl" className="block text-sm font-medium text-gray-700">
-                正規URL（Canonical URL）
+              <label htmlFor="canonicalUrl" className="block text-sm font-semibold text-gray-700 mb-2">
+                正規URL（オプション）
               </label>
-              <p className="text-sm text-gray-500 mb-1">
-                同じ内容が複数のURLで表示される場合に、正規のURLを指定
-              </p>
               <input
                 type="url"
                 id="canonicalUrl"
                 value={canonicalUrl}
                 onChange={(e) => setCanonicalUrl(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                placeholder="https://example.com/posts/original-post"
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                placeholder="https://example.com/canonical-page"
               />
             </div>
 
@@ -349,46 +351,30 @@ export default function NewPostPage() {
                 onChange={(e) => setIsIndexable(e.target.checked)}
                 className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
               />
-              <label htmlFor="isIndexable" className="ml-2 block text-sm text-gray-900">
+              <label htmlFor="isIndexable" className="ml-2 block text-sm font-semibold text-gray-700">
                 検索エンジンのインデックスを許可する
               </label>
             </div>
           </div>
         </div>
 
-        <div className="flex justify-between items-center">
-          <div className="flex space-x-4">
+        <div className="border-t border-gray-200 pt-6">
+          <div className="flex justify-between items-center">
             <button
               type="button"
               onClick={toggleStatus}
-              className={`inline-flex justify-center rounded-md border py-2 px-4 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+              className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md ${
                 status === 'published'
-                  ? 'border-red-300 bg-white text-red-700 hover:bg-red-50 focus:ring-red-500'
-                  : 'border-green-300 bg-white text-green-700 hover:bg-green-50 focus:ring-green-500'
-              }`}
+                  ? 'text-green-700 bg-green-100 hover:bg-green-200'
+                  : 'text-gray-700 bg-gray-100 hover:bg-gray-200'
+              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
             >
-              {status === 'published' ? '非公開にする' : '公開する'}
-            </button>
-            <button
-              type="button"
-              onClick={togglePreview}
-              className="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              プレビュー
-            </button>
-          </div>
-          <div className="flex space-x-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              キャンセル
+              {status === 'published' ? '公開する' : '下書きとして保存'}
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
               {isSubmitting ? '保存中...' : '保存する'}
             </button>

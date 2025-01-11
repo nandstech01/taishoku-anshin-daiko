@@ -185,215 +185,206 @@ export default function EditPostPage({
 
   return (
     <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">記事の編集</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-            タイトル
-          </label>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
-            カテゴリー
-          </label>
-          <select
-            id="category"
-            value={categorySlug}
-            onChange={(e) => setCategorySlug(e.target.value)}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">記事の編集</h1>
+        <div className="flex items-center space-x-4">
+          <button
+            type="button"
+            onClick={toggleStatus}
+            className={`inline-flex items-center px-4 py-2 border text-sm font-medium rounded-md ${
+              status === 'published'
+                ? 'border-green-300 bg-white text-green-700 hover:bg-green-50'
+                : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+            } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
           >
-            <option value="">カテゴリーを選択</option>
-            {categories.map((category) => (
-              <option key={category.slug} value={category.slug}>
-                {category.name}
-              </option>
-            ))}
-          </select>
+            {status === 'published' ? '公開中' : '下書き'}
+          </button>
+          <button
+            type="button"
+            onClick={togglePreview}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            プレビュー
+          </button>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            サムネイル画像
-          </label>
-          <ImageUploader
-            onImageUploaded={setThumbnailUrl}
-            currentImageUrl={thumbnailUrl}
-          />
-        </div>
-        <div>
-          <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-            本文
-          </label>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      </div>
+      <div className="bg-white shadow rounded-lg p-6">
+        <form onSubmit={handleSubmit} className="space-y-8">
+          <div className="grid grid-cols-1 gap-8">
             <div>
-              <textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                rows={10}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              <label htmlFor="title" className="block text-sm font-semibold text-gray-700 mb-2">
+                タイトル
+              </label>
+              <input
+                type="text"
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-lg"
                 required
               />
             </div>
             <div>
-              {postId && (
-                <ContentImageManager
-                  postId={postId}
-                  onImageSelect={handleImageSelect}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-
-        <div className="border-t pt-6 mt-8">
-          <h2 className="text-lg font-medium text-gray-900 mb-4">SEO設定</h2>
-          
-          <div className="space-y-6">
-            <div>
-              <label htmlFor="metaDescription" className="block text-sm font-medium text-gray-700">
-                メタディスクリプション
+              <label htmlFor="category" className="block text-sm font-semibold text-gray-700 mb-2">
+                カテゴリー
               </label>
-              <p className="text-sm text-gray-500 mb-1">
-                検索結果に表示される説明文（120文字以内推奨）
-              </p>
-              <textarea
-                id="metaDescription"
-                value={metaDescription}
-                onChange={(e) => setMetaDescription(e.target.value)}
-                rows={2}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                maxLength={160}
+              <select
+                id="category"
+                value={categorySlug}
+                onChange={(e) => setCategorySlug(e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+              >
+                <option value="">カテゴリーを選択</option>
+                {categories.map((category) => (
+                  <option key={category.slug} value={category.slug}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                サムネイル画像
+              </label>
+              <ImageUploader
+                onImageUploaded={setThumbnailUrl}
+                currentImageUrl={thumbnailUrl}
               />
-              <p className="text-sm text-gray-500 mt-1">
-                {metaDescription.length}/160文字
-              </p>
+            </div>
+            <div>
+              <label htmlFor="content" className="block text-sm font-semibold text-gray-700 mb-2">
+                本文
+              </label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="relative">
+                  <textarea
+                    id="content"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    rows={15}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono text-sm"
+                    required
+                  />
+                </div>
+                <div>
+                  {postId && (
+                    <ContentImageManager
+                      postId={postId}
+                      onImageSelect={handleImageSelect}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="seoKeywords" className="block text-sm font-medium text-gray-700">
-                SEOキーワード
-              </label>
-              <div className="mt-1 flex rounded-md shadow-sm">
-                <input
-                  type="text"
-                  id="seoKeywords"
-                  value={seoKeywordInput}
-                  onChange={(e) => setSeoKeywordInput(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      handleAddKeyword();
-                    }
-                  }}
-                  className="flex-1 rounded-l-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500"
-                  placeholder="キーワードを入力"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddKeyword}
-                  className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 text-sm"
-                >
-                  追加
-                </button>
-              </div>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {seoKeywords.map((keyword) => (
-                  <span
-                    key={keyword}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                  >
-                    {keyword}
+            <div className="border-t border-gray-200 pt-8">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6">SEO設定</h2>
+              <div className="space-y-6">
+                <div>
+                  <label htmlFor="metaDescription" className="block text-sm font-semibold text-gray-700 mb-2">
+                    メタディスクリプション
+                  </label>
+                  <textarea
+                    id="metaDescription"
+                    value={metaDescription}
+                    onChange={(e) => setMetaDescription(e.target.value)}
+                    rows={3}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="検索結果に表示される説明文を入力してください"
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="seoKeywords" className="block text-sm font-semibold text-gray-700 mb-2">
+                    SEOキーワード
+                  </label>
+                  <div className="flex gap-2 mb-2">
+                    <input
+                      type="text"
+                      id="seoKeywords"
+                      value={seoKeywordInput}
+                      onChange={(e) => setSeoKeywordInput(e.target.value)}
+                      className="block flex-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                      placeholder="キーワードを入力"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddKeyword();
+                        }
+                      }}
+                    />
                     <button
                       type="button"
-                      onClick={() => handleRemoveKeyword(keyword)}
-                      className="ml-1 inline-flex items-center p-0.5 text-blue-400 hover:text-blue-600"
+                      onClick={handleAddKeyword}
+                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                     >
-                      ×
+                      追加
                     </button>
-                  </span>
-                ))}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {seoKeywords.map((keyword) => (
+                      <span
+                        key={keyword}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-indigo-100 text-indigo-800"
+                      >
+                        {keyword}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveKeyword(keyword)}
+                          className="ml-2 inline-flex items-center p-0.5 rounded-full text-indigo-600 hover:bg-indigo-200 focus:outline-none"
+                        >
+                          <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="canonicalUrl" className="block text-sm font-semibold text-gray-700 mb-2">
+                    正規URL（オプション）
+                  </label>
+                  <input
+                    type="url"
+                    id="canonicalUrl"
+                    value={canonicalUrl}
+                    onChange={(e) => setCanonicalUrl(e.target.value)}
+                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                    placeholder="https://example.com/canonical-page"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="isIndexable"
+                    checked={isIndexable}
+                    onChange={(e) => setIsIndexable(e.target.checked)}
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                  />
+                  <label htmlFor="isIndexable" className="ml-2 block text-sm font-semibold text-gray-700">
+                    検索エンジンのインデックスを許可する
+                  </label>
+                </div>
               </div>
             </div>
 
-            <div>
-              <label htmlFor="canonicalUrl" className="block text-sm font-medium text-gray-700">
-                正規URL（Canonical URL）
-              </label>
-              <p className="text-sm text-gray-500 mb-1">
-                同じ内容が複数のURLで表示される場合に、正規のURLを指定
-              </p>
-              <input
-                type="url"
-                id="canonicalUrl"
-                value={canonicalUrl}
-                onChange={(e) => setCanonicalUrl(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                placeholder="https://example.com/posts/original-post"
-              />
-            </div>
-
-            <div className="flex items-center">
-              <input
-                type="checkbox"
-                id="isIndexable"
-                checked={isIndexable}
-                onChange={(e) => setIsIndexable(e.target.checked)}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-              />
-              <label htmlFor="isIndexable" className="ml-2 block text-sm text-gray-900">
-                検索エンジンのインデックスを許可する
-              </label>
+            <div className="border-t border-gray-200 pt-6">
+              <div className="flex justify-between items-center">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+                >
+                  {isSubmitting ? '保存中...' : '保存する'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="flex justify-between items-center">
-          <div className="flex space-x-4">
-            <button
-              type="button"
-              onClick={toggleStatus}
-              className={`inline-flex justify-center rounded-md border py-2 px-4 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                status === 'published'
-                  ? 'border-red-300 bg-white text-red-700 hover:bg-red-50 focus:ring-red-500'
-                  : 'border-green-300 bg-white text-green-700 hover:bg-green-50 focus:ring-green-500'
-              }`}
-            >
-              {status === 'published' ? '非公開にする' : '公開する'}
-            </button>
-            <button
-              type="button"
-              onClick={togglePreview}
-              className="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              プレビュー
-            </button>
-          </div>
-          <div className="flex space-x-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="inline-flex justify-center rounded-md border border-gray-300 bg-white py-2 px-4 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-            >
-              キャンセル
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50"
-            >
-              {isSubmitting ? '保存中...' : '保存する'}
-            </button>
-          </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 } 
