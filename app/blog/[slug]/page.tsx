@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     };
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://yourdomain.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
 
   // Generate breadcrumb items
   const breadcrumbItems = [
@@ -74,6 +74,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     generateBreadcrumbSchema(breadcrumbItems, baseUrl)
   ];
 
+  // 画像URLの正規化
+  const normalizeImageUrl = (url: string) => {
+    return url.startsWith('http') ? url : `${baseUrl}${url}`;
+  };
+
   return {
     title: post.title || 'Blog Post',
     description: post.description || '',
@@ -86,16 +91,16 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       description: post.description || '',
       url: `${baseUrl}/blog/${post.slug}`,
       type: 'article',
-      images: post.thumbnail_url ? [{ url: post.thumbnail_url }] : undefined,
+      images: post.thumbnail_url ? [{ url: normalizeImageUrl(post.thumbnail_url) }] : undefined,
     },
     twitter: {
       card: 'summary_large_image',
       title: post.title,
       description: post.description || '',
-      images: post.thumbnail_url ? [post.thumbnail_url] : undefined,
+      images: post.thumbnail_url ? [normalizeImageUrl(post.thumbnail_url)] : undefined,
     },
     other: {
-      'script:ld+json': structuredData.map(data => JSON.stringify(data))
+      'application/ld+json': structuredData.map(item => JSON.stringify(item)).join('\n')
     }
   };
 }
@@ -163,10 +168,33 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     const shareUrl = `https://taishoku-anshin.com/blog/${post.slug}`;
     const shareText = `${post.title}\n\n`;
 
+    // Generate breadcrumb items
+    const breadcrumbItems = [
+      { name: 'ホーム', url: '/' },
+      { name: 'ブログ', url: '/blog' },
+      { name: post.title, url: `/blog/${post.slug}` }
+    ];
+
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
+
+    // Generate structured data
+    const pageStructuredData = [
+      generateArticleSchema(post, baseUrl),
+      generateBreadcrumbSchema(breadcrumbItems, baseUrl)
+    ];
+
     return (
       <div className="blog-container">
         <div className="blog-content">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            {/* 構造化データの出力 */}
+            {pageStructuredData.map((item: any, index: number) => (
+              <script
+                key={index}
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
+              />
+            ))}
             <PageViewTracker slug={params.slug} page_type="blog_post" />
             <article>
               <header className="mb-8">

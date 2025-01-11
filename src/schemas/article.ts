@@ -1,13 +1,26 @@
 import type { Post } from '@/lib/supabase/database.types';
 
 export const generateArticleSchema = (post: Post, baseUrl: string) => {
-  // 画像URLの生成（バリアントを使用）
-  const imageUrls = post.thumbnail_variants?.map((url: string) => `${baseUrl}${url}`) || 
-    (post.thumbnail_url ? [`${baseUrl}${post.thumbnail_url}`] : undefined);
+  // 画像URLの生成（異なるアスペクト比のバリアントを生成）
+  const generateImageVariants = (url: string) => {
+    const baseImageUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    return [
+      baseImageUrl, // オリジナル画像
+      `${baseImageUrl}?w=1200&h=675`, // 16:9
+      `${baseImageUrl}?w=1200&h=900`, // 4:3
+      `${baseImageUrl}?w=1200&h=1200`  // 1:1
+    ];
+  };
 
-  // 日付の処理（タイムゾーン付き）
-  const publishDate = post.published_at || post.created_at;
-  const modifyDate = post.updated_at || publishDate;
+  const imageUrls = post.thumbnail_url ? generateImageVariants(post.thumbnail_url) : undefined;
+
+  // 日付の処理（ISO 8601形式でタイムゾーン付き）
+  const formatDate = (date: string) => {
+    return new Date(date).toISOString();
+  };
+
+  const publishDate = formatDate(post.published_at || post.created_at);
+  const modifyDate = formatDate(post.updated_at || post.published_at || post.created_at);
 
   return {
     '@context': 'https://schema.org',
