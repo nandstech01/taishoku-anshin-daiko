@@ -64,31 +64,30 @@ export default function HamburgerMenu() {
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 className="p-2 text-gray-600 hover:text-gray-900 focus:outline-none w-10 h-10 flex items-center justify-center"
             >
-                <svg width="28" height="28" viewBox="0 0 23 23">
+                <svg width="24" height="24" viewBox="0 0 24 24">
                     <Path
                         variants={{
-                            closed: { d: "M 2 2.5 L 20 2.5" },
-                            open: { d: "M 3 16.5 L 17 2.5" }
+                            closed: { d: "M 4 6 L 20 6" },
+                            open: { d: "M 6 18 L 18 6" }
                         }}
                         animate={isMenuOpen ? "open" : "closed"}
-                        transition={{ duration: 0.5 }}
-                    />
-                    <Path
-                        d="M 2 9.423 L 20 9.423"
-                        variants={{
-                            closed: { opacity: 1 },
-                            open: { opacity: 0 }
-                        }}
-                        animate={isMenuOpen ? "open" : "closed"}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
                     />
                     <Path
                         variants={{
-                            closed: { d: "M 2 16.346 L 20 16.346" },
-                            open: { d: "M 3 2.5 L 17 16.346" }
+                            closed: { d: "M 4 12 L 20 12", opacity: 1 },
+                            open: { d: "M 4 12 L 20 12", opacity: 0 }
                         }}
                         animate={isMenuOpen ? "open" : "closed"}
-                        transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
+                    />
+                    <Path
+                        variants={{
+                            closed: { d: "M 4 18 L 20 18" },
+                            open: { d: "M 6 6 L 18 18" }
+                        }}
+                        animate={isMenuOpen ? "open" : "closed"}
+                        transition={{ duration: 0.7, ease: [0.4, 0, 0.2, 1] }}
                     />
                 </svg>
             </button>
@@ -112,7 +111,7 @@ export default function HamburgerMenu() {
                                         <p className="text-white/80 text-sm mb-3">＼ フォローしてね ／</p>
                                         <div className="flex justify-center gap-6">
                                             <motion.a
-                                                href="#"
+                                                href="https://x.com/anshin_taishoku"
                                                 whileHover={{ scale: 1.2 }}
                                                 whileTap={{ scale: 0.9 }}
                                                 className="text-white hover:text-orange-400 transition-colors duration-300"
@@ -136,7 +135,7 @@ export default function HamburgerMenu() {
                                                 <Youtube className="w-7 h-7" />
                                             </motion.a>
                                             <motion.a
-                                                href="#"
+                                                href="https://www.tiktok.com/@taishokuanshindaiko"
                                                 whileHover={{ scale: 1.2 }}
                                                 whileTap={{ scale: 0.9 }}
                                                 className="text-white hover:text-orange-400 transition-colors duration-300"
