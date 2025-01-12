@@ -87,10 +87,10 @@ export default function ComparisonSection() {
                                 <table className="w-full border-collapse">
                                     <thead>
                                         <tr>
-                                            <th className="p-4 text-left bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold">
+                                            <th className="p-3 text-left bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-xs tracking-wide">
                                                 退職代行サービス
                                             </th>
-                                            <th className="p-4 text-center bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold">
+                                            <th className="p-3 text-center bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold text-xs tracking-wide">
                                                 {company}
                                             </th>
                                         </tr>
@@ -98,12 +98,12 @@ export default function ComparisonSection() {
                                     <tbody>
                                         {comparisonData.map((row, rowIndex) => (
                                             <tr key={rowIndex} className="border-b border-gray-100">
-                                                <td className="p-4 text-gray-700">{row.service}</td>
-                                                <td className="p-4 text-center">
+                                                <td className="p-3 text-gray-700 text-xs whitespace-nowrap tracking-tight">{row.service}</td>
+                                                <td className="p-3 text-center">
                                                     {row[`company${index + 1}` as keyof typeof row] ? (
-                                                        <Check className="w-6 h-6 text-orange-500 mx-auto" />
+                                                        <Check className="w-5 h-5 text-orange-500 mx-auto" />
                                                     ) : (
-                                                        <span className="block w-6 h-6 bg-gray-200 rounded-full mx-auto" />
+                                                        <span className="block w-5 h-5 bg-gray-200 rounded-full mx-auto" />
                                                     )}
                                                 </td>
                                             </tr>

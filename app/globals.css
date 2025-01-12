@@ -199,6 +199,7 @@ body {
   padding: 1rem 2rem;
   border-radius: 0;
   margin: 0;
+  text-align: center;
 }
 
 .home-news-title {
@@ -208,6 +209,7 @@ body {
   letter-spacing: 0.1em;
   margin-bottom: 0.75rem;
   text-transform: uppercase;
+  text-align: center;
 }
 
 .home-news-list {
@@ -215,10 +217,16 @@ body {
   opacity: 0.9;
   line-height: 1.4;
   font-size: 0.875rem;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .home-news-list div {
-  padding: 0.25rem 0;
+  padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .home-news-label {
@@ -228,6 +236,6 @@ body {
   font-weight: 700;
   padding: 0.125rem 0.5rem;
   border-radius: 2px;
-  margin-right: 0.5rem;
+  margin-right: 0;
 }
   
