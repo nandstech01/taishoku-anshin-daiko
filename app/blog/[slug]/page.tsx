@@ -8,7 +8,7 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Database, Post, Category } from '@/lib/supabase/database.types';
-import { MessageCircle, Mail } from 'lucide-react';
+import { MessageCircle, Mail, Phone, Clock, Shield } from 'lucide-react';
 import Footer from '@/components/common/Footer';
 import { generateArticleSchema } from '@/schemas/article';
 import { generateBreadcrumbSchema } from '@/schemas/breadcrumb';
@@ -342,23 +342,99 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
               {/* Tags Section */}
               {tags?.length > 0 && (
                 <section className="blog-tags mt-12 mb-24">
-                <h2 className="blog-tags-title">TAGS</h2>
+                  <h2 className="blog-tags-title">TAGS</h2>
                   <div className="blog-tags-grid">
                     {tags.map((tag: Tag) => (
-                    <Link
-                      key={tag.slug}
-                      href={`/blog/tag/${tag.slug}`}
-                      className="blog-tag"
+                      <Link
+                        key={tag.slug}
+                        href={`/blog/tag/${tag.slug}`}
+                        className="blog-tag"
+                      >
+                        {tag.name}
+                      </Link>
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Career Support */}
+              <section className="blog-career mt-24">
+                <h2 className="blog-career-title">キャリアサポートのお知らせ</h2>
+                <Link href="https://nands.tech/" target="_blank" rel="noopener noreferrer" className="block">
+                  <div className="blog-career-card">
+                    <Image
+                      src="/images/career-support.jpg"
+                      alt="Career Support"
+                      width={600}
+                      height={300}
+                      className="blog-career-image"
+                    />
+                    <div className="blog-career-content">
+                      退職あんしん代行を運営する「株式会社エヌアンドエス」では、
+                      AI時代に合わせた副業・リスキリング支援プログラムを開始しました。
+                      退職後のキャリア形成を一緒に考えませんか？
+                    </div>
+                  </div>
+                </Link>
+              </section>
+
+              {/* Contact Section */}
+              <section className="blog-contact mt-24 mb-24">
+                <h2 className="blog-tags-title">ご相談はこちら</h2>
+                <div className="blog-contact-grid">
+                  {/* 電話相談 */}
+                  <a href="tel:0120558551" className="blog-contact-card text-center">
+                    <Phone className="w-12 h-12 text-orange-500 mx-auto mb-2" />
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">
+                      お電話でのご相談
+                    </h4>
+                    <p className="blog-contact-value">0120-558-551</p>
+                  </a>
+
+                  {/* LINE相談 */}
+                  <div className="blog-contact-card text-center">
+                    <MessageCircle className="w-12 h-12 text-[#06C755] mx-auto mb-2" />
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">
+                      公式LINEでお気軽に相談
+                    </h4>
+                    <p className="text-gray-600 mb-4">
+                      LINEなら、いつでも気軽にご相談いただけます
+                    </p>
+                    <a
+                      href="https://lin.ee/h1kk42r"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block bg-[#06C755] hover:bg-[#05b34c] text-white text-lg font-bold py-4 px-6 rounded-lg text-center transition-colors"
                     >
-                      {tag.name}
-                    </Link>
-                  ))}
+                      LINEで相談する
+                    </a>
+                  </div>
+
+                  {/* メール相談 */}
+                  <a href="mailto:contact@taishoku-anshin-daiko.com" className="blog-contact-card text-center">
+                    <Mail className="w-12 h-12 text-orange-500 mx-auto mb-2" />
+                    <h4 className="text-xl font-bold text-gray-900 mb-2">
+                      メールでのご相談
+                    </h4>
+                    <p className="text-lg text-gray-600">24時間受付中</p>
+                  </a>
+                </div>
+
+                <div className="mt-8 grid grid-cols-2 gap-4">
+                  <div className="blog-contact-card flex items-center gap-3">
+                    <Clock className="w-6 h-6 text-orange-500" />
+                    <p className="text-gray-900 font-medium">365日受付</p>
+                  </div>
+                  <div className="blog-contact-card flex items-center gap-3">
+                    <Shield className="w-6 h-6 text-orange-500" />
+                    <p className="text-gray-900 font-medium">相談無料</p>
+                  </div>
                 </div>
               </section>
-              )}
             </article>
           </div>
         </div>
+        <Footer />
       </div>
     );
   } catch (error) {
