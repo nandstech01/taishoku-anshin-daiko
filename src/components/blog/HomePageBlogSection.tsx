@@ -60,6 +60,7 @@ export default function HomePageBlogSection() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // まず投稿データを取得
         const { data: postsData, error: postsError } = await supabase
           .from('posts')
           .select(`
@@ -77,37 +78,54 @@ export default function HomePageBlogSection() {
             thumbnail_url,
             meta_description,
             seo_keywords,
-            category:categories!inner(id, name, slug)
+            category_slug
           `)
           .eq('status', 'published')
-          .order('created_at', { ascending: false }) as PostgrestResponse<RawPost>;
+          .order('created_at', { ascending: false });
 
-        if (postsError) throw postsError;
+        if (postsError) {
+          console.error('Posts fetch error:', postsError);
+          throw postsError;
+        }
+        console.log('Fetched posts:', postsData);
 
+        // カテゴリーデータを取得
         const { data: categoriesData, error: categoriesError } = await supabase
           .from('categories')
-          .select('id, name, slug')
-          .order('name');
+          .select('*')
+          .returns<Array<{ id: number; name: string; slug: string; }>>();
 
-        if (categoriesError) throw categoriesError;
+        if (categoriesError) {
+          console.error('Categories fetch error:', categoriesError);
+          throw categoriesError;
+        }
+        console.log('Fetched categories:', categoriesData);
 
-        const typedPostsData = postsData?.map((post: RawPost): BlogPost => ({
-          id: post.id,
-          title: post.title,
-          content: post.content,
-          slug: post.slug,
-          status: post.status,
-          views: post.views ?? 0,
-          tags: post.tags ?? [],
-          likes: post.likes ?? 0,
-          published_at: post.published_at,
-          created_at: post.created_at,
-          updated_at: post.updated_at,
-          thumbnail_url: post.thumbnail_url,
-          meta_description: post.meta_description,
-          seo_keywords: post.seo_keywords ?? [],
-          category: post.category?.[0]
-        })) || [];
+        // 投稿データとカテゴリーデータを結合
+        const typedPostsData = postsData?.map((post: any): BlogPost => {
+          const category = categoriesData?.find(cat => cat.slug === post.category_slug);
+          return {
+            id: post.id,
+            title: post.title,
+            content: post.content,
+            slug: post.slug,
+            status: post.status,
+            views: post.views ?? 0,
+            tags: post.tags ?? [],
+            likes: post.likes ?? 0,
+            published_at: post.published_at,
+            created_at: post.created_at,
+            updated_at: post.updated_at,
+            thumbnail_url: post.thumbnail_url,
+            meta_description: post.meta_description,
+            seo_keywords: post.seo_keywords ?? [],
+            category: category ? {
+              id: Number(category.id),
+              name: String(category.name),
+              slug: String(category.slug)
+            } : undefined
+          };
+        }) || [];
 
         setPosts(typedPostsData);
         setCategories(categoriesData || []);
