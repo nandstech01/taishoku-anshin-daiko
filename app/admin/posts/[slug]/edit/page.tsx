@@ -255,26 +255,17 @@ export default function EditPostPage({
               <label htmlFor="content" className="block text-sm font-semibold text-gray-700 mb-2">
                 本文
               </label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="relative">
-                  <textarea
-                    id="content"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    rows={15}
-                    className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 font-mono text-sm"
-                    required
-                  />
-                </div>
-                <div>
-                  {postId && (
-                    <ContentImageManager
-                      postId={postId}
-                      onImageSelect={handleImageSelect}
-                    />
-                  )}
-                </div>
-              </div>
+              <textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 min-h-[400px]"
+                required
+              />
+              <ContentImageManager
+                postId={postId}
+                onImageSelect={handleImageSelect}
+              />
             </div>
 
             <div className="border-t border-gray-200 pt-8">

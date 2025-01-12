@@ -13,6 +13,8 @@ interface ContentPart {
 }
 
 export default function MarkdownContent({ content, className = '' }: MarkdownContentProps) {
+  console.log('MarkdownContent received:', content);
+
   const renderContent = () => {
     // 画像IDを抽出する正規表現
     const imageRegex = /!\[\[([a-f0-9-]+)\]\]/g;
@@ -23,6 +25,7 @@ export default function MarkdownContent({ content, className = '' }: MarkdownCon
     let match;
 
     while ((match = imageRegex.exec(content)) !== null) {
+      console.log('Found image match:', match);
       // マッチした部分の前のテキストを追加
       if (match.index > lastIndex) {
         parts.push({
@@ -47,6 +50,8 @@ export default function MarkdownContent({ content, className = '' }: MarkdownCon
         content: content.slice(lastIndex)
       });
     }
+
+    console.log('Parsed content parts:', parts);
 
     // 各パーツをレンダリング
     return parts.map((part, index) => {
@@ -87,6 +92,7 @@ export default function MarkdownContent({ content, className = '' }: MarkdownCon
           </div>
         );
       } else if (part.type === 'image' && part.imageId) {
+        console.log('Rendering image with ID:', part.imageId);
         return <ContentImage key={index} imageId={part.imageId} />;
       }
       return null;

@@ -47,17 +47,16 @@ export default function ContentImageManager({
     setImages(data || []);
   };
 
-  const handleImagesUploaded = (newImages: Array<{
+  const handleImagesUploaded = (images: Array<{
     id: string;
     url: string;
     alt_text: string;
     caption: string;
     display_order: number;
   }>) => {
-    setImages(prev => [...prev, ...newImages.map(img => ({
-      ...img,
-      image_url: img.url
-    }))]);
+    if (images.length > 0 && onImageSelect) {
+      onImageSelect(images[0].id);
+    }
   };
 
   const handleImageClick = (imageId: string) => {
