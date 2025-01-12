@@ -12,13 +12,134 @@
 
 /* トップページ専用のコンテナスタイル */
 .blog-container-top {
-  padding-top: 2rem;
+  margin-top: 0;
+  padding-top: 0;
 }
 
 /* トップページのピックアップセクション */
 .blog-pickup-top {
   margin-top: 0;
-  padding-top: 4rem; /* ヘッダーの高さ分 */
+  padding-top: 4rem;
+}
+
+/* ピックアップセクションの装飾 */
+.blog-pickup-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* 装飾テキストのアニメーション */
+@keyframes float1 {
+  0% { transform: translate(0, 0) rotate(-15deg); }
+  25% { transform: translate(13px, -8px) rotate(-13deg); }
+  50% { transform: translate(8px, 13px) rotate(-17deg); }
+  75% { transform: translate(-13px, 5px) rotate(-14deg); }
+  100% { transform: translate(0, 0) rotate(-15deg); }
+}
+
+@keyframes float2 {
+  0% { transform: translate(0, 0) rotate(15deg); }
+  25% { transform: translate(-8px, 13px) rotate(13deg); }
+  50% { transform: translate(13px, -5px) rotate(17deg); }
+  75% { transform: translate(5px, -13px) rotate(14deg); }
+  100% { transform: translate(0, 0) rotate(15deg); }
+}
+
+@keyframes float3 {
+  0% { transform: translate(0, 0) rotate(-10deg); }
+  25% { transform: translate(8px, 5px) rotate(-8deg); }
+  50% { transform: translate(-5px, -8px) rotate(-12deg); }
+  75% { transform: translate(-8px, 8px) rotate(-11deg); }
+  100% { transform: translate(0, 0) rotate(-10deg); }
+}
+
+@keyframes float4 {
+  0% { transform: translate(0, 0) rotate(5deg); }
+  25% { transform: translate(-8px, 8px) rotate(7deg); }
+  50% { transform: translate(8px, -8px) rotate(3deg); }
+  75% { transform: translate(5px, 5px) rotate(6deg); }
+  100% { transform: translate(0, 0) rotate(5deg); }
+}
+
+@keyframes float5 {
+  0% { transform: translate(0, 0) rotate(-5deg); }
+  25% { transform: translate(-5px, 8px) rotate(-3deg); }
+  50% { transform: translate(8px, -5px) rotate(-7deg); }
+  75% { transform: translate(5px, 5px) rotate(-4deg); }
+  100% { transform: translate(0, 0) rotate(-5deg); }
+}
+
+.blog-pickup-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.blog-pickup-decorations .decoration-text {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  white-space: nowrap;
+  text-transform: uppercase;
+  will-change: transform;
+}
+
+.blog-pickup-decorations .decoration-career {
+  top: -5%;
+  left: -5%;
+  font-size: 12rem;
+  animation: float1 13s infinite linear;
+}
+
+.blog-pickup-decorations .decoration-support {
+  bottom: 10%;
+  right: -5%;
+  font-size: 7.4rem;
+  animation: float2 8s infinite linear;
+}
+
+.blog-pickup-decorations .decoration-career-jp {
+  top: 30%;
+  left: 20%;
+  font-size: 4.6rem;
+  animation: float3 5s infinite linear;
+}
+
+.blog-pickup-decorations .decoration-success {
+  bottom: 40%;
+  right: 15%;
+  font-size: 2.8rem;
+  animation: float4 3s infinite linear;
+}
+
+.blog-pickup-decorations .decoration-retire {
+  bottom: 25%;
+  left: 40%;
+  font-size: 3.7rem;
+  animation: float5 2s infinite linear;
+}
+
+/* ピックアップセクションのコンテンツ */
+.blog-pickup-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  
+  /* PC表示時の横並びレイアウト */
+  @apply md:flex md:gap-8 md:items-start;
 }
 
 /* ブログ記事のスタイル */
@@ -489,52 +610,146 @@
 
 /* PICKUPセクション */
 .blog-pickup {
-  @apply relative overflow-hidden;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FF6B2B 0%, #FF8F3E 100%);
+  padding: 3rem 1rem 2rem;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  padding: 3rem 1rem 2rem;
-  background: linear-gradient(135deg, #FF6B2B 0%, #FF8F3E 100%);
+}
+
+/* 装飾テキストのアニメーション */
+@keyframes float1 {
+  0% { transform: translate(0, 0) rotate(-15deg); }
+  25% { transform: translate(13px, -8px) rotate(-13deg); }
+  50% { transform: translate(8px, 13px) rotate(-17deg); }
+  75% { transform: translate(-13px, 5px) rotate(-14deg); }
+  100% { transform: translate(0, 0) rotate(-15deg); }
+}
+
+@keyframes float2 {
+  0% { transform: translate(0, 0) rotate(15deg); }
+  25% { transform: translate(-8px, 13px) rotate(13deg); }
+  50% { transform: translate(13px, -5px) rotate(17deg); }
+  75% { transform: translate(5px, -13px) rotate(14deg); }
+  100% { transform: translate(0, 0) rotate(15deg); }
+}
+
+@keyframes float3 {
+  0% { transform: translate(0, 0) rotate(-10deg); }
+  25% { transform: translate(8px, 5px) rotate(-8deg); }
+  50% { transform: translate(-5px, -8px) rotate(-12deg); }
+  75% { transform: translate(-8px, 8px) rotate(-11deg); }
+  100% { transform: translate(0, 0) rotate(-10deg); }
+}
+
+@keyframes float4 {
+  0% { transform: translate(0, 0) rotate(5deg); }
+  25% { transform: translate(-8px, 8px) rotate(7deg); }
+  50% { transform: translate(8px, -8px) rotate(3deg); }
+  75% { transform: translate(5px, 5px) rotate(6deg); }
+  100% { transform: translate(0, 0) rotate(5deg); }
+}
+
+@keyframes float5 {
+  0% { transform: translate(0, 0) rotate(-5deg); }
+  25% { transform: translate(-5px, 8px) rotate(-3deg); }
+  50% { transform: translate(8px, -5px) rotate(-7deg); }
+  75% { transform: translate(5px, 5px) rotate(-4deg); }
+  100% { transform: translate(0, 0) rotate(-5deg); }
+}
+
+.blog-pickup-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.decoration-text {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  white-space: nowrap;
+  text-transform: uppercase;
+  will-change: transform;
+}
+
+.decoration-career {
+  top: -5%;
+  left: -5%;
+  font-size: 12rem;
+  animation: float1 13s infinite linear;
+}
+
+.decoration-support {
+  bottom: 10%;
+  right: -5%;
+  font-size: 7.4rem;
+  animation: float2 8s infinite linear;
+}
+
+.decoration-career-jp {
+  top: 30%;
+  left: 20%;
+  font-size: 4.6rem;
+  animation: float3 5s infinite linear;
+}
+
+.decoration-success {
+  bottom: 40%;
+  right: 15%;
+  font-size: 2.8rem;
+  animation: float4 3s infinite linear;
+}
+
+.decoration-retire {
+  bottom: 25%;
+  left: 40%;
+  font-size: 3.7rem;
+  animation: float5 2s infinite linear;
 }
 
 .blog-pickup-inner {
-  @apply max-w-6xl mx-auto relative z-10;
-  /* タブレット・PC用のレイアウト */
-  @apply md:flex md:items-center md:gap-8 md:justify-between;
+  position: relative;
+  z-index: 2;
 }
 
 .blog-pickup-header {
   /* スマホ用のスタイル */
-  @apply relative z-10 flex items-center gap-3 mb-6;
+  @apply relative z-10 mb-6;
   
-  /* タブレット・PC用のスタイル */
-  @apply md:flex-col md:items-start md:mb-0 md:flex-shrink-0;
-  @apply lg:w-1/3;
+  /* PC用のスタイル */
+  @apply md:mb-0 md:w-1/3 md:flex-shrink-0;
 }
 
 .blog-pickup-title {
   @apply text-xl font-bold text-white;
-  /* タブレット・PC用のスタイル */
+  /* PC用のスタイル */
   @apply md:text-3xl md:mb-4;
 }
 
 .blog-pickup-description {
   @apply text-sm font-bold text-white/90;
-  /* タブレット・PC用のスタイル */
+  /* PC用のスタイル */
   @apply md:text-base md:mb-6;
 }
 
 /* PC表示時のみ表示されるキャッチコピー */
 .blog-pickup-catch {
-  @apply hidden text-white/90 leading-relaxed;
-  /* タブレット・PC用のスタイル */
-  @apply md:block md:text-sm lg:text-base;
+  @apply text-white/90 leading-relaxed;
+  /* スマホでは非表示、PCで表示 */
+  @apply hidden md:block;
 }
 
 .blog-pickup-card {
-  @apply relative z-10 rounded-lg border border-gray-200 bg-white
-  shadow-lg overflow-hidden transition-all duration-500;
-  /* タブレット・PC用のスタイル */
-  @apply md:flex-shrink-0 md:w-2/3;
+  @apply relative z-10 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden transition-all duration-500;
+  /* PC用のスタイル */
+  @apply md:w-2/3;
 }
 
 /* ホバー効果をLinkに移動 */
@@ -585,72 +800,42 @@ a:hover .blog-pickup-card {
   @apply text-sm text-gray-600 line-clamp-2;
 }
 
-/* 浮遊する装飾要素 */
-.blog-pickup-decorations {
-  @apply absolute inset-0 overflow-hidden pointer-events-none;
-}
-
-.blog-pickup-decoration {
-  @apply absolute opacity-20;
-  background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1));
-  border: 1px solid rgba(255,255,255,0.1);
-}
-
-.blog-pickup-decoration:nth-child(1) {
-  width: 100px;
-  height: 100px;
-  top: 10%;
-  left: 5%;
-  animation: float 20s ease-in-out infinite;
-}
-
-.blog-pickup-decoration:nth-child(2) {
-  width: 150px;
-  height: 150px;
-  top: 60%;
-  right: 10%;
-  animation: float 25s ease-in-out infinite reverse;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate(10px, 10px) rotate(5deg);
-  }
-  50% {
-    transform: translate(0, 20px) rotate(0deg);
-  }
-  75% {
-    transform: translate(-10px, 10px) rotate(-5deg);
-  }
-}
-
 /* ニュースセクション */
 .blog-news {
-  @apply p-4 md:px-8 lg:px-12;
-  width: 100%;
+  background-color: #333333;
+  padding: 1rem 2rem;
+  border-radius: 0;
+  margin: 0;
 }
 
 .blog-news-title {
-  @apply text-lg font-bold mb-4 text-center;
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
 }
 
 .blog-news-list {
-  @apply space-y-4;
+  color: #ffffff;
+  opacity: 0.9;
+  line-height: 1.4;
+  font-size: 0.875rem;
 }
 
-.blog-news-card {
-  @apply rounded-lg border border-gray-200 bg-white shadow-sm p-4;
+.blog-news-list div {
+  padding: 0.25rem 0;
 }
 
-.blog-news-date {
-  @apply text-sm text-gray-500;
-}
-
-.blog-news-heading {
-  @apply font-bold mt-2;
+.blog-news-label {
+  display: inline-block;
+  background-color: #ffffff;
+  color: #000000;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: 2px;
+  margin-right: 0.5rem;
 }
 
 /* 最新記事セクション */

@@ -46,4 +46,188 @@ body {
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* ホームページのピックアップセクション */
+.home-pickup {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #FF6B2B 0%, #FF8F3E 100%);
+  padding: 3rem 1rem 2rem;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+.home-pickup-top {
+  margin-top: 0;
+  padding-top: 4rem;
+}
+
+/* 装飾テキストのアニメーション */
+@keyframes slideLeft {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.home-pickup-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.home-pickup-decorations .decoration-text {
+  position: absolute;
+  color: rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  white-space: nowrap;
+  text-transform: uppercase;
+  will-change: transform;
+}
+
+.home-pickup-decorations .decoration-career {
+  top: 10%;
+  font-size: 12rem;
+  animation: slideLeft 20s linear infinite;
+}
+
+.home-pickup-decorations .decoration-support {
+  bottom: 15%;
+  font-size: 7.4rem;
+  animation: slideLeft 15s linear infinite;
+}
+
+.home-pickup-decorations .decoration-career-jp {
+  top: 40%;
+  font-size: 4.6rem;
+  animation: slideLeft 25s linear infinite;
+}
+
+.home-pickup-decorations .decoration-success {
+  bottom: 35%;
+  font-size: 2.8rem;
+  animation: slideLeft 18s linear infinite;
+}
+
+.home-pickup-decorations .decoration-retire {
+  bottom: 60%;
+  font-size: 3.7rem;
+  animation: slideLeft 22s linear infinite;
+}
+
+.home-pickup-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  @apply md:flex md:gap-8 md:items-start;
+}
+
+.home-pickup-articles {
+  @apply w-full md:w-2/3;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.home-pickup-article {
+  @apply w-full;
+}
+
+.home-pickup-header {
+  @apply relative z-10 mb-6;
+  @apply md:mb-0 md:w-1/3 md:flex-shrink-0;
+}
+
+.home-pickup-title {
+  @apply text-xl font-bold text-white;
+  @apply md:text-3xl md:mb-4;
+}
+
+.home-pickup-description {
+  @apply text-sm font-bold text-white/90;
+  @apply md:text-base md:mb-6;
+}
+
+.home-pickup-catch {
+  @apply text-white/90 leading-relaxed;
+  @apply hidden md:block;
+}
+
+.home-pickup-card {
+  @apply relative z-10 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden transition-all duration-500;
+  height: 100%;
+}
+
+.home-pickup-card:hover {
+  @apply shadow-xl transform -translate-y-1;
+}
+
+.home-pickup-content {
+  @apply p-6 bg-white relative;
+}
+
+.home-pickup-image {
+  @apply w-full object-cover transition-transform duration-700;
+  aspect-ratio: 600/300;
+  height: auto;
+}
+
+.home-pickup-heading {
+  @apply text-lg font-bold text-gray-900 mt-3 mb-2 line-clamp-2;
+}
+
+.home-pickup-excerpt {
+  @apply text-sm text-gray-600 line-clamp-2;
+}
+
+.blog-category {
+  @apply inline-block px-3 py-1 text-sm font-semibold text-white bg-blue-600 rounded-full mb-2;
+}
+
+/* ニュースセクション */
+.home-news {
+  background-color: #333333;
+  padding: 1rem 2rem;
+  border-radius: 0;
+  margin: 0;
+}
+
+.home-news-title {
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+}
+
+.home-news-list {
+  color: #ffffff;
+  opacity: 0.9;
+  line-height: 1.4;
+  font-size: 0.875rem;
+}
+
+.home-news-list div {
+  padding: 0.25rem 0;
+}
+
+.home-news-label {
+  display: inline-block;
+  background-color: #ffffff;
+  color: #000000;
+  font-weight: 700;
+  padding: 0.125rem 0.5rem;
+  border-radius: 2px;
+  margin-right: 0.5rem;
+}
   

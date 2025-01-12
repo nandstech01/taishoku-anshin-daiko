@@ -20,6 +20,7 @@ import FAQSection from '../src/components/FAQSection';
 import Header from '../src/components/common/Header';
 import { PageViewTracker } from '@/components/blog/PageViewTracker';
 import HomePageBlogSection from '@/components/blog/HomePageBlogSection';
+import HomePageBanner from '@/components/HomePageBanner';
 
 declare module 'react' {
   interface JSX {
@@ -97,7 +98,7 @@ const Home: React.FC = () => {
           <div className="sticky top-0 z-[51]">
             <Header />
           </div>
-          <div className="relative h-screen z-40">
+          <div className="md:hidden relative h-screen z-40">
             <div 
               className="w-full h-full bg-cover bg-center bg-no-repeat"
               style={{ backgroundImage: 'url("/images/backgrounds.jpg")' }}
@@ -106,6 +107,7 @@ const Home: React.FC = () => {
               <LineButton />
             </div>
           </div>
+          <HomePageBanner />
           <div className="relative z-30">
             <div className="bg-white">
               <TroubleSection />

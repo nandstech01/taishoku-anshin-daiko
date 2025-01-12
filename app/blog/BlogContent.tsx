@@ -174,6 +174,13 @@ export default function BlogContent() {
       <PageViewTracker page_type="blog_top" />
       <section className="blog-pickup blog-pickup-top">
         <div className="blog-pickup-inner">
+          <div className="blog-pickup-decorations">
+            <span className="decoration-text decoration-career">CAREER</span>
+            <span className="decoration-text decoration-support">転職支援</span>
+            <span className="decoration-text decoration-career-jp">キャリア</span>
+            <span className="decoration-text decoration-success">SUCCESS</span>
+            <span className="decoration-text decoration-retire">退職</span>
+          </div>
           <div className="blog-pickup-header">
             <h2 className="blog-pickup-title">PICKUP</h2>
             <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
@@ -216,11 +223,11 @@ export default function BlogContent() {
       <div className="blog-container blog-container-top">
         <main>
           {/* News Section */}
-          <section className="blog-news mt-12">
-            <h2 className="blog-news-title">ニュース・お知らせ</h2>
+          <section className="blog-news">
+            <h2 className="blog-news-title">News</h2>
             <div className="blog-news-list">
-              <div>2025.01.5　株式会社エヌアンドエスはAI副業支援プログラムを開始いたしました</div>
-              <div>2025.01.3　あんしん退職コラムオープンしました</div>
+              <div><span className="blog-news-label">お知らせ</span>株式会社エヌアンドエスはAI副業支援プログラムを開始いたしました</div>
+              <div><span className="blog-news-label">お知らせ</span>あんしん退職コラムオープンしました</div>
               {newsArticles.map((article) => (
                 <div key={article.slug}>
                   {new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP')}　{article.title}
