@@ -7,7 +7,7 @@ import rehypeStringify from 'rehype-stringify';
 import remarkRehype from 'remark-rehype';
 import { toString } from 'mdast-util-to-string';
 import { visit } from 'unist-util-visit';
-import { Root } from 'mdast';
+import { Root, Text, Parent, RootContent } from 'mdast';
 import { VFile } from 'vfile';
 import { Plugin } from 'unified';
 
@@ -24,6 +24,54 @@ type CustomVFile = VFile & {
   };
 };
 
+// 画像処理用のプラグイン
+const remarkProcessImages: Plugin<[], Root> = function() {
+  return (tree: Root) => {
+    visit(tree, 'text', (node: Text, index, parent: Parent | undefined) => {
+      if (!parent || typeof index !== 'number') return;
+
+      const imageRegex = /!\[\[([a-f0-9-]+)\]\]/g;
+      if (imageRegex.test(node.value)) {
+        const parts: RootContent[] = [];
+        let lastIndex = 0;
+        let match;
+
+        // Reset regex state
+        imageRegex.lastIndex = 0;
+        
+        while ((match = imageRegex.exec(node.value)) !== null) {
+          // Add text before the match
+          if (match.index > lastIndex) {
+            parts.push({
+              type: 'text',
+              value: node.value.slice(lastIndex, match.index)
+            } as Text);
+          }
+
+          // Add image node
+          parts.push({
+            type: 'html',
+            value: `<div class="blog-image" data-image-id="${match[1]}"><img src="/api/images/${match[1]}" alt="" loading="lazy" /></div>`
+          });
+
+          lastIndex = match.index + match[0].length;
+        }
+
+        // Add remaining text
+        if (lastIndex < node.value.length) {
+          parts.push({
+            type: 'text',
+            value: node.value.slice(lastIndex)
+          } as Text);
+        }
+
+        // Replace the current node with the new parts
+        parent.children.splice(index, 1, ...parts);
+      }
+    });
+  };
+};
+
 const remarkExtractHeadings: Plugin<[], Root> = function() {
   return (tree: Root, file: VFile) => {
     const vfile = file as CustomVFile;
@@ -32,7 +80,6 @@ const remarkExtractHeadings: Plugin<[], Root> = function() {
 
     visit(tree, 'heading', (node) => {
       const depth = node.depth;
-      console.log('Found heading:', { depth, text: toString(node) });
       if (depth >= 2 && depth <= 4) {
         const text = toString(node);
         const id = generateHeadingId(text);
@@ -67,6 +114,7 @@ export async function parseMarkdown(content: string): Promise<{ html: string; he
   const file = await unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(remarkProcessImages)  // 画像処理を追加
     .use(remarkExtractHeadings)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeSlug)
