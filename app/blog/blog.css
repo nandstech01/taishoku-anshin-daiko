@@ -1387,3 +1387,19 @@ footer {
     max-height: 400px;
   }
 }
+
+/* 本文中の太字テキストのスタイル */
+.blog-content .prose p strong {
+  font-weight: 700;
+  background: linear-gradient(transparent 60%, rgba(249, 115, 22, 0.2) 40%);
+  padding: 0 2px;
+}
+
+/* 見出し内の太字テキストは通常の太字のまま */
+.blog-content .prose h2 strong,
+.blog-content .prose h3 strong,
+.blog-content .prose h4 strong {
+  font-weight: 700;
+  background: none;
+  padding: 0;
+}
