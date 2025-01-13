@@ -1263,3 +1263,17 @@ footer {
     max-height: 400px;
   }
 }
+
+/* 記事詳細ページのカテゴリタグ専用スタイル */
+.blog-post-category.blog-category {
+  background-image: none;
+  background-color: #2563eb;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.blog-post-category.blog-category:hover {
+  background-image: none;
+  background-color: #1d4ed8;
+}

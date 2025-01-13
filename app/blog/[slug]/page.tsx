@@ -226,7 +226,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
             <article>
               <header className="mb-8">
                 {postWithCategory.category && (
-                  <Link href={`/blog/category/${postWithCategory.category.slug}`} className="blog-category mb-4">
+                  <Link href={`/blog/category/${postWithCategory.category.slug}`} className="blog-category blog-post-category mb-4">
                     {postWithCategory.category.name}
                   </Link>
                 )}
