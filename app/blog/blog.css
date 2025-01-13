@@ -272,7 +272,24 @@
 
 /* 本文スタイル */
 .blog-content .prose {
-  @apply prose-sm max-w-none prose-h1:text-xl;
+  @apply prose-sm max-w-3xl mx-auto;
+}
+
+/* 記事詳細ページ専用のコンテンツスタイル */
+.blog-content article {
+  @apply max-w-4xl mx-auto;
+}
+
+.blog-content article .prose {
+  @apply max-w-none w-full;
+}
+
+.blog-content article .prose > * {
+  @apply mx-auto max-w-3xl;
+}
+
+.blog-content article .prose img {
+  @apply w-full max-w-3xl mx-auto my-0;
 }
 
 .blog-content .prose h1 {
@@ -350,7 +367,7 @@
 }
 
 .blog-content .prose img {
-  @apply w-full -mx-4 sm:-mx-6 lg:-mx-8 my-12;
+  @apply w-full max-w-3xl mx-auto my-0;
 }
 
 /* シェアボタン共通スタイル */
@@ -1231,32 +1248,32 @@ footer {
 }
 
 .blog-image {
-  margin: 2rem auto;  /* 上下マージンを維持しつつ、左右を自動で中央揃え */
+  margin: 0 auto;
   text-align: center;
-  max-width: 800px;  /* 最大幅を設定 */
-  width: 100%;       /* コンテナ幅に合わせる */
-  padding: 0;        /* パディングを削除 */
-  display: flex;     /* Flexboxを使用 */
-  justify-content: center; /* 水平方向の中央揃え */
-  align-items: center;     /* 垂直方向の中央揃え */
+  max-width: 800px;
+  width: 100%;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .blog-image img {
   max-width: 100%;
   height: auto;
-  width: auto;       /* 画像の実際のサイズを尊重 */
-  max-height: 600px; /* 最大高さを設定 */
+  width: auto;
+  max-height: 600px;
   border-radius: 0.5rem;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  display: block;    /* ブロック要素として表示 */
-  object-fit: contain; /* アスペクト比を保持 */
+  display: block;
+  object-fit: contain;
 }
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
   .blog-image {
     max-width: 100%;
-    padding: 0;      /* パディングを削除 */
+    padding: 0;
   }
   
   .blog-image img {
@@ -1276,4 +1293,97 @@ footer {
 .blog-post-category.blog-category:hover {
   background-image: none;
   background-color: #1d4ed8;
+}
+
+/* 記事詳細ページ専用のスタイル */
+.blog-post {
+  width: 100%;
+  max-width: 48rem; /* max-w-4xl */
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+}
+
+.blog-post .prose {
+  width: 100%;
+  max-width: 100%;
+}
+
+.blog-post .prose > * {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 42rem; /* ~prose-lg */
+}
+
+.blog-post .prose img {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+  height: auto;
+}
+
+/* 既存のスタイル */
+.blog-content .prose {
+  @apply prose-sm max-w-3xl mx-auto;
+}
+
+/* 記事詳細ページ専用のコンテンツスタイル */
+.blog-post-content {
+  width: 100%;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.blog-post-content .prose {
+  width: 100%;
+  max-width: 42rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.blog-post-content .prose img {
+  width: 100%;
+  max-width: 100%;
+  margin-top: 0;
+  margin-bottom: 0;
+  height: auto;
+}
+/* 既存のスタイルを維持 */
+.blog-content .prose {
+  @apply prose-sm max-w-3xl mx-auto;
+}
+
+.blog-post-content .prose .blog-image {
+  margin: 2rem auto;
+  text-align: center;
+  max-width: 800px;
+  width: 100%;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.blog-post-content .prose .blog-image img {
+  max-width: 100%;
+  height: auto;
+  width: auto;
+  max-height: 600px;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  display: block;
+  object-fit: contain;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .blog-post-content .prose .blog-image {
+    max-width: 100%;
+    padding: 0;
+  }
+  
+  .blog-post-content .prose .blog-image img {
+    max-height: 400px;
+  }
 }

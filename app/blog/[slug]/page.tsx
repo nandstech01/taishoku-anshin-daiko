@@ -211,19 +211,19 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     ];
 
     return (
-      <div className="blog-container">
-        <div className="blog-content">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            {/* 構造化データの出力 */}
-            {pageStructuredData.map((item, index) => (
-              <script
-                key={index}
-                type="application/ld+json"
-                dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
-              />
-            ))}
-            <PageViewTracker slug={params.slug} page_type="blog_post" />
-            <article>
+      <>
+        <div className="blog-container">
+          <div className="blog-content">
+            <article className="blog-post-content max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+              {/* 構造化データの出力 */}
+              {pageStructuredData.map((item, index) => (
+                <script
+                  key={index}
+                  type="application/ld+json"
+                  dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
+                />
+              ))}
+              <PageViewTracker slug={params.slug} page_type="blog_post" />
               <header className="mb-8">
                 {postWithCategory.category && (
                   <Link href={`/blog/category/${postWithCategory.category.slug}`} className="blog-category blog-post-category mb-4">
@@ -308,7 +308,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
               )}
 
               {/* 本文 */}
-              <div className="blog-content prose prose-lg max-w-none">
+              <div className="prose prose-lg mx-auto">
                 <div dangerouslySetInnerHTML={{ __html: html }} />
               </div>
 
@@ -433,9 +433,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
               </section>
             </article>
           </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
+      </>
     );
   } catch (error) {
     console.error('Error rendering blog post:', error);
