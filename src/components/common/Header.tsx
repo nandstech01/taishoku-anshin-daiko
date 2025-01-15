@@ -25,7 +25,13 @@ export default function Header() {
           </p>
         </div>
 
-        <div className="lg:hidden">
+        <div className="lg:hidden flex items-center">
+          <Link 
+            href="/resignation"
+            className="w-10 h-10 flex items-center justify-center bg-orange-600 rounded-sm text-white text-xs mr-2"
+          >
+            退
+          </Link>
           <HamburgerMenu />
         </div>
       </div>
