@@ -1390,8 +1390,8 @@ footer {
 
 /* 本文中の太字テキストのスタイル */
 .blog-content .prose p strong {
-  font-weight: 700;
-  background: linear-gradient(transparent 60%, rgba(249, 115, 22, 0.2) 40%);
+  font-weight: 500;
+  background: linear-gradient(transparent 60%, rgba(249, 115, 22, 0.15) 40%);
   padding: 0 2px;
 }
 

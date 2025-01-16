@@ -8,6 +8,15 @@ module.exports = {
   ],
   theme: {
     extend: {
+      keyframes: {
+        shimmer: {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(100%)' }
+        }
+      },
+      animation: {
+        'shimmer': 'shimmer 2s infinite linear'
+      },
       typography: {
         DEFAULT: {
           css: {
@@ -19,6 +28,22 @@ module.exports = {
             h3: {
               marginTop: '1.5em',
               marginBottom: '0.75em',
+            },
+            strong: {
+              fontWeight: '600',
+              background: 'linear-gradient(transparent 60%, rgba(255, 107, 43, 0.2) 40%)',
+              paddingLeft: '2px',
+              paddingRight: '2px',
+            },
+          },
+        },
+        lg: {
+          css: {
+            strong: {
+              fontWeight: '600',
+              background: 'linear-gradient(transparent 60%, rgba(255, 107, 43, 0.2) 40%)',
+              paddingLeft: '2px',
+              paddingRight: '2px',
             },
           },
         },

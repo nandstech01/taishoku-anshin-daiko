@@ -192,7 +192,8 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
   try {
     const { html, headings } = await parseMarkdown(postWithCategory.content || '');
-    const shareUrl = `https://taishoku-anshin.com/blog/${postWithCategory.slug}`;
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://taishoku-anshin-daiko.com';
+    const shareUrl = `${baseUrl}/blog/${postWithCategory.slug}`;
     const shareText = `${postWithCategory.title}\n\n`;
 
     // Generate breadcrumb items
@@ -201,8 +202,6 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       { name: 'ブログ', url: '/blog' },
       { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
     ];
-
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
 
     // Generate structured data
     const pageStructuredData = [
@@ -308,7 +307,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
               )}
 
               {/* 本文 */}
-              <div className="prose prose-lg mx-auto">
+              <div className="prose mx-auto">
                 <div dangerouslySetInnerHTML={{ __html: html }} />
               </div>
 
