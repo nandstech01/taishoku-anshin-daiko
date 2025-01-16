@@ -3,6 +3,15 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
+  // URLの正規化処理
+  const url = req.nextUrl.clone();
+  const shouldRedirect = !url.pathname.endsWith('/') && !url.pathname.match(/\.[^/]+$/);
+  
+  if (shouldRedirect) {
+    url.pathname += '/';
+    return NextResponse.redirect(url);
+  }
+
   const res = NextResponse.next();
   const supabase = createMiddlewareClient({ req, res });
 
@@ -27,5 +36,7 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: '/blog/:path*'
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+  ]
 }; 

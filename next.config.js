@@ -5,6 +5,8 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   optimizeFonts: false,
+  trailingSlash: true,
+  assetPrefix: process.env.NEXT_PUBLIC_SITE_URL,
   experimental: {
     optimizePackageImports: ['@heroicons/react'],
   },
