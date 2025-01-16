@@ -52,6 +52,49 @@ interface RawPost {
 
 const supabase = createClient();
 
+const BlogStructuredData = ({ posts }: { posts: BlogPost[] }) => {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "あんしん退職コラム",
+    "description": "退職に関する不安や悩みを解消する情報メディア。退職のノウハウから、キャリアプランまで、あなたの新しい一歩をサポートします。",
+    "url": "https://taishoku-anshin-daiko.com/blog",
+    "publisher": {
+      "@type": "Organization",
+      "name": "NANDS 退職あんしん代行",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://taishoku-anshin-daiko.com/images/logo.svg"
+      }
+    },
+    "blogPost": posts.map(post => ({
+      "@type": "BlogPosting",
+      "headline": post.title,
+      "description": post.meta_description,
+      "datePublished": post.published_at || post.created_at,
+      "dateModified": post.updated_at || post.created_at,
+      "url": `https://taishoku-anshin-daiko.com/blog/${post.slug}`,
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": `https://taishoku-anshin-daiko.com/blog/${post.slug}`
+      },
+      "image": post.thumbnail_url || "https://taishoku-anshin-daiko.com/images/ogp.jpg",
+      "keywords": post.seo_keywords?.join(","),
+      "author": {
+        "@type": "Organization",
+        "name": "NANDS 退職あんしん代行"
+      }
+    }))
+  };
+
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+};
+
 export default function BlogContent() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -172,6 +215,7 @@ export default function BlogContent() {
   return (
     <>
       <PageViewTracker page_type="blog_top" />
+      <BlogStructuredData posts={posts} />
       <section className="blog-pickup blog-pickup-top">
         <div className="blog-pickup-inner">
           <div className="blog-pickup-decorations">

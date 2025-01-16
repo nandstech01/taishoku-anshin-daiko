@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Footer from '@/components/common/Footer';
+import { localBusinessSchema, breadcrumbSchema } from './metadata';
 
 // 定数とインターフェースをコンポーネントの外で定義
 const PHI = (1 + Math.sqrt(5)) / 2;
@@ -67,6 +68,21 @@ const textStyles = {
   primary: "!text-black",
   heading: "!text-black font-bold",
   body: "!text-black"
+};
+
+const AboutStructuredData = () => {
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+    </>
+  );
 };
 
 const AboutPage = () => {
@@ -172,6 +188,7 @@ const AboutPage = () => {
 
   return (
     <div className="pt-16">
+      <AboutStructuredData />
       {/* メインビジュアル - 正方形に修正 */}
       <div className="relative h-screen bg-black"> {/* h-[${Math.round(100 * PHI)}vh] から h-screen に変更 */}
         <motion.div

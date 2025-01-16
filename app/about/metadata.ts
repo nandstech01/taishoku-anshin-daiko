@@ -1,6 +1,6 @@
 const baseUrl = 'https://taishoku-anshin-daiko.com';
 
-const localBusinessSchema = {
+export const localBusinessSchema = {
   '@context': 'https://schema.org',
   '@type': ['LocalBusiness', 'ProfessionalService'],
   '@id': `${baseUrl}/about#LocalBusiness`,
@@ -42,9 +42,9 @@ const localBusinessSchema = {
   'sameAs': [
     'https://lin.ee/h1kk42r'
   ]
-};
+} as const;
 
-const breadcrumbSchema = {
+export const breadcrumbSchema = {
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   'itemListElement': [
@@ -65,7 +65,7 @@ const breadcrumbSchema = {
       }
     }
   ]
-};
+} as const;
 
 export const metadata = {
   title: '会社概要 | 退職あんしん代行',
@@ -85,8 +85,5 @@ export const metadata = {
     card: 'summary_large_image',
     title: '会社概要 | 退職あんしん代行',
     description: '業界最安値2,980円！弁護士や労働組合連携可能で安心の退職代行サービス。',
-  },
-  verification: {
-    'ld+json': JSON.stringify([localBusinessSchema, breadcrumbSchema])
   }
 }; 

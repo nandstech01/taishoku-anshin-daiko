@@ -10,7 +10,7 @@ export default function StructuredData() {
           "description": "退職代行NANDSは、パワハラ・メンタルヘルス・キャリアアップ相談に対応。AI活用で最短即日対応可能。退職後の副業支援やキャリアプランニングもサポート。",
           "priceRange": "¥2,980～",
           "openingHours": "Mo-Su 00:00-24:00",
-          "telephone": "0120-XXX-XXX",
+          "telephone": "0120-558-551",
           "areaServed": "JP",
           "address": {
             "@type": "PostalAddress",
