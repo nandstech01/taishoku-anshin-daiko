@@ -104,6 +104,12 @@ const Home: React.FC = () => {
               style={{ backgroundImage: 'url("/images/backgrounds.jpg")' }}
             />
             <div className="absolute inset-0">
+              <div className="flex flex-col items-center justify-start pt-20">
+                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center px-4">
+                  退職代行サービス
+                  <span className="block text-xl sm:text-2xl mt-2">業界最安値2,980円で即日対応</span>
+                </h1>
+              </div>
               <LineButton />
             </div>
           </div>

@@ -162,13 +162,16 @@ export default function HomePageBanner() {
           >
             <div className="home-pickup-catch space-y-6">
               <div className="space-y-2">
-                <p className="text-4xl font-bold tracking-tight">退職は手軽に</p>
-                <p className="text-3xl font-bold tracking-tight">できる時代</p>
+                <h1 className="text-4xl font-bold tracking-tight">
+                  退職代行サービス
+                  <span className="block text-3xl mt-2">業界最安値2,980円で即日対応</span>
+                </h1>
               </div>
               
               <div className="space-y-1">
-                <p className="text-xl font-medium leading-relaxed">でも、あなたの今までの努力を</p>
-                <p className="text-xl font-medium leading-relaxed">無駄にしない為に</p>
+                <p className="text-2xl font-bold tracking-tight mt-2">退職は手軽にできる時代</p>
+                <p className="text-2xl font-bold tracking-tight mt-2">でも、あなたの今までの努力を</p>
+                <p className="text-2xl font-bold tracking-tight mt-2">無駄にしない為に</p>
                 <p className="text-2xl font-bold tracking-tight mt-2">より良い未来へ</p>
               </div>
 
