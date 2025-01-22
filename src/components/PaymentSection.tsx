@@ -133,11 +133,12 @@ export default function PaymentSection() {
                             </div>
                         }
                         icon={<Building2 className="w-8 h-8 text-orange-500" />}
-                        brands={['mizuho', 'mufg', 'smbc', 'japan-post', 'paypay']}
+                        brands={['mizuho', 'mufg', 'smbc', 'japan-post']}
                         delay={0.4}
                     />
                 </div>
 
+                {/* スマホ決済セクション - 一時的に非表示
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -173,6 +174,7 @@ export default function PaymentSection() {
                         </div>
                     </div>
                 </motion.div>
+                */}
 
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
