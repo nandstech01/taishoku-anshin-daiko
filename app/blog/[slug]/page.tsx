@@ -261,7 +261,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                         {tags.map((tag: Tag) => (
                           <Link
                             key={tag.slug}
-                            href={`/blog/tag/${tag.slug}`}
+                            href={`/blog/tags/${encodeURIComponent(tag.name)}`}
                             className="blog-tag"
                             aria-label={`${tag.name}のタグが付いた記事一覧を見る`}
                           >
@@ -363,7 +363,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                     {tags.map((tag: Tag) => (
                       <Link
                         key={tag.slug}
-                        href={`/blog/tag/${tag.slug}`}
+                        href={`/blog/tags/${encodeURIComponent(tag.name)}`}
                         className="blog-tag"
                       >
                         {tag.name}

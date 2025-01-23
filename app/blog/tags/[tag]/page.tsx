@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/supabase';
 import Breadcrumb from '@/components/blog/Breadcrumb';
 import BlogCard from '@/components/blog/BlogCard';
+import { RelatedTags } from '@/components/blog/RelatedTags';
 import { notFound } from 'next/navigation';
 import { Post, Category } from '@/types/blog';
 import Link from 'next/link';
@@ -10,9 +11,7 @@ import Link from 'next/link';
 const normalizeTag = (tag: string): string => {
   try {
     if (!tag) return '';
-    // デコード処理を追加
     const decodedTag = decodeURIComponent(tag);
-    // 全角スペース、複数の半角スペースを単一の半角スペースに変換し、前後の空白を削除
     return decodedTag.replace(/　/g, ' ').replace(/\s+/g, ' ').trim();
   } catch (e) {
     console.error('Error normalizing tag:', e);
@@ -20,27 +19,86 @@ const normalizeTag = (tag: string): string => {
   }
 };
 
-// 検索用のタグを準備する関数
-const prepareSearchTag = (tag: string): string => {
-  const normalized = normalizeTag(tag);
-  // スペースを含むタグの場合は完全一致で検索
-  if (normalized.includes(' ')) {
-    return `{${normalized}}`;
-  }
-  // スペースを含まないタグの場合は部分一致で検索
-  return `%${normalized}%`;
+// 構造化データの生成
+const generateTagStructuredData = (tag: string, posts: Post[], baseUrl: string) => {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `${tag}に関する記事一覧`,
+    description: `${tag}に関する記事${posts.length}件を掲載。`,
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': `${baseUrl}/blog/tags/${encodeURIComponent(tag)}`
+    },
+    isPartOf: {
+      '@type': 'Blog',
+      name: 'あんしん退職コラム',
+      url: `${baseUrl}/blog`
+    },
+    hasPart: posts.map(post => ({
+      '@type': 'BlogPosting',
+      headline: post.title,
+      datePublished: post.published_at || post.created_at,
+      dateModified: post.updated_at || post.published_at || post.created_at,
+      url: `${baseUrl}/blog/${post.slug}`,
+      description: post.description || post.excerpt || undefined,
+      author: {
+        '@type': 'Organization',
+        name: '退職あんしん代行編集部'
+      }
+    })),
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          item: {
+            '@id': baseUrl,
+            name: 'ホーム'
+          }
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          item: {
+            '@id': `${baseUrl}/blog`,
+            name: 'ブログ'
+          }
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          item: {
+            '@id': `${baseUrl}/blog/tags/${encodeURIComponent(tag)}`,
+            name: `${tag}の記事一覧`
+          }
+        }
+      ]
+    }
+  };
 };
 
 export async function generateMetadata({ params }: { params: { tag: string } }): Promise<Metadata> {
+  const supabase = createClient();
   const decodedTag = decodeURIComponent(params.tag);
   const normalizedTag = normalizeTag(decodedTag);
   
+  const { data: posts, count } = await supabase
+    .from('posts')
+    .select('*', { count: 'exact' })
+    .eq('status', 'published')
+    .filter('seo_keywords', 'cs', `{${normalizedTag}}`);
+
+  const title = `退職代行の${normalizedTag}に関する記事${count}件 | 退職代行案内`;
+  const description = `${normalizedTag}に関する記事${count}件を掲載。退職代行に関する最新情報、知識、体験談をご紹介します。`;
+
   return {
-    title: `${normalizedTag}に関する記事一覧 | 退職代行案内`,
-    description: `${normalizedTag}に関する記事の一覧ページです。退職代行に関する最新情報、知識、体験談をご紹介します。`,
+    title,
+    description,
     openGraph: {
-      title: `${normalizedTag}に関する記事一覧 | 退職代行案内`,
-      description: `${normalizedTag}に関する記事の一覧ページです。退職代行に関する最新情報、知識、体験談をご紹介します。`,
+      title,
+      description,
       type: 'article',
       locale: 'ja_JP',
     },
@@ -63,7 +121,6 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
   const normalizedTag = normalizeTag(decodedTag);
 
   try {
-    // 記事の取得（カテゴリーは別クエリで取得）
     const { data: posts, error: postsError } = await supabase
       .from('posts')
       .select('*')
@@ -76,7 +133,6 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
       return <div>記事の取得中にエラーが発生しました。</div>;
     }
 
-    // カテゴリー情報の取得
     const { data: categories, error: categoriesError } = await supabase
       .from('categories')
       .select('*');
@@ -89,6 +145,10 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
     if (!posts || posts.length === 0) {
       return (
         <div className="tag-page">
+          <Breadcrumb items={[
+            { label: 'ブログ', href: '/blog' },
+            { label: `${normalizedTag}の記事一覧` }
+          ]} />
           <h1 className="tag-title">{normalizedTag}に関する記事</h1>
           <p className="no-articles">申し訳ありません。{normalizedTag}に関する記事は現在ありません。</p>
           <Link href="/blog" className="back-to-blog">
@@ -98,30 +158,50 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
       );
     }
 
-    // 記事データにカテゴリー情報を付加
     const postsWithCategories = posts.map(post => ({
       ...post,
       category: categories?.find(cat => cat.slug === post.category_slug)
     }));
 
     return (
-      <div className="tag-page">
-        <h1 className="tag-title">{normalizedTag}に関する記事一覧</h1>
-        <p className="tag-description">
-          {normalizedTag}に関する記事の一覧です。退職代行に関する最新情報、知識、体験談をご紹介しています。
-        </p>
-        <div className="articles-grid">
-          {postsWithCategories.map((post) => (
-            <BlogCard
-              key={post.id}
-              post={post}
-            />
-          ))}
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(generateTagStructuredData(
+              normalizedTag,
+              posts,
+              process.env.NEXT_PUBLIC_BASE_URL || ''
+            ))
+          }}
+        />
+        <div className="tag-page">
+          <Breadcrumb items={[
+            { label: 'ブログ', href: '/blog' },
+            { label: `${normalizedTag}の記事一覧` }
+          ]} />
+          <h1 className="tag-title">{normalizedTag}に関する記事一覧</h1>
+          <p className="tag-description">
+            {normalizedTag}に関する記事が{posts.length}件あります。退職代行に関する最新情報、知識、体験談をご紹介しています。
+          </p>
+          <RelatedTags
+            currentTag={normalizedTag}
+            posts={posts}
+            maxTags={5}
+          />
+          <div className="articles-grid">
+            {postsWithCategories.map((post) => (
+              <BlogCard
+                key={post.id}
+                post={post}
+              />
+            ))}
+          </div>
+          <Link href="/blog" className="back-to-blog">
+            ブログトップへ戻る
+          </Link>
         </div>
-        <Link href="/blog" className="back-to-blog">
-          ブログトップへ戻る
-        </Link>
-      </div>
+      </>
     );
   } catch (error) {
     console.error('Error in TagPage:', error);

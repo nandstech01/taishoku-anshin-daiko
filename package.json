@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && npm run generate-sitemap",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "generate-sitemap": "NODE_OPTIONS='-r tsconfig-paths/register' ts-node scripts/generate-sitemap.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.33.1",
@@ -66,10 +67,13 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "autoprefixer": "^10.0.1",
+    "dotenv": "^16.4.7",
     "eslint": "^8",
     "eslint-config-next": "14.0.3",
     "postcss": "^8",
     "tailwindcss": "^3.3.0",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5"
   }
 }

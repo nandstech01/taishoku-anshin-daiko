@@ -2,6 +2,7 @@ interface BlogPost {
   slug: string;
   published_at: string;
   updated_at?: string;
+  seo_keywords?: string[];
 }
 
 interface BlogCategory {
@@ -22,6 +23,10 @@ export const generateSitemapXml = (
 ): string => {
   const today = new Date().toISOString().split('T')[0];
   
+  const tags = Array.from(new Set(
+    posts.flatMap(post => post.seo_keywords || [])
+  ));
+
   const entries: SitemapEntry[] = [
     // 固定ページ
     {
@@ -62,7 +67,24 @@ export const generateSitemapXml = (
       lastmod: today,
       changefreq: 'daily' as const,
       priority: 0.7
-    }))
+    })),
+    // タグページ
+    ...tags.map(tag => {
+      const relatedPosts = posts.filter(post => 
+        post.seo_keywords?.includes(tag)
+      );
+      const lastmod = relatedPosts.reduce((latest, post) => {
+        const postDate = post.updated_at || post.published_at;
+        return postDate > latest ? postDate : latest;
+      }, today);
+
+      return {
+        loc: `${baseUrl}/blog/tags/${encodeURIComponent(tag)}`,
+        lastmod,
+        changefreq: 'daily' as const,
+        priority: 0.7
+      };
+    })
   ];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>

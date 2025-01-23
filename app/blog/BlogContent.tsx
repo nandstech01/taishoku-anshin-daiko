@@ -342,7 +342,7 @@ export default function BlogContent() {
               {allTags.map((tag) => (
                 <Link
                   key={tag.slug}
-                  href={`/blog/tag/${tag.slug}`}
+                  href={`/blog/tags/${encodeURIComponent(tag.name)}`}
                   className="blog-tag"
                 >
                   {tag.name}
