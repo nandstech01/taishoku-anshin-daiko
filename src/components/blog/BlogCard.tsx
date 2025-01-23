@@ -15,6 +15,16 @@ interface BlogCardProps {
 }
 
 const BlogCard = ({ post, title, description, thumbnailUrl, date, href }: BlogCardProps) => {
+  // 日付フォーマットを統一する関数
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+  };
+
   if (post) {
     return (
       <div className="bg-white shadow rounded-lg overflow-hidden">
@@ -23,7 +33,7 @@ const BlogCard = ({ post, title, description, thumbnailUrl, date, href }: BlogCa
           <p className="text-gray-600 mb-4">{post.content.substring(0, 150)}...</p>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-500">
-              {new Date(post.created_at).toLocaleDateString()}
+              {formatDate(post.created_at)}
             </span>
             <Link
               href={`/blog/${post.slug}`}
@@ -46,7 +56,7 @@ const BlogCard = ({ post, title, description, thumbnailUrl, date, href }: BlogCa
             alt={title || ''}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            className="object-cover"
+            className="object-cover w-auto h-auto"
           />
         </div>
       )}
@@ -55,7 +65,7 @@ const BlogCard = ({ post, title, description, thumbnailUrl, date, href }: BlogCa
         <p className="text-gray-600 mb-4">{description}</p>
         <div className="flex justify-between items-center">
           <span className="text-sm text-gray-500">
-            {date && new Date(date).toLocaleDateString()}
+            {date && formatDate(date)}
           </span>
           {href && (
             <Link

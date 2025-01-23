@@ -23,14 +23,29 @@ interface Tag {
 export const revalidate = 0;
 export const dynamic = 'force-dynamic';
 
+// タグの正規化と変換（SEOに配慮）
+const processTags = (tags: string[] | null): Tag[] => {
+  if (!tags) return [];
+  return tags.map(tag => ({
+    name: tag,
+    // URLに適した形式に変換しつつ、SEOに配慮したスラグを生成
+    slug: encodeURIComponent(
+      tag.toLowerCase()
+         .trim()
+         .replace(/\s+/g, '-')
+         .replace(/　/g, '-')
+    )
+  }));
+};
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const supabase = createClient();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
 
   try {
     const { data: post, error } = await supabase
-    .from('posts')
-    .select(`
+      .from('posts')
+      .select(`
         id,
         title,
         content,
@@ -47,13 +62,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         seo_keywords,
         category_slug,
         description
-    `)
-    .eq('slug', params.slug)
-    .eq('status', 'published')
-    .single();
+      `)
+      .eq('slug', params.slug)
+      .eq('status', 'published')
+      .single();
 
     if (error || !post) {
-    return {
+      return {
         title: 'Blog Post Not Found',
         description: 'The requested blog post could not be found.'
       };
@@ -69,46 +84,49 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     const postWithCategory: Post = {
       ...post,
       category: category as Category | null,
-      description: post.description || null
+      description: post.description || null,
+      seo_keywords: post.seo_keywords || [],
+      tags: post.tags || []
     };
 
-  // Generate breadcrumb items
-  const breadcrumbItems = [
-    { name: 'ホーム', url: '/' },
-    { name: 'ブログ', url: '/blog' },
+    // Generate breadcrumb items
+    const breadcrumbItems = [
+      { name: 'ホーム', url: '/' },
+      { name: 'ブログ', url: '/blog' },
       { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
-  ];
+    ];
 
-  // Generate structured data
-  const structuredData = [
+    // Generate structured data
+    const structuredData = [
       generateArticleSchema(postWithCategory, baseUrl),
-    generateBreadcrumbSchema(breadcrumbItems, baseUrl)
-  ];
+      generateBreadcrumbSchema(breadcrumbItems, baseUrl)
+    ];
 
-  return {
+    return {
       title: postWithCategory.title,
       description: postWithCategory.description || '',
-      keywords: postWithCategory.seo_keywords?.join(', ') || '',
-    alternates: {
+      // tagsを使用してキーワードを設定
+      keywords: postWithCategory.tags?.join(', ') || '',
+      alternates: {
         canonical: `${baseUrl}/blog/${postWithCategory.slug}`
-    },
-    openGraph: {
+      },
+      openGraph: {
         title: postWithCategory.title,
         description: postWithCategory.description || '',
         url: `${baseUrl}/blog/${postWithCategory.slug}`,
-      type: 'article',
+        type: 'article',
         images: postWithCategory.thumbnail_url ? [{ url: postWithCategory.thumbnail_url }] : undefined,
-    },
-    twitter: {
-      card: 'summary_large_image',
+      },
+      twitter: {
+        card: 'summary_large_image',
         title: postWithCategory.title,
         description: postWithCategory.description || '',
         images: postWithCategory.thumbnail_url ? [postWithCategory.thumbnail_url] : undefined,
-    },
-    other: {
-      'application/ld+json': structuredData.map(item => JSON.stringify(item)).join('\n')
-    }
-  };
+      },
+      other: {
+        'application/ld+json': structuredData.map(item => JSON.stringify(item)).join('\n')
+      }
+    };
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
@@ -163,7 +181,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
   // カテゴリー情報を取得
   const { data: category } = await supabase
-      .from('categories')
+    .from('categories')
     .select('*')
     .eq('slug', post.category_slug)
     .single();
@@ -171,14 +189,13 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
   const postWithCategory: Post = {
     ...post,
     category: category as Category | null,
-    description: post.description || null
+    description: post.description || null,
+    seo_keywords: post.seo_keywords || [],
+    tags: post.tags || []
   };
 
   // タグ情報を生成
-  const tags: Tag[] = postWithCategory.seo_keywords?.map((keyword: string) => ({ 
-        name: keyword, 
-        slug: keyword.toLowerCase().replace(/\s+/g, '-')
-  })) || [];
+  const tags = processTags(postWithCategory.tags);
 
   // 同じカテゴリの関連記事を取得
   const { data: relatedPosts } = await supabase

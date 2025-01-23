@@ -52,6 +52,28 @@ interface RawPost {
 
 const supabase = createClient();
 
+// タグの正規化（安全な実装）
+const normalizeTag = (keyword: string) => {
+  if (!keyword) return '';
+  try {
+    return keyword.trim();
+  } catch (error) {
+    console.error('Tag normalization error:', error);
+    return '';
+  }
+};
+
+// スラグの生成（安全な実装）
+const createTagSlug = (keyword: string) => {
+  if (!keyword) return '';
+  try {
+    return encodeURIComponent(keyword.trim());
+  } catch (error) {
+    console.error('Slug generation error:', error);
+    return '';
+  }
+};
+
 export default function HomePageBlogSection() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -87,7 +109,6 @@ export default function HomePageBlogSection() {
           console.error('Posts fetch error:', postsError);
           throw postsError;
         }
-        console.log('Fetched posts:', postsData);
 
         // カテゴリーデータを取得
         const { data: categoriesData, error: categoriesError } = await supabase
@@ -99,7 +120,6 @@ export default function HomePageBlogSection() {
           console.error('Categories fetch error:', categoriesError);
           throw categoriesError;
         }
-        console.log('Fetched categories:', categoriesData);
 
         // 投稿データとカテゴリーデータを結合
         const typedPostsData = postsData?.map((post: any): BlogPost => {
@@ -139,15 +159,29 @@ export default function HomePageBlogSection() {
     fetchData();
   }, []);
 
-  // タグ一覧を取得（全記事のタグを結合して重複を除去）
-  const allTags = Array.from(new Set(
+  // タグ一覧を取得（安全な実装）
+  const allTags = Array.from(
     posts.flatMap(post => 
-      (post.seo_keywords || []).map(keyword => ({
-        name: keyword,
-        slug: keyword.toLowerCase().replace(/\s+/g, '-')
-      }))
-    )
-  )).filter(Boolean);
+      (post.seo_keywords || [])
+        .filter(keyword => keyword && keyword.trim().length > 0)
+        .map(keyword => {
+          const normalizedKeyword = normalizeTag(keyword);
+          if (!normalizedKeyword) return null;
+          return {
+            name: normalizedKeyword,
+            slug: createTagSlug(normalizedKeyword)
+          };
+        })
+        .filter((tag): tag is { name: string; slug: string } => 
+          tag !== null && tag.name.length > 0 && tag.slug.length > 0
+        )
+    ).reduce((acc, tag) => {
+      if (!acc.has(tag.name)) {  // slugではなくnameでユニーク化
+        acc.set(tag.name, tag);
+      }
+      return acc;
+    }, new Map())
+  ).map(([_, tag]) => tag);
 
   if (isLoading) {
     return (
@@ -227,15 +261,17 @@ export default function HomePageBlogSection() {
           <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500"></span>
         </h2>
         <div className="blog-tags flex flex-wrap gap-2 justify-center">
-          {allTags.map((tag) => (
-            <Link
-              key={tag.slug}
-              href={`/blog/tag/${tag.slug}`}
-              className="blog-tag"
-            >
-              {tag.name}
-            </Link>
-          ))}
+          {allTags
+            .filter(tag => tag && tag.name && tag.slug)
+            .map((tag) => (
+              <Link
+                key={tag.name}
+                href={`/blog/tags/${tag.slug}`}
+                className="blog-tag inline-block px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors"
+              >
+                {tag.name}
+              </Link>
+            ))}
         </div>
       </section>
 

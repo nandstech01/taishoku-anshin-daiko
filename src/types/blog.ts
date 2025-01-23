@@ -14,6 +14,7 @@ export interface BasePost {
   category?: Category;
   view_count?: number;
   tags?: string[];
+  seo_keywords?: string[];
   published_at?: string | null;
   excerpt?: string;
   views?: number;
