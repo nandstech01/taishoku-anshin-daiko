@@ -13,6 +13,7 @@ import Footer from '@/components/common/Footer';
 import { generateArticleSchema } from '@/schemas/article';
 import { generateBreadcrumbSchema } from '@/schemas/breadcrumb';
 import { AuthorInfo } from '@/components/blog/AuthorInfo';
+import Breadcrumb from '@/components/blog/Breadcrumb';
 
 interface Tag {
   name: string;
@@ -89,17 +90,23 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       tags: post.tags || []
     };
 
-    // Generate breadcrumb items
-    const breadcrumbItems = [
+    // Generate breadcrumb items for structured data
+    const breadcrumbItemsForSchema = [
       { name: 'ホーム', url: '/' },
       { name: 'ブログ', url: '/blog' },
       { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
     ];
 
+    // Generate breadcrumb items for UI
+    const breadcrumbItems = breadcrumbItemsForSchema.map(item => ({
+      label: item.name,
+      href: item.url
+    }));
+
     // Generate structured data
     const structuredData = [
       generateArticleSchema(postWithCategory, baseUrl),
-      generateBreadcrumbSchema(breadcrumbItems, baseUrl)
+      generateBreadcrumbSchema(breadcrumbItemsForSchema, baseUrl)
     ];
 
     return {
@@ -213,17 +220,23 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     const shareUrl = `${baseUrl}/blog/${postWithCategory.slug}`;
     const shareText = `${postWithCategory.title}\n\n`;
 
-    // Generate breadcrumb items
-    const breadcrumbItems = [
+    // Generate breadcrumb items for structured data
+    const breadcrumbItemsForSchema = [
       { name: 'ホーム', url: '/' },
       { name: 'ブログ', url: '/blog' },
       { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
     ];
 
+    // Generate breadcrumb items for UI
+    const breadcrumbItems = breadcrumbItemsForSchema.map(item => ({
+      label: item.name,
+      href: item.url
+    }));
+
     // Generate structured data
     const pageStructuredData = [
       generateArticleSchema(postWithCategory, baseUrl),
-      generateBreadcrumbSchema(breadcrumbItems, baseUrl)
+      generateBreadcrumbSchema(breadcrumbItemsForSchema, baseUrl)
     ];
 
     return (
@@ -239,6 +252,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                   dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
                 />
               ))}
+              <Breadcrumb items={breadcrumbItems} />
               <PageViewTracker slug={params.slug} page_type="blog_post" />
               <header className="mb-8">
                 {postWithCategory.category && (

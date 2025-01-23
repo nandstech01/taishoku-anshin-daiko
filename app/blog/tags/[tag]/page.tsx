@@ -80,18 +80,45 @@ const generateTagStructuredData = (tag: string, posts: Post[], baseUrl: string) 
 };
 
 export async function generateMetadata({ params }: { params: { tag: string } }): Promise<Metadata> {
+  const tag = decodeURIComponent(params.tag);
+  const normalizedTag = normalizeTag(tag);
   const supabase = createClient();
-  const decodedTag = decodeURIComponent(params.tag);
-  const normalizedTag = normalizeTag(decodedTag);
-  
-  const { data: posts, count } = await supabase
-    .from('posts')
-    .select('*', { count: 'exact' })
-    .eq('status', 'published')
-    .filter('seo_keywords', 'cs', `{${normalizedTag}}`);
 
-  const title = `退職代行の${normalizedTag}に関する記事${count}件 | 退職代行案内`;
-  const description = `${normalizedTag}に関する記事${count}件を掲載。退職代行に関する最新情報、知識、体験談をご紹介します。`;
+  // 関連記事を取得
+  const { data: posts } = await supabase
+    .from('posts')
+    .select('id, title, content, seo_keywords')
+    .eq('status', 'published')
+    .contains('seo_keywords', [normalizedTag]);
+
+  // タグに関連する主要トピックを抽出（最大3つ）
+  const topTopics = posts
+    ?.map(post => post.title)
+    .slice(0, 3)
+    .join('、');
+
+  const postCount = posts?.length || 0;
+
+  // タグの特性に基づいて説明文を生成
+  let tagDescription = '';
+  if (normalizedTag.includes('退職')) {
+    tagDescription = `退職に関する手続きや注意点、体験談をまとめています。`;
+  } else if (normalizedTag.includes('メンタル') || normalizedTag.includes('ストレス')) {
+    tagDescription = `職場でのメンタルヘルスケアや、ストレス対策について解説しています。`;
+  } else if (normalizedTag.includes('法律') || normalizedTag.includes('手続き')) {
+    tagDescription = `労働法規や各種手続きについての専門家による解説をまとめています。`;
+  } else if (normalizedTag.includes('給与') || normalizedTag.includes('賃金')) {
+    tagDescription = `給与や賃金に関する法律知識や交渉のポイントを解説しています。`;
+  } else if (normalizedTag.includes('パワハラ') || normalizedTag.includes('ハラスメント')) {
+    tagDescription = `職場でのハラスメント対策や解決方法について詳しく解説しています。`;
+  } else {
+    tagDescription = `${normalizedTag}に関する詳しい情報をまとめています。`;
+  }
+
+  const title = `退職代行の${normalizedTag}に関する完全ガイド【${postCount}記事】 | 退職代行案内`;
+  const description = `${normalizedTag}に関する${postCount}件の記事を掲載。${tagDescription}${
+    topTopics ? `主な記事：${topTopics}。` : ''
+  }退職代行のプロフェッショナルが解説します。`;
 
   return {
     title,
@@ -100,7 +127,12 @@ export async function generateMetadata({ params }: { params: { tag: string } }):
       title,
       description,
       type: 'article',
-      locale: 'ja_JP',
+      url: `/blog/tags/${params.tag}`,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
     },
     alternates: {
       canonical: `/blog/tags/${params.tag}`

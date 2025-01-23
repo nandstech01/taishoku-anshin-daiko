@@ -79,7 +79,7 @@ const BlogStructuredData = ({ posts }: { posts: BlogPost[] }) => {
         "@id": `https://taishoku-anshin-daiko.com/blog/${post.slug}`
       },
       "image": post.thumbnail_url || "https://taishoku-anshin-daiko.com/images/ogp.jpg",
-      "keywords": post.seo_keywords?.join(","),
+      "keywords": Array.isArray(post.seo_keywords) ? post.seo_keywords.join(",") : "",
       "author": {
         "@type": "Organization",
         "name": "NANDS 退職あんしん代行"
