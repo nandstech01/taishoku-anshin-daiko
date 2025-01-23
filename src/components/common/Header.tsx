@@ -14,9 +14,9 @@ export default function Header() {
             <Image
               src="/images/logo.svg"
               alt="Logo"
-              width={32}
-              height={32}
-              className="w-8 h-8"
+              width={240}
+              height={60}
+              className="w-[240px] h-[60px]"
               priority
             />
           </Link>
@@ -26,17 +26,6 @@ export default function Header() {
         </div>
 
         <div className="lg:hidden flex items-center">
-          <Link 
-            href="/resignation"
-            className="group w-24 h-8 flex flex-col items-center justify-center bg-gradient-to-r from-blue-700 to-blue-900 hover:from-blue-800 hover:to-blue-950 rounded-sm text-white mr-2 leading-tight relative overflow-hidden shadow-md hover:shadow-lg transition-all duration-300"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div className="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-blue-300 to-blue-100">
-              <div className="h-full w-24 animate-shimmer bg-gradient-to-r from-transparent via-blue-200 to-transparent"></div>
-            </div>
-            <span className="text-[11px] font-medium tracking-wide">退職届</span>
-            <span className="text-[9px] opacity-90">30秒で自動生成</span>
-          </Link>
           <HamburgerMenu />
         </div>
       </div>
