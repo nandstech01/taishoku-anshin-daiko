@@ -40,6 +40,15 @@ const processTags = (tags: string[] | null): Tag[] => {
   }));
 };
 
+// SEOキーワードの処理
+const processSeoKeywords = (keywords: string[] | null): Tag[] => {
+  if (!keywords) return [];
+  return keywords.map(keyword => ({
+    name: keyword,
+    slug: encodeURIComponent(keyword)
+  }));
+};
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const supabase = createClient();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
@@ -204,6 +213,8 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
   // タグ情報を生成
   const tags = processTags(postWithCategory.tags);
+  // SEOキーワード情報を生成
+  const seoKeywords = processSeoKeywords(postWithCategory.seo_keywords);
 
   // 同じカテゴリの関連記事を取得
   const { data: relatedPosts } = await supabase
@@ -391,6 +402,24 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                     posts={relatedPosts || []}
                     maxTags={5}
                   />
+                </section>
+              )}
+
+              {/* SEO Keywords Section */}
+              {seoKeywords?.length > 0 && (
+                <section className="blog-tags mt-12 mb-24">
+                  <h2 className="blog-tags-title">TAGS</h2>
+                  <div className="blog-tags-grid">
+                    {seoKeywords.map((keyword: Tag) => (
+                      <Link
+                        key={keyword.slug}
+                        href={`/blog/tags/${encodeURIComponent(keyword.name)}`}
+                        className="blog-tag"
+                      >
+                        {keyword.name}
+                      </Link>
+                    ))}
+                  </div>
                 </section>
               )}
 
