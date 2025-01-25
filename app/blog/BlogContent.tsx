@@ -200,14 +200,19 @@ export default function BlogContent() {
     .slice(0, 1)[0];
 
   // タグ一覧を取得（全記事のタグを結合して重複を除去）
-  const allTags = Array.from(new Set(
-    posts.flatMap(post => 
-      (post.seo_keywords || []).map(keyword => ({
-        name: keyword,
-        slug: keyword.toLowerCase().replace(/\s+/g, '-')
-      }))
-    )
-  )).filter(Boolean);
+  const allTags = Array.from(
+    new Map(
+      posts.flatMap(post => 
+        (post.seo_keywords || []).map(keyword => [
+          keyword, // キーとして使用
+          {
+            name: keyword,
+            slug: encodeURIComponent(keyword)
+          }
+        ])
+      )
+    ).values()
+  ).filter(Boolean);
 
   // お知らせ記事を取得
   const newsArticles = posts.filter(post => post.category?.name === 'お知らせ').slice(0, 2);
@@ -344,7 +349,7 @@ export default function BlogContent() {
               {allTags.map((tag) => (
                 <Link
                   key={tag.slug}
-                  href={`/blog/tags/${encodeURIComponent(tag.name)}`}
+                  href={`/blog/tags/${tag.slug}`}
                   className="blog-tag"
                 >
                   {tag.name}
