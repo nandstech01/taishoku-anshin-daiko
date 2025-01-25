@@ -47,6 +47,12 @@ export const generateSitemapXml = (
       changefreq: 'daily',
       priority: 0.8
     },
+    {
+      loc: `${baseUrl}/blog/tags`,
+      lastmod: today,
+      changefreq: 'daily',
+      priority: 0.8
+    },
     // その他の固定ページ
     ...['about', 'privacy', 'terms', 'legal', 'faq'].map(page => ({
       loc: `${baseUrl}/${page}`,
@@ -63,7 +69,7 @@ export const generateSitemapXml = (
     })),
     // カテゴリーページ
     ...categories.map(category => ({
-      loc: `${baseUrl}/blog/categories/${category.slug}`,
+      loc: `${baseUrl}/blog/category/${category.slug}`,
       lastmod: today,
       changefreq: 'daily' as const,
       priority: 0.7
