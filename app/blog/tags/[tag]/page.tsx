@@ -212,7 +212,10 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
             { label: 'ブログ', href: '/blog' },
             { label: `${normalizedTag}の記事一覧` }
           ]} />
-          <h1 className="tag-title">{normalizedTag}に関する記事一覧</h1>
+          <h1 className="tag-title">
+            <span className="tag-title-main">{normalizedTag}に関する</span>
+            <span className="tag-title-sub">記事一覧</span>
+          </h1>
           <p className="tag-description">
             {normalizedTag}に関する記事が{posts.length}件あります。退職代行に関する最新情報、知識、体験談をご紹介しています。
           </p>

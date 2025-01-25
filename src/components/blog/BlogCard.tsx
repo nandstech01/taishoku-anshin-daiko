@@ -28,9 +28,30 @@ const BlogCard = ({ post, title, description, thumbnailUrl, date, href }: BlogCa
   if (post) {
     return (
       <div className="bg-white shadow rounded-lg overflow-hidden">
+        {post.thumbnail_url && (
+          <div className="relative h-48">
+            <Image
+              src={post.thumbnail_url}
+              alt={post.title}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="object-cover w-auto h-auto"
+            />
+          </div>
+        )}
         <div className="p-6">
+          {post.category && (
+            <Link
+              href={`/blog/category/${post.category.slug}`}
+              className="text-sm font-medium text-indigo-600 hover:text-indigo-500 mb-2 block"
+            >
+              {post.category.name}
+            </Link>
+          )}
           <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
-          <p className="text-gray-600 mb-4">{post.content.substring(0, 150)}...</p>
+          <p className="text-gray-600 mb-4">
+            {post.description || post.content?.substring(0, 150)}...
+          </p>
           <div className="flex justify-between items-center">
             <span className="text-sm text-gray-500">
               {formatDate(post.created_at)}
