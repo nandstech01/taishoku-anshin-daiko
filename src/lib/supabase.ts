@@ -10,12 +10,22 @@ if (!supabaseUrl || !supabaseAnonKey) {
 // シングルトンインスタンスを保持
 let supabaseInstance: ReturnType<typeof createSupabaseClient> | null = null;
 
+// サーバーサイド用のクライアント
+export const createServerClient = () => {
+  return createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+    },
+  });
+};
+
+// クライアントサイド用のクライアント
 export const createClient = () => {
   if (supabaseInstance) return supabaseInstance;
   
   supabaseInstance = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
     auth: {
-      persistSession: true, // セッションを永続化
+      persistSession: true,
       storageKey: 'supabase.auth.token',
       storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     },

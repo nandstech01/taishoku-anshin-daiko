@@ -46,36 +46,7 @@ const generateTagStructuredData = (tag: string, posts: Post[], baseUrl: string) 
         '@type': 'Organization',
         name: '退職あんしん代行編集部'
       }
-    })),
-    breadcrumb: {
-      '@type': 'BreadcrumbList',
-      itemListElement: [
-        {
-          '@type': 'ListItem',
-          position: 1,
-          item: {
-            '@id': baseUrl,
-            name: 'ホーム'
-          }
-        },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          item: {
-            '@id': `${baseUrl}/blog`,
-            name: 'ブログ'
-          }
-        },
-        {
-          '@type': 'ListItem',
-          position: 3,
-          item: {
-            '@id': `${baseUrl}/blog/tags/${encodeURIComponent(tag)}`,
-            name: `${tag}の記事一覧`
-          }
-        }
-      ]
-    }
+    }))
   };
 };
 
@@ -178,7 +149,9 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
       return (
         <div className="tag-page">
           <Breadcrumb items={[
+            { label: 'ホーム', href: '/' },
             { label: 'ブログ', href: '/blog' },
+            { label: 'タグ', href: '/blog/tags' },
             { label: `${normalizedTag}の記事一覧` }
           ]} />
           <h1 className="tag-title">{normalizedTag}に関する記事</h1>
@@ -195,21 +168,62 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
       category: categories?.find(cat => cat.slug === post.category_slug)
     }));
 
+    // 構造化データのパンくずリストを更新
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
+    const breadcrumbSchema = {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          item: {
+            '@id': baseUrl,
+            name: 'ホーム'
+          }
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          item: {
+            '@id': `${baseUrl}/blog`,
+            name: 'ブログ'
+          }
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          item: {
+            '@id': `${baseUrl}/blog/tags`,
+            name: 'タグ'
+          }
+        },
+        {
+          '@type': 'ListItem',
+          position: 4,
+          item: {
+            '@id': `${baseUrl}/blog/tags/${encodeURIComponent(normalizedTag)}`,
+            name: `${normalizedTag}の記事一覧`
+          }
+        }
+      ]
+    };
+
     return (
       <>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(generateTagStructuredData(
-              normalizedTag,
-              posts,
-              process.env.NEXT_PUBLIC_BASE_URL || ''
-            ))
+            __html: JSON.stringify({
+              ...generateTagStructuredData(normalizedTag, posts, process.env.NEXT_PUBLIC_BASE_URL || ''),
+              breadcrumb: breadcrumbSchema
+            })
           }}
         />
         <div className="tag-page">
           <Breadcrumb items={[
+            { label: 'ホーム', href: '/' },
             { label: 'ブログ', href: '/blog' },
+            { label: 'タグ', href: '/blog/tags' },
             { label: `${normalizedTag}の記事一覧` }
           ]} />
           <h1 className="tag-title">

@@ -9,6 +9,11 @@ import Link from 'next/link';
 import { PageViewTracker } from '@/components/blog/PageViewTracker';
 import { PostgrestResponse } from '@supabase/supabase-js';
 import { Phone, MessageCircle, Mail, Clock, Shield } from 'lucide-react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface BlogPost {
   id: string;
@@ -222,57 +227,77 @@ export default function BlogContent() {
       <PageViewTracker page_type="blog_top" />
       <BlogStructuredData posts={posts} />
       
-      {/* ピックアップセクション */}
-      <section className="blog-pickup blog-pickup-top">
-        <div className="blog-pickup-inner">
-          <div className="blog-pickup-decorations">
-            <span className="decoration-text decoration-career">CAREER</span>
-            <span className="decoration-text decoration-support">転職支援</span>
-            <span className="decoration-text decoration-career-jp">キャリア</span>
-            <span className="decoration-text decoration-success">SUCCESS</span>
-            <span className="decoration-text decoration-retire">退職</span>
+      <div className="blog-container blog-container-top">
+        {/* スクロールテキスト */}
+        <div className="blog-marquee">
+          <div className="blog-marquee-text">
+            退職に関する不安や悩みを解消する情報メディア!!退職のノウハウから、キャリアプランまであなたの新しい一歩を、私たちがサポートします!!
           </div>
-          <div className="blog-pickup-header">
-            <h2 className="blog-pickup-title">PICKUP</h2>
-            <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
-            <div className="blog-pickup-catch">
-              <h3 className="text-xl font-bold mb-4">あんしん退職コラム</h3>
-              <p className="mb-2">退職に関する不安や悩みを解消する情報メディア</p>
-              <p className="mb-2">退職のノウハウから、キャリアプランまで</p>
-              <p>あなたの新しい一歩を、私たちがサポートします</p>
+        </div>
+
+        {/* ピックアップセクション */}
+        <section className="blog-pickup blog-pickup-top">
+          <div className="blog-pickup-inner">
+            <div className="blog-pickup-decorations">
+              <span className="decoration-text decoration-career">CAREER</span>
+              <span className="decoration-text decoration-support">転職支援</span>
+              <span className="decoration-text decoration-career-jp">キャリア</span>
+              <span className="decoration-text decoration-success">SUCCESS</span>
+              <span className="decoration-text decoration-retire">退職</span>
+            </div>
+            <div className="blog-pickup-header">
+              <h2 className="blog-pickup-title">PICKUP</h2>
+              <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
+            </div>
+            <div className="blog-pickup-slider">
+              <Swiper
+                modules={[Pagination, Autoplay]}
+                spaceBetween={24}
+                slidesPerView={1.2}
+                centeredSlides={true}
+                loop={true}
+                pagination={{ clickable: true }}
+                autoplay={{ delay: 5000, disableOnInteraction: false }}
+                breakpoints={{
+                  640: {
+                    slidesPerView: 2.2,
+                    centeredSlides: false,
+                  },
+                  1024: {
+                    slidesPerView: 3.2,
+                    centeredSlides: false,
+                  },
+                }}
+              >
+                {posts.slice(0, 8).map((post) => (
+                  <SwiperSlide key={post.id}>
+                    <Link href={`/blog/${post.slug}`} className="block">
+                      <div className="blog-pickup-card hover-effect-card">
+                        {post.thumbnail_url && (
+                          <Image
+                            src={post.thumbnail_url}
+                            alt={post.title}
+                            width={360}
+                            height={202}
+                            className="blog-pickup-image"
+                          />
+                        )}
+                        <div className="blog-pickup-content">
+                          {post.category && (
+                            <span className="blog-category">{post.category.name}</span>
+                          )}
+                          <h3 className="blog-pickup-heading">{post.title}</h3>
+                        </div>
+                      </div>
+                    </Link>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
             </div>
           </div>
-          {popularPosts && (
-            <Link href={`/blog/${popularPosts.slug}`} className="block">
-              <div className="blog-pickup-card hover-effect-card">
-                {popularPosts.thumbnail_url && (
-                  <Image
-                    src={popularPosts.thumbnail_url}
-                    alt={popularPosts.title}
-                    width={600}
-                    height={300}
-                    className="blog-pickup-image"
-                  />
-                )}
-                <div className="blog-pickup-content">
-                  {popularPosts.category?.name && (
-                    <span className="blog-category" data-testid="pickup-category">
-                      {popularPosts.category.name}
-                    </span>
-                  )}
-                  <h3 className="blog-pickup-heading">{popularPosts.title}</h3>
-                  <p className="blog-pickup-excerpt">
-                    {popularPosts.meta_description || popularPosts.content.slice(0, 150)}
-                  </p>
-                </div>
-              </div>
-            </Link>
-          )}
-        </div>
-      </section>
+        </section>
 
-      <div className="blog-container blog-container-top">
-        <main>
+        <main className="blog-main">
           {/* News Section */}
           <section className="blog-news">
             <h2 className="blog-news-title">News</h2>

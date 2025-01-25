@@ -104,6 +104,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     const breadcrumbItemsForSchema = [
       { name: 'ホーム', url: '/' },
       { name: 'ブログ', url: '/blog' },
+      ...(postWithCategory.category ? [
+        { 
+          name: postWithCategory.category.name, 
+          url: `/blog/category/${postWithCategory.category.slug}` 
+        }
+      ] : []),
       { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
     ];
 
@@ -236,6 +242,12 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     const breadcrumbItemsForSchema = [
       { name: 'ホーム', url: '/' },
       { name: 'ブログ', url: '/blog' },
+      ...(postWithCategory.category ? [
+        { 
+          name: postWithCategory.category.name, 
+          url: `/blog/category/${postWithCategory.category.slug}` 
+        }
+      ] : []),
       { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
     ];
 
