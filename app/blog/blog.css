@@ -1,7 +1,7 @@
 /* ブログ全体のコンテナ */
 .blog-container {
   min-height: 100vh;
-  background-color: white;
+  background-color: #ffffff;
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
@@ -20,6 +20,9 @@
 .blog-pickup-top {
   margin-top: 0;
   padding-top: 4rem;
+  /* ほんのりグラデーション背景を追加 */
+  background: linear-gradient(135deg, #fefefe 0%, #f9f9f9 100%);
+  position: relative;
 }
 
 /* ピックアップセクションの装飾 */
@@ -73,17 +76,6 @@
   50% { transform: translate(8px, -5px) rotate(-7deg); }
   75% { transform: translate(5px, 5px) rotate(-4deg); }
   100% { transform: translate(0, 0) rotate(-5deg); }
-}
-
-.blog-pickup-decorations {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 1;
 }
 
 .blog-pickup-decorations .decoration-text {
@@ -737,374 +729,288 @@
 }
 
 .blog-pickup-header {
-  /* スマホ用のスタイル */
-  @apply relative z-10 mb-6;
-  
-  /* PC用のスタイル */
-  @apply md:mb-0 md:w-1/3 md:flex-shrink-0;
+  margin-bottom: 2rem;
 }
 
 .blog-pickup-title {
-  @apply text-xl font-bold text-white;
-  /* PC用のスタイル */
-  @apply md:text-3xl md:mb-4;
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #333;
 }
 
 .blog-pickup-description {
-  @apply text-sm font-bold text-white/90;
-  /* PC用のスタイル */
-  @apply md:text-base md:mb-6;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #777;
+  margin-bottom: 1rem;
 }
 
-/* PC表示時のみ表示されるキャッチコピー */
-.blog-pickup-catch {
-  @apply text-white/90 leading-relaxed;
-  /* スマホでは非表示、PCで表示 */
-  @apply hidden md:block;
-}
-
+/* ピックアップ記事カード */
 .blog-pickup-card {
-  @apply relative z-10 rounded-lg border border-gray-200 bg-white shadow-lg overflow-hidden transition-all duration-500;
-  /* PC用のスタイル */
-  @apply md:w-2/3;
-}
-
-/* ホバー効果をLinkに移動 */
-a:hover .blog-pickup-card {
-  transform: translateY(-2px);
-  @apply shadow-xl;
-}
-
-.blog-pickup-content {
-  @apply p-6 bg-white relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-top: 1rem;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .blog-pickup-image {
-  @apply w-full object-cover transition-transform duration-700;
-  aspect-ratio: 600/300;
+  width: 100%;
   height: auto;
+  object-fit: cover;
+  display: block;
 }
 
-.blog-pickup-card:hover .blog-pickup-image {
-  transform: scale(1.05);
+.blog-pickup-content {
+  padding: 1.5rem;
 }
 
-/* Pickup記事のカテゴリタグ専用スタイル - 他のスタイルを上書き */
-.blog-pickup-card .blog-category {
-  display: inline-block !important;
-  font-size: 0.875rem !important;
-  padding: 0.5rem 1.25rem !important;
-  margin-bottom: 1rem !important;
-  background: linear-gradient(to right, rgba(249, 115, 22, 0.1), rgba(245, 158, 11, 0.1)) !important;
-  color: #9a3412 !important;
-  border-radius: 9999px !important;
-  text-transform: uppercase !important;
-  font-weight: 500 !important;
-  letter-spacing: 0.05em !important;
-  transition: all 0.2s ease-in-out !important;
-}
-
-.blog-pickup-card .blog-category:hover {
-  background: linear-gradient(to right, rgba(249, 115, 22, 0.2), rgba(245, 158, 11, 0.2)) !important;
-  transform: translateY(-1px) !important;
+.blog-category {
+  display: inline-block;
+  background-color: #ffecb5;
+  color: #8c6d1f;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
 }
 
 .blog-pickup-heading {
-  @apply text-lg font-bold text-gray-900 mt-3 mb-2;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #333;
 }
 
 .blog-pickup-excerpt {
-  @apply text-sm text-gray-600 line-clamp-2;
+  font-size: 0.9rem;
+  color: #555;
 }
 
-/* ニュースセクション */
+/* ホバー時の柔らかいエフェクト共通化 */
+.hover-effect-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-effect-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* Newsセクション */
 .blog-news {
-  background-color: #333333;
-  padding: 1rem 2rem;
-  border-radius: 0;
-  margin: 0;
+  background-color: #f9fafb;
+  padding: 2rem;
+  margin-top: 2rem;
+  border-radius: 8px;
 }
 
 .blog-news-title {
-  color: #ffffff;
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.75rem;
-  text-transform: uppercase;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  color: #333;
 }
 
 .blog-news-list {
-  color: #ffffff;
-  opacity: 0.9;
-  line-height: 1.4;
-  font-size: 0.875rem;
-}
-
-.blog-news-list div {
-  padding: 0.25rem 0;
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.6;
 }
 
 .blog-news-label {
   display: inline-block;
-  background-color: #ffffff;
-  color: #000000;
-  font-weight: 700;
-  padding: 0.125rem 0.5rem;
-  border-radius: 2px;
+  background-color: #ffd6d6;
+  color: #b14f4f;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
   margin-right: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
 }
 
-/* 最新記事セクション */
+/* 最新記事リスト */
 .blog-latest {
-  @apply p-4 md:px-8 lg:px-12;
-  width: 100%;
+  margin-top: 2rem;
+  padding: 1rem;
 }
 
 .blog-latest-title {
-  @apply text-lg font-bold mb-8 text-center;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
 }
 
 .blog-latest-list {
-  @apply grid gap-6 lg:gap-8;
-  /* スマホは1列、タブレットは2列、PCは4列 */
-  @apply grid-cols-1 md:grid-cols-2 lg:grid-cols-4;
+  margin-top: 1rem;
 }
 
 .blog-latest-item {
-  /* スマホ用のデフォルトスタイル */
-  @apply flex flex-col gap-2 border-b pb-4;
-  min-height: 85px;
-  height: auto;
-  @apply transition-all duration-300;
-  
-  /* PC用のスタイル */
-  @apply lg:border-none lg:bg-white lg:rounded-lg lg:shadow-sm lg:overflow-hidden lg:hover:shadow-lg;
-  @apply lg:h-[420px];
-}
-
-/* ホバー効果 */
-a:hover .blog-latest-item {
-  @apply bg-gray-50;
-  transform: translateY(-1px);
-}
-
-/* PC用のホバー効果 */
-@media (min-width: 1024px) {
-  a:hover .blog-latest-item {
-    @apply shadow-lg;
-    transform: translateY(-2px);
-  }
+  display: block;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.03);
 }
 
 .blog-latest-date {
-  @apply text-xs text-gray-500;
-  /* PC用のスタイル */
-  @apply lg:text-xs lg:mb-2;
+  font-size: 0.8rem;
+  color: #999;
 }
 
 .blog-latest-content-wrapper {
-  @apply flex gap-4 items-center;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
 }
 
 .blog-latest-image {
-  /* スマホ用のデフォルトスタイル */
-  @apply object-cover flex-shrink-0 rounded;
-  width: 100px;
-  height: 50px;
-  
-  /* PC用のスタイル */
-  @apply lg:w-full lg:h-[240px] lg:rounded-none;
-}
-
-.blog-latest-content {
-  /* スマホ用のデフォルトスタイル */
-  @apply flex-1 flex flex-col justify-center min-w-0 gap-1 pl-3;
-  
-  /* PC用のスタイル */
-  @apply lg:p-4 lg:flex lg:flex-col lg:flex-1 lg:gap-2 lg:pl-4;
+  border-radius: 4px;
 }
 
 .blog-latest-heading {
-  @apply text-sm font-bold text-gray-900;
-  /* スマホ用のスタイル */
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  /* PC用のスタイル */
-  @apply lg:text-base lg:line-clamp-2 lg:hover:text-orange-600 lg:transition-colors;
-  @apply lg:min-h-[2.5rem];
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
 }
 
-/* PCサイズでtruncateを解除 */
-@media (min-width: 1024px) {
-  .blog-latest-heading {
-    text-overflow: initial;
-    white-space: normal;
-    overflow: visible;
-  }
-}
-
-/* タグセクション */
-.blog-tags-section {
-  @apply w-full text-center;
-}
-
-.blog-tags {
-  @apply flex flex-wrap justify-center gap-2;
-}
-
-.blog-tag {
-  @apply inline-flex items-center px-3 py-1.5 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-full transition-all duration-200;
-}
-
-/* PCサイズでのタグの調整 */
-@media (min-width: 1024px) {
-  .blog-tags {
-    @apply gap-3;
-  }
-  
-  .blog-tag {
-    @apply text-sm px-4 py-2;
-  }
-}
-
-/* カテゴリスタイル */
-.blog-category {
-  @apply inline-block bg-gradient-to-r from-orange-500/10 to-amber-500/10 text-orange-800 text-[0.625rem] tracking-wider uppercase font-medium px-3 py-1 rounded-full transition-all duration-200 hover:from-orange-500/20 hover:to-amber-500/20;
-}
-
-/* キャリアサポートセクション */
-.blog-career {
-  @apply p-4 bg-gray-100;
-  width: 100%;
-}
-
-.blog-career-title {
-  @apply text-lg font-bold mb-4 text-center;
-}
-
-.blog-career-card {
-  @apply rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden transition-all duration-300;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-/* ホバー効果 */
-a:hover .blog-career-card {
-  @apply shadow-lg;
-  transform: translateY(-2px);
-}
-
-/* 画像のホバーエフェクト */
-a:hover .blog-career-image {
-  transform: scale(1.02);
-}
-
-.blog-career-image {
-  @apply w-full object-cover transition-transform duration-700;
-  aspect-ratio: 600/300;
-  max-height: 300px;
-  width: 100%;
-}
-
-.blog-career-content {
-  @apply p-4 text-sm text-gray-700;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-/* ボタン */
 .blog-button {
-  @apply mt-4 inline-flex items-center justify-center rounded-md text-sm font-medium
-  border border-gray-200 bg-white hover:bg-gray-50 text-gray-700
-  px-8 py-2 transition-colors mx-auto;
-  max-width: 200px;
-  display: block;
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #ffbf75;
+  color: #fff;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+  border: none;
+  cursor: pointer;
 }
 
-/* フッター */
-footer {
-  width: 100vw !important;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+.blog-button:hover {
+  background-color: #ff9f3b;
 }
 
-/* セクションタイトルの共通スタイル */
-.blog-news-title,
-.blog-latest-title,
-.blog-tags-title {
-  @apply text-lg font-bold mb-8 text-center relative pb-3;
-}
-
-/* アニメーションのある下線 */
-.blog-news-title::after,
-.blog-latest-title::after,
-.blog-tags-title::after {
-  content: '';
-  @apply absolute bottom-0 left-1/2 transform -translate-x-1/2;
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, #FF6B2B 0%, #FF8F3E 100%);
-  animation: lineWidth 0.6s ease-out forwards;
-}
-
-@keyframes lineWidth {
-  from {
-    width: 0;
-    opacity: 0;
-  }
-  to {
-    width: 60px;
-    opacity: 1;
-  }
-}
-
-/* 既存のタイトルスタイルを削除（重複を避けるため） */
-.blog-news-title {
-  @apply text-center;
-}
-
-.blog-latest-title {
-  @apply text-center;
+/* カテゴリー一覧 */
+.blog-categories {
+  padding: 1rem;
 }
 
 .blog-tags-title {
-  @apply text-center;
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  color: #333;
 }
 
-/* タグセクション */
+/* タグ一覧 */
 .blog-tags-section {
-  margin-top: 0.5rem;
+  background-color: #f9fafb;
+  padding: 2rem 1rem;
+  border-radius: 8px;
 }
 
 .blog-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-top: 0.5rem;
 }
 
 .blog-tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  font-size: 0.875rem;
-  line-height: 1.25rem;
-  color: #4B5563;
-  background: linear-gradient(to right, #F3F4F6, #E5E7EB);
-  border: 1px solid #E5E7EB;
-  border-radius: 9999px;
-  transition: all 0.2s ease-in-out;
+  display: inline-block;
+  background-color: #e9f3ff;
+  color: #2360a0;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
 }
 
 .blog-tag:hover {
-  color: #1F2937;
-  background: linear-gradient(to right, #E5E7EB, #D1D5DB);
-  border-color: #D1D5DB;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: #cde2fd;
+}
+
+/* キャリアサポートお知らせ */
+.blog-career {
+  padding: 1rem;
+}
+
+.blog-career-title {
+  font-size: 1.6rem;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.blog-career-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+  margin-top: 1rem;
+}
+
+.blog-career-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.blog-career-content {
+  padding: 1.5rem;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* お問い合わせセクション */
+.blog-contact {
+  padding: 1rem;
+}
+
+.blog-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+@media (min-width: 640px) {
+  .blog-contact-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.blog-contact-card {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 1rem;
+  color: #555;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+}
+
+.blog-contact-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 追加情報のアイコン行 */
+.blog-contact-card.flex {
+  background: #f9f9f9;
+  box-shadow: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ececec;
+  border-radius: 6px;
 }
 
 /* カテゴリページのスタイル */

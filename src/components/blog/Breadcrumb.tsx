@@ -14,10 +14,10 @@ interface BreadcrumbProps {
 
 const Breadcrumb = ({ items }: BreadcrumbProps) => {
   return (
-    <nav className="text-sm mb-4">
-      <ol className="list-none p-0 inline-flex">
+    <nav className="text-sm mb-4 overflow-hidden">
+      <ol className="list-none p-0 inline-flex items-center">
         {items.map((item, index) => (
-          <li key={index} className="flex items-center">
+          <li key={index} className="flex items-center whitespace-nowrap">
             {index > 0 && <span className="mx-2 text-gray-500">/</span>}
             {item.href ? (
               <a
@@ -27,7 +27,14 @@ const Breadcrumb = ({ items }: BreadcrumbProps) => {
                 {item.label}
               </a>
             ) : (
-              <span className="text-gray-800">{item.label}</span>
+              <span className="text-gray-800">
+                <span className="hidden sm:inline">{item.label}</span>
+                <span className="inline sm:hidden">
+                  {item.label.length > 10
+                    ? `${item.label.slice(0, 10)}...`
+                    : item.label}
+                </span>
+              </span>
             )}
           </li>
         ))}
@@ -36,4 +43,4 @@ const Breadcrumb = ({ items }: BreadcrumbProps) => {
   );
 };
 
-export default Breadcrumb; 
+export default Breadcrumb;

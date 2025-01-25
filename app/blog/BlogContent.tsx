@@ -216,6 +216,8 @@ export default function BlogContent() {
     <>
       <PageViewTracker page_type="blog_top" />
       <BlogStructuredData posts={posts} />
+      
+      {/* ピックアップセクション */}
       <section className="blog-pickup blog-pickup-top">
         <div className="blog-pickup-inner">
           <div className="blog-pickup-decorations">
@@ -237,7 +239,7 @@ export default function BlogContent() {
           </div>
           {popularPosts && (
             <Link href={`/blog/${popularPosts.slug}`} className="block">
-              <div className="blog-pickup-card">
+              <div className="blog-pickup-card hover-effect-card">
                 {popularPosts.thumbnail_url && (
                   <Image
                     src={popularPosts.thumbnail_url}
@@ -286,7 +288,7 @@ export default function BlogContent() {
             <div className="blog-latest-list">
               {posts.slice(0, 5).map((post, index) => (
                 <Link key={post.slug} href={`/blog/${post.slug}`} className="block">
-                  <article className="blog-latest-item">
+                  <article className="blog-latest-item hover-effect-card">
                     <time className="blog-latest-date">
                       {new Date(post.published_at || post.created_at).toLocaleDateString('ja-JP')}
                     </time>
@@ -325,7 +327,7 @@ export default function BlogContent() {
                 <Link
                   key={category.slug}
                   href={`/blog/category/${category.slug}`}
-                  className="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
+                  className="block p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
                 >
                   <h3 className="text-lg font-semibold text-gray-900">
                     {category.name}
@@ -355,7 +357,7 @@ export default function BlogContent() {
           <section className="blog-career mt-24">
             <h2 className="blog-career-title">キャリアサポートのお知らせ</h2>
             <Link href="https://nands.tech/" target="_blank" rel="noopener noreferrer" className="block">
-              <div className="blog-career-card">
+              <div className="blog-career-card hover-effect-card">
                 <Image
                   src="/images/career-support.jpg"
                   alt="Career Support"
@@ -377,7 +379,7 @@ export default function BlogContent() {
             <h2 className="blog-tags-title">ご相談はこちら</h2>
             <div className="blog-contact-grid">
               {/* 電話相談 */}
-              <a href="tel:0120558551" className="blog-contact-card text-center">
+              <a href="tel:0120558551" className="blog-contact-card text-center hover-effect-card">
                 <Phone className="w-12 h-12 text-orange-500 mx-auto mb-2" />
                 <h4 className="text-xl font-bold text-gray-900 mb-2">
                   お電話でのご相談
@@ -386,7 +388,7 @@ export default function BlogContent() {
               </a>
 
               {/* LINE相談 */}
-              <div className="blog-contact-card text-center">
+              <div className="blog-contact-card text-center hover-effect-card">
                 <MessageCircle className="w-12 h-12 text-[#06C755] mx-auto mb-2" />
                 <h4 className="text-xl font-bold text-gray-900 mb-2">
                   公式LINEでお気軽に相談
@@ -405,7 +407,7 @@ export default function BlogContent() {
               </div>
 
               {/* メール相談 */}
-              <a href="mailto:contact@taishoku-anshin-daiko.com" className="blog-contact-card text-center">
+              <a href="mailto:contact@taishoku-anshin-daiko.com" className="blog-contact-card text-center hover-effect-card">
                 <Mail className="w-12 h-12 text-orange-500 mx-auto mb-2" />
                 <h4 className="text-xl font-bold text-gray-900 mb-2">
                   メールでのご相談
@@ -430,4 +432,4 @@ export default function BlogContent() {
       <Footer />
     </>
   );
-} 
+}

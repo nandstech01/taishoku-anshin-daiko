@@ -14,6 +14,7 @@ import { generateArticleSchema } from '@/schemas/article';
 import { generateBreadcrumbSchema } from '@/schemas/breadcrumb';
 import { AuthorInfo } from '@/components/blog/AuthorInfo';
 import Breadcrumb from '@/components/blog/Breadcrumb';
+import { RelatedTags } from '@/components/blog/RelatedTags';
 
 interface Tag {
   name: string;
@@ -384,6 +385,12 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                       </Link>
                     ))}
                   </div>
+                  {/* 関連タグの表示 */}
+                  <RelatedTags
+                    currentTag={tags[0].name}
+                    posts={relatedPosts || []}
+                    maxTags={5}
+                  />
                 </section>
               )}
 
