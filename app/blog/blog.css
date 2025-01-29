@@ -74,7 +74,7 @@
 
 /* ピックアップセクション */
 .blog-pickup {
-  margin-top: 32px; /* マーキーテキストの高さ分だけマージンを追加 */
+  margin-top: 32px; /* マーキーテキストの高さ分けマージンを追加 */
   position: relative;
   background: linear-gradient(135deg, #1a1a1a 0%, #333333 100%);
   color: #ffffff;
@@ -1835,4 +1835,139 @@
 .blog-pickup-content .blog-category {
   width: fit-content;
   margin-bottom: 0.5rem;
+}
+
+/* PC版のピックアップカードサイズ調整 */
+@media (min-width: 1024px) {
+  .blog-pickup-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8rem 2rem 4rem 2rem;
+  }
+
+  .blog-pickup-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 1rem !important;
+    margin-bottom: 2rem !important;
+    transform: translateY(-5rem) !important;
+  }
+
+  .blog-pickup-title {
+    font-size: 32px !important;
+    font-weight: bold !important;
+    margin-bottom: 0 !important;
+  }
+
+  .blog-pickup-description {
+    font-size: 16px !important;
+    margin: 0 !important;
+    padding-top: 4px !important;
+  }
+
+  .blog-pickup-slider {
+    width: 100% !important;
+    max-width: 360px !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .blog-pickup-slider .swiper {
+    width: 360px !important;
+    margin: 0 auto !important;
+    overflow: visible !important;
+  }
+
+  .blog-pickup-slider .swiper-wrapper {
+    display: flex !important;
+    align-items: center !important;
+  }
+
+  .blog-pickup-slider .swiper-slide {
+    width: 360px !important;
+    height: auto !important;
+    margin: 0 24px !important;
+    opacity: 0.4 !important;
+    transition: opacity 0.3s ease !important;
+  }
+
+  .blog-pickup-slider .swiper-slide-active {
+    opacity: 1 !important;
+  }
+
+  .blog-pickup-card {
+    width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+  }
+
+  .blog-pickup-image {
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 9 !important;
+    object-fit: cover !important;
+  }
+
+  .blog-pickup-content {
+    padding: 1.5rem !important;
+  }
+
+  /* Swiperのページネーションスタイル */
+  .blog-pickup-slider .swiper-pagination {
+    position: relative !important;
+    bottom: -2rem !important;  /* 下に移動 */
+    margin-top: 2rem !important;
+  }
+
+  .blog-pickup-slider .swiper-pagination-bullet {
+    width: 10px !important;
+    height: 10px !important;
+    background: #ccc !important;
+    opacity: 0.5 !important;
+    margin: 0 6px !important;
+  }
+
+  .blog-pickup-slider .swiper-pagination-bullet-active {
+    background: #fff !important;
+    opacity: 1 !important;
+  }
+}
+
+/* スマホ版のスタイル */
+@media (max-width: 1023px) {
+  .blog-pickup {
+    padding-top: 0.1rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .blog-pickup-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .blog-pickup-header {
+    margin-bottom: 0.5rem;
+  }
+
+  .blog-pickup-slider {
+    width: 100vw;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding: 0 0 0.75rem;
+  }
+
+  .swiper-slide {
+    width: 85vw !important;
+    margin: 0 auto !important;
+  }
+
+  .blog-pickup-card {
+    margin: 0 0.5rem;
+  }
+
+  .blog-pickup-content {
+    padding: 0.75rem;
+  }
 }
