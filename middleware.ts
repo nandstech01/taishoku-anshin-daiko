@@ -3,13 +3,36 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
-  // URLの正規化処理
   const url = req.nextUrl.clone();
-  const shouldRedirect = !url.pathname.endsWith('/') && !url.pathname.match(/\.[^/]+$/);
   
-  if (shouldRedirect) {
-    url.pathname += '/';
-    return NextResponse.redirect(url);
+  // 1. タグページのリダイレクト
+  if (url.pathname.startsWith('/blog/tag/')) {
+    return NextResponse.redirect(
+      new URL(url.pathname.replace('/blog/tag/', '/blog/tags/'), req.url),
+      { status: 301 }
+    );
+  }
+
+  // 2. カテゴリーページのリダイレクト
+  if (url.pathname.startsWith('/blog/categories/')) {
+    const category = url.pathname.replace('/blog/categories/', '');
+    return NextResponse.redirect(
+      new URL(`/blog/category/${encodeURIComponent(category)}`, req.url),
+      { status: 301 }
+    );
+  }
+
+  // 3. 末尾スラッシュの正規化
+  if (url.pathname.endsWith('/') && url.pathname !== '/') {
+    return NextResponse.redirect(
+      new URL(url.pathname.slice(0, -1), req.url),
+      { status: 301 }
+    );
+  }
+
+  // 4. 不正なURLパターンの処理
+  if (url.pathname === '/undefined' || url.pathname === '/undefined/') {
+    return NextResponse.redirect(new URL('/', req.url), { status: 301 });
   }
 
   const res = NextResponse.next();

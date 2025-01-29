@@ -6,18 +6,7 @@ import { RelatedTags } from '@/components/blog/RelatedTags';
 import { notFound } from 'next/navigation';
 import { Post, Category } from '@/types/blog';
 import Link from 'next/link';
-
-// タグの正規化と安全性を確保する関数
-const normalizeTag = (tag: string): string => {
-  try {
-    if (!tag) return '';
-    const decodedTag = decodeURIComponent(tag);
-    return decodedTag.replace(/　/g, ' ').replace(/\s+/g, ' ').trim();
-  } catch (e) {
-    console.error('Error normalizing tag:', e);
-    return '';
-  }
-};
+import { normalizeTag } from '@/utils/url';
 
 // 構造化データの生成
 const generateTagStructuredData = (tag: string, posts: Post[], baseUrl: string) => {
@@ -91,6 +80,9 @@ export async function generateMetadata({ params }: { params: { tag: string } }):
     topTopics ? `主な記事：${topTopics}。` : ''
   }退職代行のプロフェッショナルが解説します。`;
 
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
+  const canonicalUrl = `${baseUrl}/blog/tags/${encodeURIComponent(normalizedTag)}`;
+
   return {
     title,
     description,
@@ -98,7 +90,7 @@ export async function generateMetadata({ params }: { params: { tag: string } }):
       title,
       description,
       type: 'article',
-      url: `/blog/tags/${params.tag}`,
+      url: canonicalUrl,
     },
     twitter: {
       card: 'summary_large_image',
@@ -106,7 +98,7 @@ export async function generateMetadata({ params }: { params: { tag: string } }):
       description,
     },
     alternates: {
-      canonical: `/blog/tags/${params.tag}`
+      canonical: canonicalUrl
     },
     robots: {
       index: true,
@@ -214,7 +206,7 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
-              ...generateTagStructuredData(normalizedTag, posts, process.env.NEXT_PUBLIC_BASE_URL || ''),
+              ...generateTagStructuredData(normalizedTag, posts, baseUrl),
               breadcrumb: breadcrumbSchema
             })
           }}
@@ -254,6 +246,6 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
     );
   } catch (error) {
     console.error('Error in TagPage:', error);
-    return <div>予期せぬエラーが発生しました。</div>;
+    return <div>エラーが発生しました。</div>;
   }
 } 
