@@ -23,7 +23,19 @@ export async function middleware(req: NextRequest) {
   }
 
   // 3. 末尾スラッシュの正規化（特定のパスを除外）
-  const excludeFromSlashNormalization = ['/blog', '/about', '/privacy', '/terms', '/legal', '/faq', '/admin', '/admin/analysis'];
+  const excludeFromSlashNormalization = [
+    '/blog', 
+    '/about', 
+    '/privacy', 
+    '/terms', 
+    '/legal', 
+    '/faq', 
+    '/admin', 
+    '/admin/analysis', 
+    '/admin/dashboard',
+    '/admin/posts',
+    '/admin/posts/new'
+  ];
   
   // 各種ページパターンをチェック
   const isBlogPost = url.pathname.match(/^\/blog\/[^\/]+\/?$/);
