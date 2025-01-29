@@ -25,13 +25,17 @@ export async function middleware(req: NextRequest) {
   // 3. 末尾スラッシュの正規化（特定のパスを除外）
   const excludeFromSlashNormalization = ['/blog', '/about', '/privacy', '/terms', '/legal', '/faq'];
   
-  // ブログ記事ページかどうかをチェック
+  // 各種ページパターンをチェック
   const isBlogPost = url.pathname.match(/^\/blog\/[^\/]+\/?$/);
+  const isCategory = url.pathname.match(/^\/blog\/category\/[^\/]+\/?$/);
+  const isTag = url.pathname.match(/^\/blog\/tags\/[^\/]+\/?$/);
   
   if (url.pathname.endsWith('/') && 
       url.pathname !== '/' && 
       !excludeFromSlashNormalization.includes(url.pathname.slice(0, -1)) &&
-      !isBlogPost) {
+      !isBlogPost &&
+      !isCategory &&
+      !isTag) {
     return NextResponse.redirect(
       new URL(url.pathname.slice(0, -1), req.url),
       { status: 301 }
