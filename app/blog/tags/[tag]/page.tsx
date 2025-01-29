@@ -44,12 +44,15 @@ export async function generateMetadata({ params }: { params: { tag: string } }):
   const normalizedTag = normalizeTag(tag);
   const supabase = createClient();
 
-  // 関連記事を取得
+  // 関連記事を取得（スペースとハイフンの両方に対応）
+  const spaceTag = normalizedTag.replace(/-/g, ' ');
+  const hyphenTag = normalizedTag.replace(/\s+/g, '-');
+  
   const { data: posts } = await supabase
     .from('posts')
     .select('id, title, content, seo_keywords')
     .eq('status', 'published')
-    .contains('seo_keywords', [normalizedTag]);
+    .or(`seo_keywords.cs.{${spaceTag}},seo_keywords.cs.{${hyphenTag}}`);
 
   // タグに関連する主要トピックを抽出（最大3つ）
   const topTopics = posts
@@ -116,11 +119,15 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
   const normalizedTag = normalizeTag(decodedTag);
 
   try {
+    // スペースとハイフンの両方のバージョンを生成
+    const spaceTag = normalizedTag.replace(/-/g, ' ');
+    const hyphenTag = normalizedTag.replace(/\s+/g, '-');
+
     const { data: posts, error: postsError } = await supabase
       .from('posts')
       .select('*')
       .eq('status', 'published')
-      .filter('seo_keywords', 'cs', `{${normalizedTag}}`)
+      .or(`seo_keywords.cs.{${spaceTag}},seo_keywords.cs.{${hyphenTag}}`)
       .order('created_at', { ascending: false });
 
     if (postsError) {
