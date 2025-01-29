@@ -44,8 +44,27 @@ export default async function TagsPage() {
       .sort((a, b) => b[1] - a[1])
       .map(([tag, count]) => ({ tag, count }));
 
+    // タグをカテゴリー分け
+    const categorizedTags = {
+      退職関連: sortedTags.filter(({ tag }) => tag.includes('退職')),
+      労働問題: sortedTags.filter(({ tag }) => 
+        tag.includes('労働') || tag.includes('トラブル') || tag.includes('ハラスメント')
+      ),
+      メンタルヘルス: sortedTags.filter(({ tag }) => 
+        tag.includes('メンタル') || tag.includes('ストレス')
+      ),
+      その他: sortedTags.filter(({ tag }) => 
+        !tag.includes('退職') && 
+        !tag.includes('労働') && 
+        !tag.includes('トラブル') && 
+        !tag.includes('ハラスメント') && 
+        !tag.includes('メンタル') && 
+        !tag.includes('ストレス')
+      )
+    };
+
     return (
-      <div className="tags-page">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumb
           items={[
             { label: 'ホーム', href: '/' },
@@ -54,31 +73,54 @@ export default async function TagsPage() {
           ]}
         />
         
-        <h1 className="text-2xl font-bold mb-6">
-          <span className="block text-xl mb-1">退職代行に関する</span>
-          <span className="block text-3xl">タグ一覧</span>
-        </h1>
-
-        <p className="text-gray-600 mb-8">
-          記事に関連するタグの一覧です。気になるタグをクリックすると、関連する記事一覧をご覧いただけます。
-        </p>
-
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {sortedTags.map(({ tag, count }) => (
-            <Link
-              key={tag}
-              href={`/blog/tags/${encodeURIComponent(tag)}`}
-              className="p-4 border rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              <div className="font-medium text-lg mb-1">{tag}</div>
-              <div className="text-sm text-gray-500">{count}件の記事</div>
-            </Link>
-          ))}
+        <div className="mb-12 bg-gradient-to-r from-blue-50 to-white p-8 rounded-2xl">
+          <h1 className="text-3xl font-bold mb-4">
+            <span className="block text-xl text-gray-600 mb-2">退職代行に関する</span>
+            <span className="block">タグ一覧</span>
+          </h1>
+          <p className="text-gray-600 max-w-3xl">
+            記事に関連するタグの一覧です。気になるタグをクリックすると、関連する記事一覧をご覧いただけます。
+            カテゴリー別に整理していますので、お探しの情報に関連するタグを見つけやすくなっています。
+          </p>
         </div>
 
-        <div className="mt-8">
-          <Link href="/blog" className="text-blue-600 hover:underline">
-            ← ブログトップへ戻る
+        {Object.entries(categorizedTags).map(([category, tags]) => tags.length > 0 && (
+          <div key={category} className="mb-12 bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-bold mb-6 pb-2 border-b-2 border-blue-100 flex items-center">
+              <span className="bg-blue-50 text-blue-700 px-4 py-1 rounded-full text-sm mr-3">
+                {category}
+              </span>
+              <span>に関連するタグ</span>
+            </h2>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {tags.map(({ tag, count }) => (
+                <Link
+                  key={tag}
+                  href={`/blog/tags/${encodeURIComponent(tag)}`}
+                  className="group p-5 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-all duration-200 hover:shadow-lg bg-white"
+                >
+                  <div className="font-medium text-lg mb-3 group-hover:text-blue-600 transition-colors flex items-center justify-between">
+                    <span>{tag}</span>
+                    <span className="inline-flex items-center justify-center bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-sm">
+                      {count}件
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-500">
+                    関連記事を見る →
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        ))}
+
+        <div className="mt-12">
+          <Link 
+            href="/blog" 
+            className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors"
+          >
+            <span className="mr-2">←</span>
+            <span>ブログトップへ戻る</span>
           </Link>
         </div>
       </div>
@@ -86,7 +128,7 @@ export default async function TagsPage() {
   } catch (error) {
     console.error('Error in TagsPage:', error);
     return (
-      <div className="error-page">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Breadcrumb
           items={[
             { label: 'ホーム', href: '/' },
@@ -94,14 +136,20 @@ export default async function TagsPage() {
             { label: 'タグ一覧' },
           ]}
         />
-        <h1 className="text-2xl font-bold mb-4">タグ一覧</h1>
-        <div className="bg-red-50 border border-red-200 rounded p-4 text-red-700">
-          申し訳ありませんが、タグ一覧の読み込み中にエラーが発生しました。
-        </div>
-        <div className="mt-4">
-          <Link href="/blog" className="text-blue-600 hover:underline">
-            ← ブログトップへ戻る
-          </Link>
+        <div className="bg-white rounded-xl shadow-sm p-8">
+          <h1 className="text-2xl font-bold mb-4">タグ一覧</h1>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+            申し訳ありませんが、タグ一覧の読み込み中にエラーが発生しました。
+          </div>
+          <div className="mt-6">
+            <Link 
+              href="/blog" 
+              className="inline-flex items-center px-4 py-2 rounded-lg bg-gray-50 text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              <span className="mr-2">←</span>
+              <span>ブログトップへ戻る</span>
+            </Link>
+          </div>
         </div>
       </div>
     );
