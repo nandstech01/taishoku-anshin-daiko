@@ -218,26 +218,24 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
             })
           }}
         />
-        <div className="tag-page">
+        <div className="tag-page max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <Breadcrumb items={[
             { label: 'ホーム', href: '/' },
             { label: 'ブログ', href: '/blog' },
             { label: 'タグ', href: '/blog/tags' },
             { label: `${normalizedTag}の記事一覧` }
           ]} />
-          <h1 className="tag-title">
-            <span className="tag-title-main">{normalizedTag}に関する</span>
-            <span className="tag-title-sub">記事一覧</span>
-          </h1>
-          <p className="tag-description">
-            {normalizedTag}に関する記事が{posts.length}件あります。退職代行に関する最新情報、知識、体験談をご紹介しています。
-          </p>
-          <RelatedTags
-            currentTag={normalizedTag}
-            posts={posts}
-            maxTags={5}
-          />
-          <div className="articles-grid">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-4">
+              <span className="block text-xl text-gray-600 mb-2">タグ：{normalizedTag}</span>
+              <span className="block">記事一覧</span>
+            </h1>
+            <p className="text-gray-600">
+              {normalizedTag}に関する記事が{posts.length}件あります。
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {postsWithCategories.map((post) => (
               <BlogCard
                 key={post.id}
@@ -245,9 +243,20 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
               />
             ))}
           </div>
-          <Link href="/blog" className="back-to-blog">
-            ブログトップへ戻る
-          </Link>
+
+          <div className="mt-12">
+            <RelatedTags
+              currentTag={normalizedTag}
+              posts={posts}
+              maxTags={5}
+            />
+          </div>
+
+          <div className="mt-8">
+            <Link href="/blog" className="text-blue-600 hover:underline">
+              ← ブログトップへ戻る
+            </Link>
+          </div>
         </div>
       </>
     );
