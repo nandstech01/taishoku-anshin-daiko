@@ -52,14 +52,14 @@ body {
   position: relative;
   overflow: hidden;
   background: linear-gradient(135deg, #FF6B2B 0%, #FF8F3E 100%);
-  padding: 3rem 1rem 2rem;
+  padding: 2rem 1rem 1rem;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
 }
 
 .home-pickup-top {
   margin-top: 0;
-  padding-top: 4rem;
+  padding-top: 5rem;
 }
 
 /* 装飾テキストのアニメーション */

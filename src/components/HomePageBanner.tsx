@@ -42,7 +42,7 @@ export default function HomePageBanner() {
       const supabase = createClient();
       
       try {
-        // 最新の記事を3件取得
+        // 最新の記事を2件取得
         const { data: posts, error: postsError } = await supabase
           .from('posts')
           .select(`
@@ -59,7 +59,7 @@ export default function HomePageBanner() {
           `)
           .eq('status', 'published')
           .order('created_at', { ascending: false })
-          .limit(3) as PostgrestResponse<RawPost>;
+          .limit(2) as PostgrestResponse<RawPost>;
 
         if (postsError) {
           console.error('Error fetching posts:', postsError);
