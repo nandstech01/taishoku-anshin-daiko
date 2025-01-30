@@ -41,13 +41,15 @@ export async function middleware(req: NextRequest) {
   const isBlogPost = url.pathname.match(/^\/blog\/[^\/]+\/?$/);
   const isCategory = url.pathname.match(/^\/blog\/category\/[^\/]+\/?$/);
   const isTag = url.pathname.match(/^\/blog\/tags\/[^\/]+\/?$/);
+  const isPostEdit = url.pathname.match(/^\/admin\/posts\/[^\/]+\/edit\/?$/);
   
   if (url.pathname.endsWith('/') && 
       url.pathname !== '/' && 
       !excludeFromSlashNormalization.includes(url.pathname.slice(0, -1)) &&
       !isBlogPost &&
       !isCategory &&
-      !isTag) {
+      !isTag &&
+      !isPostEdit) {
     return NextResponse.redirect(
       new URL(url.pathname.slice(0, -1), req.url),
       { status: 301 }
