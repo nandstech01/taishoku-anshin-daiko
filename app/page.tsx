@@ -20,7 +20,7 @@ import FAQSection from '../src/components/FAQSection';
 import Header from '../src/components/common/Header';
 import { PageViewTracker } from '@/components/blog/PageViewTracker';
 import HomePageBlogSection from '@/components/blog/HomePageBlogSection';
-import HomePageBanner from '@/components/HomePageBanner';
+import EnhancedHeroSection from '@/components/EnhancedHeroSection';
 
 declare module 'react' {
   interface JSX {
@@ -30,6 +30,16 @@ declare module 'react' {
 
 const Home: React.FC = () => {
   const [showMainContent, setShowMainContent] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const handleEvent = React.useCallback(() => {
     // 処理内容
@@ -98,22 +108,7 @@ const Home: React.FC = () => {
           <div className="sticky top-0 z-[51]">
             <Header />
           </div>
-          <div className="md:hidden relative h-screen z-40">
-            <div 
-              className="w-full h-full bg-cover bg-center bg-no-repeat"
-              style={{ backgroundImage: 'url("/images/backgrounds.jpg")' }}
-            />
-            <div className="absolute inset-0">
-              <div className="flex flex-col items-center justify-start pt-20">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center px-4">
-                  退職代行サービス
-                  <span className="block text-xl sm:text-2xl mt-2">業界最安値2,980円で即日対応</span>
-                </h1>
-              </div>
-              <LineButton />
-            </div>
-          </div>
-          <HomePageBanner />
+          <EnhancedHeroSection />
           <div className="relative z-30">
             <div className="bg-white">
               <TroubleSection />

@@ -1,49 +1,41 @@
-/// <reference types="@react-three/fiber" />
-/// <reference types="three" />
-
 import { ReactNode } from 'react';
-import { HTMLMotionProps, MotionStyle, MotionValue } from 'framer-motion';
-import { Vector2 } from 'three';
-import { ChromaticAberrationEffect } from 'postprocessing';
-import { ThreeElements, ExtendedColors, Overwrite, NodeProps } from '@react-three/fiber';
-import { DirectionalLightProps, AmbientLightProps, GroupProps, MeshProps } from '@react-three/fiber';
-import { MeshStandardMaterial, MeshBasicMaterial, SphereGeometry, MeshStandardMaterialParameters, MeshBasicMaterialParameters } from 'three';
-
-declare module '@react-three/fiber' {
-  interface ThreeElements {
-    effectComposer: any;
-    bloom: any;
-    chromaticAberration: {
-      offset?: Vector2;
-      radialModulation?: boolean;
-      modulationOffset?: number;
-    };
-    depthOfField: any;
-    vignette: any;
-  }
-}
+import { HTMLMotionProps } from 'framer-motion';
 
 declare module 'framer-motion' {
-  interface MotionProps {
-    style?: MotionStyle;
-    children?: ReactNode | MotionValue<number> | MotionValue<string>;
+  export interface MotionProps {
     className?: string;
+    style?: React.CSSProperties;
+    children?: React.ReactNode;
+    id?: string;
+    ref?: React.RefObject<HTMLElement | null>;
     initial?: any;
     animate?: any;
-    exit?: any;
-    whileHover?: any;
-    variants?: any;
     transition?: any;
-    onMouseEnter?: () => void;
-    onMouseLeave?: () => void;
-    onClick?: () => void;
+    whileHover?: any;
   }
+
+  export interface ScrollConfig {
+    target?: React.RefObject<HTMLElement | null>;
+    offset?: [string, string];
+  }
+
+  export function useScroll(config?: ScrollConfig): {
+    scrollYProgress: any;
+  };
 }
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      // HTML elements with motion
+      group: any;
+      mesh: any;
+      primitive: any;
+      sphereGeometry: any;
+      meshStandardMaterial: any;
+      ambientLight: any;
+      pointLight: any;
+      directionalLight: any;
+
       div: React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> & HTMLMotionProps<"div">;
       span: React.DetailedHTMLProps<React.HTMLAttributes<HTMLSpanElement>, HTMLSpanElement> & HTMLMotionProps<"span">;
       h1: React.DetailedHTMLProps<React.HTMLAttributes<HTMLHeadingElement>, HTMLHeadingElement> & HTMLMotionProps<"h1">;
@@ -63,16 +55,6 @@ declare global {
       'motion.h2': HTMLMotionProps<"h2">;
       'motion.p': HTMLMotionProps<"p">;
       'motion.section': HTMLMotionProps<"section">;
-      'motion.button': HTMLMotionProps<"button">;
-
-      // Three.js elements
-      directionalLight: DirectionalLightProps;
-      ambientLight: AmbientLightProps;
-      group: GroupProps;
-      mesh: MeshProps;
-      meshStandardMaterial: ExtendedColors<Overwrite<Partial<MeshStandardMaterial>, NodeProps<MeshStandardMaterial, [MeshStandardMaterialParameters]>>>;
-      meshBasicMaterial: ExtendedColors<Overwrite<Partial<MeshBasicMaterial>, NodeProps<MeshBasicMaterial, [MeshBasicMaterialParameters]>>>;
-      sphereGeometry: ExtendedColors<Overwrite<Partial<SphereGeometry>, NodeProps<SphereGeometry, typeof SphereGeometry>>>;
     }
   }
 } 
