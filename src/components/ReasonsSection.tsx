@@ -1,7 +1,7 @@
 'use client'
 
+import * as React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { useRef } from 'react';
 import Image from 'next/image';
 import { Shield, Clock, Scale, DollarSign, Users, Sparkles } from 'lucide-react';
 
@@ -15,7 +15,7 @@ interface ReasonCardProps {
 }
 
 const ReasonCard = ({ number, icon, title, description, delay, image }: ReasonCardProps) => {
-    const cardRef = useRef<HTMLDivElement>(null);
+    const cardRef = React.useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
         target: cardRef,
         offset: ["0 1", "1.2 1"]
@@ -61,7 +61,7 @@ const ReasonCard = ({ number, icon, title, description, delay, image }: ReasonCa
 };
 
 export default function ReasonsSection() {
-    const sectionRef = useRef<HTMLDivElement>(null);
+    const sectionRef = React.useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
         target: sectionRef,
         offset: ["start end", "end start"]
