@@ -600,13 +600,18 @@ function MainMessages() {
  * 6) SocialProofSection (下部)
  *****************************************************************************/
 function SocialProofSection() {
-  const [count, setCount] = useState(30000);
+  const [count, setCount] = useState(12997);
   const [latestReview, setLatestReview] = useState("もう何の不安もありません！");
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCount((prev) => prev + Math.floor(Math.random() * 3));
-    }, 2000);
+      setCount((prev) => {
+        if (prev < 13000) {
+          return prev + 1;
+        }
+        return prev;
+      });
+    }, 3000); // 3秒ごとに1人増加
     return () => clearInterval(interval);
   }, []);
 
@@ -630,13 +635,13 @@ function SocialProofSection() {
       className="pointer-events-none px-4 text-center flex flex-col gap-3"
       style={{ maxWidth: "600px", margin: "0 auto", transform: "translateY(-80px)" }}
     >
+      <div className="text-sm text-white italic">「{latestReview}」</div>
       <div>
         <span className="text-2xl font-bold text-yellow-200">
           {count.toLocaleString()}
         </span>
         <span className="text-sm text-white ml-2">人が利用中</span>
       </div>
-      <div className="text-sm text-white italic">「{latestReview}」</div>
     </div>
   );
 }
