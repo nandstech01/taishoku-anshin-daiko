@@ -41,86 +41,101 @@ export default function ContactSection() {
                 <div className="max-w-4xl mx-auto">
                     <div className="grid gap-6">
                         {/* 電話相談 */}
-                        <motion.a
-                            href="tel:0120558551"
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group relative overflow-hidden"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300" />
-                            <div className="relative flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-blue-100 rounded-xl">
-                                        <Phone className="w-8 h-8 text-blue-600" />
+                            <a
+                                href="tel:0120558551"
+                                className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300" />
+                                <div className="relative flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-blue-100 rounded-xl">
+                                            <Phone className="w-8 h-8 text-blue-600" />
+                                        </div>
+                                        <div>
+                                            <p className="text-blue-600 font-bold mb-1">お電話でのご相談</p>
+                                            <p className="text-3xl font-bold text-gray-900">0120-558-551</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-blue-600 font-bold mb-1">お電話でのご相談</p>
-                                        <p className="text-3xl font-bold text-gray-900">0120-558-551</p>
-                                    </div>
+                                    <ArrowRight className="w-6 h-6 text-blue-500 transform group-hover:translate-x-2 transition-transform" />
                                 </div>
-                                <ArrowRight className="w-6 h-6 text-blue-500 transform group-hover:translate-x-2 transition-transform" />
-                            </div>
-                        </motion.a>
+                            </a>
+                        </motion.div>
 
                         {/* LINE相談 */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
-                            className="bg-white rounded-2xl p-8 shadow-xl relative overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#06C755]/20 to-[#06C755]/5 rounded-full transform translate-x-16 -translate-y-16" />
-                            
-                            <div className="text-center mb-6">
-                                <motion.div
-                                    animate={{ y: [0, -5, 0] }}
-                                    transition={{ duration: 2, repeat: Infinity }}
-                                    className="inline-block"
-                                >
-                                    <MessageCircle className="w-12 h-12 text-[#06C755] mx-auto mb-2" />
-                                </motion.div>
-                                <h4 className="text-xl font-bold text-gray-900 mb-2">
-                                    公式LINEでお気軽に相談
-                                </h4>
-                                <p className="text-gray-600">
-                                    LINEなら、いつでも気軽にご相談いただけます
-                                </p>
-                            </div>
-
-                            <motion.a
+                            <a
                                 href="https://lin.ee/h1kk42r"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                whileHover={{ scale: 1.02 }}
-                                className="block bg-[#06C755] hover:bg-[#05b34c] text-white text-lg font-bold py-4 px-6 rounded-xl shadow-lg transition-all duration-300 text-center"
+                                className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
                             >
-                                LINEで相談する
-                            </motion.a>
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#06C755]/20 to-[#06C755]/5 rounded-full transform translate-x-16 -translate-y-16" />
+                                
+                                <div className="text-center mb-6">
+                                    <motion.div
+                                        animate={{ y: [0, -5, 0] }}
+                                        transition={{ duration: 2, repeat: Infinity }}
+                                        className="inline-block"
+                                    >
+                                        <MessageCircle className="w-12 h-12 text-[#06C755] mx-auto mb-2" />
+                                    </motion.div>
+                                    <h4 className="text-xl font-bold text-gray-900 mb-2">
+                                        公式LINEでお気軽に相談
+                                    </h4>
+                                    <p className="text-gray-600">
+                                        LINEなら、いつでも気軽にご相談いただけます
+                                    </p>
+                                </div>
+
+                                <motion.div
+                                    whileHover={{ scale: 1.02 }}
+                                >
+                                    <a
+                                        href="https://lin.ee/h1kk42r"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-2 text-[#06C755] font-bold"
+                                    >
+                                        LINEで相談する
+                                    </a>
+                                </motion.div>
+                            </a>
                         </motion.div>
 
                         {/* メール相談 */}
-                        <motion.a
-                            href="mailto:contact@taishoku-anshin-daiko.com"
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.6 }}
-                            className="bg-white rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-300 group relative overflow-hidden"
                         >
-                            <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-amber-500/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300" />
-                            <div className="relative flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-orange-100 rounded-xl">
-                                        <Mail className="w-8 h-8 text-orange-500" />
+                            <a
+                                href="mailto:info@taishoku-daiko.jp"
+                                className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
+                            >
+                                <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-amber-500/10 translate-x-[-100%] group-hover:translate-x-0 transition-transform duration-300" />
+                                <div className="relative flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="p-3 bg-orange-100 rounded-xl">
+                                            <Mail className="w-8 h-8 text-orange-500" />
+                                        </div>
+                                        <div>
+                                            <p className="text-orange-500 font-bold mb-1">メールでのご相談</p>
+                                            <p className="text-lg text-gray-600">24時間受付中</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-orange-500 font-bold mb-1">メールでのご相談</p>
-                                        <p className="text-lg text-gray-600">24時間受付中</p>
-                                    </div>
+                                    <ArrowRight className="w-6 h-6 text-orange-500 transform group-hover:translate-x-2 transition-transform" />
                                 </div>
-                                <ArrowRight className="w-6 h-6 text-orange-500 transform group-hover:translate-x-2 transition-transform" />
-                            </div>
-                        </motion.a>
+                            </a>
+                        </motion.div>
                     </div>
 
                     {/* 安心ポイント */}

@@ -250,16 +250,19 @@ export default function ChatBot() {
                   className="flex-1 p-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/50 transition-all duration-300"
                   disabled={isLoading}
                 />
-                <motion.button
+                <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  type="submit"
-                  disabled={isLoading}
-                  className="p-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl transition-all duration-300 disabled:opacity-50 shadow-md"
-                  aria-label="メッセージを送信"
                 >
-                  <Send size={20} />
-                </motion.button>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="p-3 bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white rounded-xl transition-all duration-300 disabled:opacity-50 shadow-md w-full"
+                    aria-label="メッセージを送信"
+                  >
+                    <Send size={20} />
+                  </button>
+                </motion.div>
               </div>
             </form>
           </motion.div>

@@ -83,102 +83,108 @@ export default function ConsultationForm() {
                     無料相談フォーム
                 </motion.h2>
 
-                <motion.form
-                    onSubmit={handleSubmit}
-                    className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 md:p-12"
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
                 >
-                    <div className="space-y-8">
-                        <div>
-                            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                                お名前 <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="name"
-                                id="name"
-                                required
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                                placeholder="山田 太郎"
-                            />
-                        </div>
+                    <form
+                        onSubmit={handleSubmit}
+                        className="max-w-2xl mx-auto bg-white rounded-2xl shadow-xl p-8 md:p-12"
+                    >
+                        <div className="space-y-8">
+                            <div>
+                                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+                                    お名前 <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    id="name"
+                                    required
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                    placeholder="山田 太郎"
+                                />
+                            </div>
 
-                        <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
-                                電話番号 <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="tel"
-                                name="phone"
-                                id="phone"
-                                required
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                                placeholder="090-1234-5678"
-                            />
-                        </div>
+                            <div>
+                                <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
+                                    電話番号 <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="tel"
+                                    name="phone"
+                                    id="phone"
+                                    required
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                    placeholder="090-1234-5678"
+                                />
+                            </div>
 
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                                メールアドレス <span className="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="email"
-                                name="email"
-                                id="email"
-                                required
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                                placeholder="example@email.com"
-                            />
-                        </div>
+                            <div>
+                                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                                    メールアドレス <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    id="email"
+                                    required
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                    placeholder="example@email.com"
+                                />
+                            </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-3">
-                                現在の雇用形態
-                            </label>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                                {['正社員', '契約社員', 'パート・アルバイト', '派遣社員', 'その他'].map((type) => (
-                                    <div key={type} className="flex items-center space-x-3">
-                                        <input
-                                            type="radio"
-                                            name="employmentType"
-                                            value={type}
-                                            id={`employment-${type}`}
-                                            className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
-                                        />
-                                        <label htmlFor={`employment-${type}`} className="text-sm text-gray-700">
-                                            {type}
-                                        </label>
-                                    </div>
-                                ))}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-3">
+                                    現在の雇用形態
+                                </label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                    {['正社員', '契約社員', 'パート・アルバイト', '派遣社員', 'その他'].map((type) => (
+                                        <div key={type} className="flex items-center space-x-3">
+                                            <input
+                                                type="radio"
+                                                name="employmentType"
+                                                value={type}
+                                                id={`employment-${type}`}
+                                                className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300"
+                                            />
+                                            <label htmlFor={`employment-${type}`} className="text-sm text-gray-700">
+                                                {type}
+                                            </label>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
+                                    ご相談内容 <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    name="message"
+                                    id="message"
+                                    rows={5}
+                                    required
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+                                    placeholder="現在の状況やご相談内容をご記入ください"
+                                ></textarea>
+                            </div>
+
+                            <div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-orange-500 text-white py-4 px-6 rounded-lg font-medium hover:bg-orange-600 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                >
+                                    無料相談する
+                                </button>
+                                <p className="mt-3 text-sm text-gray-500 text-center">
+                                    ※ 送信後、担当者より翌日以内にご連絡いたします
+                                </p>
                             </div>
                         </div>
-
-                        <div>
-                            <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-2">
-                                ご相談内容 <span className="text-red-500">*</span>
-                            </label>
-                            <textarea
-                                name="message"
-                                id="message"
-                                rows={5}
-                                required
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
-                                placeholder="現在の状況やご相談内容をご記入ください"
-                            ></textarea>
-                        </div>
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full bg-orange-500 text-white py-4 px-6 rounded-lg font-medium hover:bg-orange-600 transition-colors duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-                            >
-                                無料相談する
-                            </button>
-                            <p className="mt-3 text-sm text-gray-500 text-center">
-                                ※ 送信後、担当者より翌日以内にご連絡いたします
-                            </p>
-                        </div>
-                    </div>
-                </motion.form>
+                    </form>
+                </motion.div>
             </div>
         </section>
     );

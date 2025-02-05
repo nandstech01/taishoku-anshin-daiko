@@ -17,7 +17,7 @@ interface ReasonCardProps {
 const ReasonCard = ({ number, icon, title, description, delay, image }: ReasonCardProps) => {
     const cardRef = React.useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
-        target: cardRef,
+        target: cardRef as React.RefObject<HTMLElement>,
         offset: ["0 1", "1.2 1"]
     });
     
@@ -63,100 +63,103 @@ const ReasonCard = ({ number, icon, title, description, delay, image }: ReasonCa
 export default function ReasonsSection() {
     const sectionRef = React.useRef<HTMLDivElement>(null);
     const { scrollYProgress } = useScroll({
-        target: sectionRef,
+        target: sectionRef as React.RefObject<HTMLElement>,
         offset: ["start end", "end start"]
     });
 
     const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
     return (
-        <motion.section
+        <div
             ref={sectionRef}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            id="reasons"
             className="relative py-20 md:py-32 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400 overflow-hidden"
+            id="reasons"
         >
-            {/* 装飾的な背景要素 - より洗練された効果に */}
             <motion.div
-                style={{ y: backgroundY }}
-                className="absolute inset-0 opacity-30"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
             >
-                <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full filter blur-3xl" />
-                <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full filter blur-3xl" />
-            </motion.div>
-
-            <div className="container mx-auto px-4 relative">
+                {/* 装飾的な背景要素 - より洗練された効果に */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
+                    style={{ y: backgroundY }}
+                    className="absolute inset-0 opacity-30"
                 >
-                    <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="inline-block bg-white text-orange-500 text-lg font-bold px-6 py-2 rounded-full mb-6 shadow-lg"
-                    >
-                        選ばれる理由
-                    </motion.div>
-                    <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                        多くのお客様に<br />
-                        <span className="text-white drop-shadow-md">選ばれる6つの理由</span>
-                    </h3>
+                    <div className="absolute top-0 left-0 w-96 h-96 bg-white rounded-full filter blur-3xl" />
+                    <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full filter blur-3xl" />
                 </motion.div>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    <ReasonCard
-                        number="01"
-                        icon={<Clock className="w-8 h-8 text-orange-500" />}
-                        title="スピーディーな対応"
-                        description="24時間365日対応可能。急なご相談や緊急の対応も迅速に行います。"
-                        delay={0.2}
-                        image="/images/reasons/01.png"
-                    />
-                    <ReasonCard
-                        number="02"
-                        icon={<Shield className="w-8 h-8 text-orange-500" />}
-                        title="安心の料金設定"
-                        description="2,980円と退職者様の負担を最大限軽減した料金設定。全額返金保証もあり安心してご利用いただけます。"
-                        delay={0.3}
-                        image="/images/reasons/02.png"
-                    />
-                    <ReasonCard
-                        number="03"
-                        icon={<Scale className="w-8 h-8 text-orange-500" />}
-                        title="顧問弁護士監修"
-                        description="法的リスクを回避し、適切なアドバイスと対応策を提供します。"
-                        delay={0.4}
-                        image="/images/reasons/03.png"
-                    />
-                    <ReasonCard
-                        number="04"
-                        icon={<DollarSign className="w-8 h-8 text-orange-500" />}
-                        title="給付金サポート"
-                        description="失業給付金等の申請手続きを完全サポート。経済的な不安を解消します。"
-                        delay={0.5}
-                        image="/images/reasons/04.png"
-                    />
-                    <ReasonCard
-                        number="05"
-                        icon={<Users className="w-8 h-8 text-orange-500" />}
-                        title="労働組合との連携"
-                        description="必要に応じて労働組合と連携し、より強力な交渉力を発揮します。"
-                        delay={0.6}
-                        image="/images/reasons/05.png"
-                    />
-                    <ReasonCard
-                        number="06"
-                        icon={<Sparkles className="w-8 h-8 text-orange-500" />}
-                        title="充実のアフターフォロー"
-                        description="退職後のキャリア相談やAIスキル習得支援で、次のステップを支援します。"
-                        delay={0.7}
-                        image="/images/reasons/06.png"
-                    />
+                <div className="container mx-auto px-4 relative">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="text-center mb-16"
+                    >
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            className="inline-block bg-white text-orange-500 text-lg font-bold px-6 py-2 rounded-full mb-6 shadow-lg"
+                        >
+                            選ばれる理由
+                        </motion.div>
+                        <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
+                            多くのお客様に<br />
+                            <span className="text-white drop-shadow-md">選ばれる6つの理由</span>
+                        </h3>
+                    </motion.div>
+
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                        <ReasonCard
+                            number="01"
+                            icon={<Clock className="w-8 h-8 text-orange-500" />}
+                            title="スピーディーな対応"
+                            description="24時間365日対応可能。急なご相談や緊急の対応も迅速に行います。"
+                            delay={0.2}
+                            image="/images/reasons/01.png"
+                        />
+                        <ReasonCard
+                            number="02"
+                            icon={<Shield className="w-8 h-8 text-orange-500" />}
+                            title="安心の料金設定"
+                            description="2,980円と退職者様の負担を最大限軽減した料金設定。全額返金保証もあり安心してご利用いただけます。"
+                            delay={0.3}
+                            image="/images/reasons/02.png"
+                        />
+                        <ReasonCard
+                            number="03"
+                            icon={<Scale className="w-8 h-8 text-orange-500" />}
+                            title="顧問弁護士監修"
+                            description="法的リスクを回避し、適切なアドバイスと対応策を提供します。"
+                            delay={0.4}
+                            image="/images/reasons/03.png"
+                        />
+                        <ReasonCard
+                            number="04"
+                            icon={<DollarSign className="w-8 h-8 text-orange-500" />}
+                            title="給付金サポート"
+                            description="失業給付金等の申請手続きを完全サポート。経済的な不安を解消します。"
+                            delay={0.5}
+                            image="/images/reasons/04.png"
+                        />
+                        <ReasonCard
+                            number="05"
+                            icon={<Users className="w-8 h-8 text-orange-500" />}
+                            title="労働組合との連携"
+                            description="必要に応じて労働組合と連携し、より強力な交渉力を発揮します。"
+                            delay={0.6}
+                            image="/images/reasons/05.png"
+                        />
+                        <ReasonCard
+                            number="06"
+                            icon={<Sparkles className="w-8 h-8 text-orange-500" />}
+                            title="充実のアフターフォロー"
+                            description="退職後のキャリア相談やAIスキル習得支援で、次のステップを支援します。"
+                            delay={0.7}
+                            image="/images/reasons/06.png"
+                        />
+                    </div>
                 </div>
-            </div>
-        </motion.section>
+            </motion.div>
+        </div>
     );
 } 

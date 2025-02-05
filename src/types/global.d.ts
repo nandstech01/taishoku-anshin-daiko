@@ -5,16 +5,14 @@ import { ReactNode } from 'react';
 import { HTMLMotionProps, MotionStyle, MotionValue } from 'framer-motion';
 import { Vector2 } from 'three';
 import { ChromaticAberrationEffect } from 'postprocessing';
-import { ThreeElements, ExtendedColors, Overwrite, NodeProps } from '@react-three/fiber';
-import { DirectionalLightProps, AmbientLightProps, GroupProps, MeshProps } from '@react-three/fiber';
-import { MeshStandardMaterial, MeshBasicMaterial, SphereGeometry, MeshStandardMaterialParameters, MeshBasicMaterialParameters } from 'three';
+import { ThreeElements } from '@react-three/fiber';
 
 declare module '@react-three/fiber' {
   interface ThreeElements {
     effectComposer: any;
     bloom: any;
     chromaticAberration: {
-      offset?: Vector2;
+      offset?: Vector2 | [number, number];
       radialModulation?: boolean;
       modulationOffset?: number;
     };
@@ -64,15 +62,45 @@ declare global {
       'motion.p': HTMLMotionProps<"p">;
       'motion.section': HTMLMotionProps<"section">;
       'motion.button': HTMLMotionProps<"button">;
+      'motion.a': HTMLMotionProps<"a">;
 
       // Three.js elements
-      directionalLight: DirectionalLightProps;
-      ambientLight: AmbientLightProps;
-      group: GroupProps;
-      mesh: MeshProps;
-      meshStandardMaterial: ExtendedColors<Overwrite<Partial<MeshStandardMaterial>, NodeProps<MeshStandardMaterial, [MeshStandardMaterialParameters]>>>;
-      meshBasicMaterial: ExtendedColors<Overwrite<Partial<MeshBasicMaterial>, NodeProps<MeshBasicMaterial, [MeshBasicMaterialParameters]>>>;
-      sphereGeometry: ExtendedColors<Overwrite<Partial<SphereGeometry>, NodeProps<SphereGeometry, typeof SphereGeometry>>>;
+      directionalLight: JSX.IntrinsicElements['mesh'] & {
+        intensity?: number;
+        position?: [number, number, number];
+        castShadow?: boolean;
+        'shadow-mapSize-width'?: number;
+        'shadow-mapSize-height'?: number;
+      };
+      ambientLight: JSX.IntrinsicElements['mesh'] & {
+        intensity?: number;
+      };
+      group: JSX.IntrinsicElements['mesh'];
+      mesh: JSX.IntrinsicElements['mesh'];
+      meshStandardMaterial: JSX.IntrinsicElements['mesh'] & {
+        color?: string | number;
+        emissive?: string | number;
+        emissiveIntensity?: number;
+        side?: number;
+        metalness?: number;
+        roughness?: number;
+      };
+      meshBasicMaterial: JSX.IntrinsicElements['mesh'] & {
+        color?: string | number;
+        transparent?: boolean;
+        opacity?: number;
+      };
+      sphereGeometry: JSX.IntrinsicElements['mesh'] & {
+        args?: [number, number, number];
+      };
     }
+  }
+}
+
+declare module '@react-three/postprocessing' {
+  interface ChromaticAberrationProps {
+    offset: Vector2 | [number, number];
+    radialModulation?: boolean;
+    modulationOffset?: number;
   }
 } 

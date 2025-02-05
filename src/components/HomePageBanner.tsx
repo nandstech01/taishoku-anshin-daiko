@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase';
-import { Post, Category } from '@/src/lib/supabase/database.types';
+import { Post, Category } from '@/lib/supabase/database.types';
 import { PostgrestResponse } from '@supabase/supabase-js';
 import { motion } from 'framer-motion';
 

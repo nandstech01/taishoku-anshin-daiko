@@ -1,4 +1,4 @@
-import { ResignationForm } from '@/src/components/resignation/ResignationForm'
+import { ResignationForm } from '@/components/resignation/ResignationForm'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {

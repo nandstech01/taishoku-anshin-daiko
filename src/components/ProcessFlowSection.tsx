@@ -55,76 +55,77 @@ const ProcessStep = ({ number, icon, title, description, subDescription, delay }
 
 export default function ProcessFlowSection() {
     return (
-        <motion.section
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            id="process"
-            className="relative py-20 md:py-32 bg-gradient-to-b from-white to-orange-50 overflow-hidden"
-        >
-            {/* 装飾的な背景要素 */}
-            <div className="absolute top-0 right-0 w-96 h-96 bg-orange-100 rounded-full filter blur-3xl opacity-30 translate-x-1/2 -translate-y-1/2" />
-            
-            <div className="container mx-auto px-4">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
-                >
+        <div id="process">
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                className="relative py-20 md:py-32 bg-gradient-to-b from-white to-orange-50 overflow-hidden"
+            >
+                {/* 装飾的な背景要素 */}
+                <div className="absolute top-0 right-0 w-96 h-96 bg-orange-100 rounded-full filter blur-3xl opacity-30 translate-x-1/2 -translate-y-1/2" />
+                
+                <div className="container mx-auto px-4">
                     <motion.div
-                        whileHover={{ scale: 1.05 }}
-                        className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-white text-lg font-bold px-6 py-2 rounded-full mb-6 shadow-lg"
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6 }}
+                        className="text-center mb-16"
                     >
-                        簡単3ステップ
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            className="inline-block bg-gradient-to-r from-orange-500 to-amber-500 text-white text-lg font-bold px-6 py-2 rounded-full mb-6 shadow-lg"
+                        >
+                            簡単3ステップ
+                        </motion.div>
+                        <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                            退職相談の流れ
+                        </h3>
+                        <p className="text-gray-600 max-w-2xl mx-auto">
+                            まずはお気軽にご相談ください<br/>専門スタッフが丁寧にサポートいたします
+                        </p>
                     </motion.div>
-                    <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                        退職相談の流れ
-                    </h3>
-                    <p className="text-gray-600 max-w-2xl mx-auto">
-                        まずはお気軽にご相談ください<br/>専門スタッフが丁寧にサポートいたします
-                    </p>
-                </motion.div>
 
-                <div className="max-w-3xl mx-auto">
-                    <ProcessStep
-                        number="01"
-                        icon={<Phone className="w-6 h-6 text-orange-500" />}
-                        title="無料相談"
-                        description="お電話・メール・LINEにて、現在の状況やご要望をお聞かせください。"
-                        subDescription={[
-                            "24時間365日いつでもご相談可能",
-                            "ご相談は完全無料",
-                            "プライバシーは厳守いたします"
-                        ]}
-                        delay={0.2}
-                    />
-                    <ProcessStep
-                        number="02"
-                        icon={<FileCheck className="w-6 h-6 text-orange-500" />}
-                        title="ご契約・お支払い"
-                        description="サービス内容をご説明し、ご納得いただけましたらお手続きを進めます。"
-                        subDescription={[
-                            "明朗会計で追加料金なし",
-                            "クレジットカード決済対応",
-                            "その場でお手続き完了"
-                        ]}
-                        delay={0.4}
-                    />
-                    <ProcessStep
-                        number="03"
-                        icon={<UserCheck className="w-6 h-6 text-orange-500" />}
-                        title="退職手続き代行"
-                        description="ご希望の日時で退職代行を進めさせていただきます。"
-                        subDescription={[
-                            "専任スタッフが責任を持って対応",
-                            "進捗状況を随時ご報告",
-                            "給付金申請もサポート"
-                        ]}
-                        delay={0.6}
-                    />
+                    <div className="max-w-3xl mx-auto">
+                        <ProcessStep
+                            number="01"
+                            icon={<Phone className="w-6 h-6 text-orange-500" />}
+                            title="無料相談"
+                            description="お電話・メール・LINEにて、現在の状況やご要望をお聞かせください。"
+                            subDescription={[
+                                "24時間365日いつでもご相談可能",
+                                "ご相談は完全無料",
+                                "プライバシーは厳守いたします"
+                            ]}
+                            delay={0.2}
+                        />
+                        <ProcessStep
+                            number="02"
+                            icon={<FileCheck className="w-6 h-6 text-orange-500" />}
+                            title="ご契約・お支払い"
+                            description="サービス内容をご説明し、ご納得いただけましたらお手続きを進めます。"
+                            subDescription={[
+                                "明朗会計で追加料金なし",
+                                "クレジットカード決済対応",
+                                "その場でお手続き完了"
+                            ]}
+                            delay={0.4}
+                        />
+                        <ProcessStep
+                            number="03"
+                            icon={<UserCheck className="w-6 h-6 text-orange-500" />}
+                            title="退職手続き代行"
+                            description="ご希望の日時で退職代行を進めさせていただきます。"
+                            subDescription={[
+                                "専任スタッフが責任を持って対応",
+                                "進捗状況を随時ご報告",
+                                "給付金申請もサポート"
+                            ]}
+                            delay={0.6}
+                        />
+                    </div>
                 </div>
-            </div>
-        </motion.section>
+            </motion.div>
+        </div>
     );
 } 
