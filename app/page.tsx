@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import RefinedCourseDates from '../src/components/RefinedCourseDates';
 import TroubleSection from '../src/components/TroubleSection';
 import FeaturesSection from '../src/components/FeaturesSection';
+import NandsConfidenceSection from '../src/components/NandsConfidenceSection';
 import PricingSection from '../src/components/PricingSection';
 import ComparisonSection from '../src/components/ComparisonSection';
 import ConsultationForm from '../src/components/ConsultationForm';
@@ -110,6 +111,7 @@ const Home: React.FC = () => {
             <div className="bg-white">
               <TroubleSection />
               <FeaturesSection />
+              <NandsConfidenceSection />
               <PricingSection />
               <ComparisonSection />
               <ReasonsSection />
@@ -172,6 +174,7 @@ const Home: React.FC = () => {
           </div>
           <TroubleSection />
           <FeaturesSection />
+          <NandsConfidenceSection />
           <PricingSection />
           <ComparisonSection />
           <ReasonsSection />

@@ -422,7 +422,7 @@ function BottomText() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        退職の悩みは、時として大きな精神的負担となり、<br />
+        退職の悩みは、大きな精神的負担となり、<br />
         日々の生活にも影響を及ぼしかねません。
       </motion.p>
 
