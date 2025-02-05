@@ -1,421 +1,339 @@
-// @ts-nocheck
-'use client'
+"use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Shield, Building2, CheckCircle, HeartPulse, Banknote, Users, Sparkles, Scale, Building } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
+/****************************************************************************
+ * FeaturesSection.tsx: 
+ *   「どうして2,980円でここまでできるの？」「怪しい業者との違いは？」
+ *   といった不安を解消し、圧倒的な安心感を与えるコンバージョンセクション。
+ * 
+ *  - ヒーローやトラブルセクション以上に極めたデザイン/アニメ
+ *  - Three.jsで軽量なラインアートを背景にして、未来感/やさしさを演出
+ *  - CASE3 ~ CASE6の内容を要約/当社向けに変換し、文章で説明
+ *  - 2,980円でも十分に対応可であることを丁寧に解説
+ ****************************************************************************/
 
+import React from "react";
+import { motion } from "framer-motion";
+
+// アイコン (Lucideなど)
+import {
+  ShieldCheck,
+  Bot,
+  Scale,
+  Building2,
+  UserCheck,
+  CheckCircle,
+  AlertTriangle,
+  GraduationCap,
+} from "lucide-react";
+
+// Three.jsシーン
+import FeaturesSceneWrapper from "./FeaturesScene";
+
+/******************************************************************************
+ * 1) 退職対応データ
+ *    CASE3~CASE6で言及される論点を当社向けに再構成
+ ****************************************************************************/
+
+// 2,980円を実現する背景 (AI, 広告費ゼロ, etc)
+const whyCheapData = [
+  {
+    icon: <Bot className="w-8 h-8 text-orange-500" />,
+    title: "AI＆広告費ゼロでコスト削減",
+    desc: "最新AIで事務・オペレーションを効率化し、広告に一切お金をかけないから固定費を抑えられます。だから2,980円でもしっかり対応可能。",
+  },
+  {
+    icon: <ShieldCheck className="w-8 h-8 text-orange-500" />,
+    title: "弁護士・社労士監修で安心",
+    desc: "法的な不備がないよう監修済み。トラブル発生時にも安心の連携体制。余計なリスク回避でコスト増を防ぎます。",
+  },
+];
+
+// 「こんな不安にも対応できる」リスト
+// (プライバシー, 給与, 職場, キャリア)
+const troubleData = [
+  {
+    title: "プライバシー保護",
+    items: [
+      "退職代行に依頼したのがバレたくない",
+      "親や同僚に迷惑をかけたくない",
+      "退職後の会社とのやりとりが不安",
+    ],
+    solution:
+      "完全秘密厳守。情報漏洩は一切なし。会社への連絡もすべて当社が代行します。",
+    icon: <ShieldCheck className="w-6 h-6" />,
+  },
+  {
+    title: "給与トラブル",
+    items: [
+      "残業代がまったく支払われていない",
+      "約束された給与より大幅に少ない",
+      "昇給の見込みがまったくない",
+    ],
+    solution:
+      "未払い残業代請求も法サポート付きで対応。正当な権利を取り戻しましょう。",
+    icon: <Scale className="w-6 h-6" />,
+  },
+  {
+    title: "職場環境の問題",
+    items: [
+      "上司からパワハラで精神的に限界",
+      "退職を言い出せない雰囲気がある",
+      "毎日の残業で体調を崩している",
+    ],
+    solution:
+      "即日対応で健康を最優先。1日でも早くつらい環境から抜け出し、新しい一歩を踏み出せます。",
+    icon: <Building2 className="w-6 h-6" />,
+  },
+  {
+    title: "キャリアの悩み",
+    items: [
+      "もっと高い給与で働きたい",
+      "退職を申し出たら脅された",
+      "転職で年収を上げたい",
+    ],
+    solution:
+      "退職後のキャリアプランニングまでサポート。転職・副業など多方面でアドバイスします。",
+    icon: <UserCheck className="w-6 h-6" />,
+  },
+];
+
+// CASE3 ~ CASE6 をまとめた解説データ
+// (怪しい業者との違い、交渉不要の理由、弁護士や労働組合との比較など)
+const additionalExplanations = [
+  {
+    title: "怪しい業者との違い",
+    content: `多くの退職代行業者が乱立する中、代表者が不明・実態不透明な業者もあります。当社は株式会社で運営されており法監修体制が整っており、安心してご利用いただけます。退職代行は大きな決断だからこそ、会社の正体がはっきりしている当社をお選びください。`,
+    icon: <AlertTriangle className="w-8 h-8 text-orange-500" />,
+  },
+  {
+    title: "退職＝通知だけでOK",
+    content: `退職するのに「交渉」は不要です。労働者には自由に退職できる権利が法で定められています。交渉が必要になるケースは極めて稀。あえて交渉しようとすると話がこじれる可能性も。だから2,980円で問題なく退職できるのです。`,
+    icon: <CheckCircle className="w-8 h-8 text-orange-500" />,
+  },
+  {
+    title: "弁護士に頼んだ方がいい？",
+    content: `退職だけなら交渉の必要はありません。弁護士に依頼すると5万円以上かかり、時間もかかりがち。特別な事情がない限り、2,980円の当社サービスで十分対応できます。`,
+    icon: <GraduationCap className="w-8 h-8 text-orange-500" />,
+  },
+  {
+    title: "労働組合の退職代行？",
+    content: `形だけの労働組合を作り、交渉可能と主張する業者もありますが、実際は違法の可能性大。交渉しない退職代行なら弁護士でもない業者で問題なく退職できます。`,
+    icon: <Building2 className="w-8 h-8 text-orange-500" />,
+  },
+];
+
+/******************************************************************************
+ * メインのコンポーネント
+ ******************************************************************************/
 export default function FeaturesSection() {
-  const troubles = [
-    {
-      icon: <Shield className="w-8 h-8" />,
-      title: "プライバシーの心配",
-      items: [
-        "退職代行に依頼したのがバレたくない",
-        "親とか同僚に迷惑をかけたくない",
-        "退職後に会社とのやりとりが不安"
-      ],
-      solution: "完全秘密厳守で対応。情報漏洩は一切ありません。会社とのやりとりも全て前に立ち、会社には一切連絡しなくても大丈夫です"
-    },
-    {
-      icon: <Banknote className="w-8 h-8" />,
-      title: "給与に関する不満",
-      items: [
-        "残業代が全く支払われていない",
-        "約束された給与より大幅に少ない",
-        "昇給の見込みが全くない"
-      ],
-      solution: "未払い残業代の請求も可能。法サポート付き。"
-    },
-    {
-      icon: <HeartPulse className="w-8 h-8" />,
-      title: "職場環境の問題",
-      items: [
-        "上司からのパワハラで精神的に限界",
-        "退職を言い出せない雰囲気がある",
-        "毎日の残業で体調を崩している"
-      ],
-      solution: "即日対応可能。あなたの健康が最優先です。"
-    },
-    {
-      icon: <Users className="w-8 h-8" />,
-      title: "キャリアの悩み",
-      items: [
-        "もっと高い給与で働きたい",
-        "退職を申し出たら脅された",
-        "転職で年収を上げたい"
-      ],
-      solution: "退職後のキャリアプランニングまでサポート。"
-    }
-  ];
-
-  // キラキラエフェクトの位置を固定値で定義
-  const sparklePositions = [
-    { top: '20%', left: '10%' },
-    { top: '30%', left: '80%' },
-    { top: '50%', left: '20%' },
-    { top: '70%', left: '90%' },
-    { top: '40%', left: '50%' },
-    { top: '60%', left: '30%' },
-    { top: '80%', left: '70%' },
-    { top: '90%', left: '40%' },
-    { top: '25%', left: '60%' },
-    { top: '75%', left: '15%' }
-  ];
-
   return (
-    <section id="features" className="py-20 relative overflow-hidden" style={{ backgroundImage: "url('/images/background-pattern.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
-      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-white to-amber-50 opacity-90"></div>
-
-      <div className="container mx-auto px-4 relative z-10">
-        {/* メインビジュアル - あんしんメッセージ */}
+    <section className="relative w-full min-h-screen bg-gradient-to-br from-white via-orange-50 to-amber-50">
+      <div className="relative container mx-auto py-16 md:py-24 px-4">
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          className="text-center max-w-3xl mx-auto mb-10"
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
           viewport={{ once: true }}
-          className="relative mb-24"
         >
-          {/* 背景の装飾レイヤー */}
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-600/10 to-amber-600/10 rounded-3xl transform -rotate-1" />
-          <div className="absolute inset-0 bg-gradient-to-l from-orange-600/10 to-amber-600/10 rounded-3xl transform rotate-1" />
-          
-          {/* メインカード */}
-          <motion.div
-            className="relative bg-white backdrop-blur-lg rounded-3xl border border-orange-100 shadow-[0_0_50px_rgba(251,146,60,0.2)] overflow-hidden"
-            whileHover={{ scale: 1.02 }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            {/* 装飾的な背景アニメーション */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(251,146,60,0.1),transparent_50%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(251,146,60,0.1),transparent_50%)]" />
-            <motion.div
-              animate={{
-                background: [
-                  'radial-gradient(circle at 0% 0%, rgba(251,146,60,0.1) 0%, transparent 50%)',
-                  'radial-gradient(circle at 100% 100%, rgba(251,146,60,0.1) 0%, transparent 50%)',
-                  'radial-gradient(circle at 0% 0%, rgba(251,146,60,0.1) 0%, transparent 50%)'
-                ]
-              }}
-              transition={{ duration: 10, repeat: Infinity }}
-              className="absolute inset-0"
-            />
-
-            {/* キラキラエフェクト */}
-            <div className="absolute top-0 left-0 w-full h-full">
-              {sparklePositions.map((position, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute w-1 h-1 bg-orange-400/30 rounded-full"
-                  style={{
-                    top: position.top,
-                    left: position.left,
-                  }}
-                  animate={{
-                    scale: [0, 1, 0],
-                    opacity: [0, 1, 0],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                    ease: "easeInOut",
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* コンテンツ */}
-            <div className="relative p-12">
-              <div className="text-center max-w-3xl mx-auto">
-                {/* シールドアイコンのアニメーション */}
-                <motion.div
-                  animate={{
-                    scale: [1, 1.1, 1],
-                    rotateY: [0, 360],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                    ease: "easeInOut",
-                  }}
-                  className="relative"
-                >
-                  <Shield className="w-24 h-24 text-orange-500 mx-auto mb-6" />
-                </motion.div>
-
-                {/* タイトル */}
-                <div className="relative">
-                  <motion.h2
-                    className="text-2xl md:text-3xl font-bold mb-6 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent"
-                    animate={{ 
-                      textShadow: [
-                        "0 0 20px rgba(251,146,60,0.2)",
-                        "0 0 40px rgba(251,146,60,0.4)",
-                        "0 0 20px rgba(251,146,60,0.2)"
-                      ]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    あんしんしてください
-                  </motion.h2>
-                </div>
-
-                {/* サブテキスト */}
-                <motion.p
-                  className="text-xl text-gray-600 mb-8 relative z-10"
-                  animate={{ opacity: [0.8, 1, 0.8] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                >
-                  そんな方のための<br />
-                  退職代行サービスです
-                </motion.p>
-
-                {/* 絶対安心できる理由 - 追加 */}
-                <motion.h3
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  className="text-2xl md:text-3xl font-bold mb-8 bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent"
-                >
-                  絶対安心できる理由
-                </motion.h3>
-
-                {/* 特徴ボックス */}
-                <div className="flex flex-col space-y-6 max-w-2xl mx-auto">
-                  {/* 弁護士・労働組合のボックス */}
-                  <div className="flex flex-col md:flex-row justify-center gap-4">
-                    <motion.div
-                      whileHover={{ scale: 1.05, rotateX: 10 }}
-                      className="flex-1 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg shadow-lg border border-orange-400/20 backdrop-blur-sm transform perspective-1000"
-                    >
-                      <div className="flex items-center justify-center space-x-2">
-                        <Scale className="w-5 h-5" />
-                        <span className="font-bold">弁護士</span>
-                      </div>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.05, rotateX: 10 }}
-                      className="flex-1 px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-lg shadow-lg border border-orange-400/20 backdrop-blur-sm transform perspective-1000"
-                    >
-                      <div className="flex items-center justify-center space-x-2">
-                        <Building className="w-5 h-5" />
-                        <span className="font-bold">労働組合</span>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  {/* ダブル対応の説明 */}
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    whileHover={{ scale: 1.03 }}
-                    className="text-center bg-gradient-to-r from-orange-500 to-amber-500 text-white p-4 rounded-xl shadow-lg"
-                  >
-                    <motion.p
-                      animate={{ 
-                        textShadow: [
-                          "0 0 10px rgba(255,255,255,0.5)",
-                          "0 0 20px rgba(255,255,255,0.7)",
-                          "0 0 10px rgba(255,255,255,0.5)"
-                        ]
-                      }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="font-bold text-lg"
-                    >
-                      ダブル対応可能だから<br />
-                      万一のトラブルにも安心
-                    </motion.p>
-                  </motion.div>
-
-                  {/* 価格表示を<a>タグでラップ */}
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    className="relative"
-                  >
-                    <motion.a
-                      href="https://lin.ee/h1kk42r"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      animate={{
-                        scale: [1, 1.05, 1],
-                        boxShadow: [
-                          "0 0 20px rgba(251,146,60,0.3)",
-                          "0 0 40px rgba(251,146,60,0.5)",
-                          "0 0 20px rgba(251,146,60,0.3)"
-                        ]
-                      }}
-                      whileHover={{ scale: 1.05 }}  // ホバーエフェクトを追加
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="block bg-white text-center p-6 rounded-2xl border-2 border-orange-500 cursor-pointer"
-                    >
-                      <motion.p
-                        className="text-gray-700 font-bold mb-2"
-                      >
-                        安心価格 業界最安値の
-                      </motion.p>
-                      <motion.div
-                        animate={{
-                          scale: [1, 1.1, 1],
-                          color: [
-                            "rgb(234,88,12)",
-                            "rgb(251,146,60)",
-                            "rgb(234,88,12)"
-                          ]
-                        }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                        className="text-4xl font-bold"
-                      >
-                        2,980円<span className="text-xl">(税込)</span>
-                      </motion.div>
-                      <motion.p
-                        className="text-gray-700 font-bold mt-2"
-                      >
-                        のみ
-                      </motion.p>
-                    </motion.a>
-                  </motion.div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+          <h2 className="text-3xl md:text-5xl font-extrabold bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent">
+            <span className="md:hidden">
+              2,980円でも<br />
+              ここまで安心。
+            </span>
+            <span className="hidden md:inline">
+              2,980円でも、ここまで安心。
+            </span>
+          </h2>
+          <p className="text-gray-700 text-xl mt-4 leading-relaxed">
+            退職は大きな決断だからこそ<br />
+            <span className="font-semibold">「本当にこんな安さで大丈夫？」</span>
+            そう思うのは当然です。<br />
+            でも、しっかり理由があるから安くても十分対応できるんです。
+          </p>
         </motion.div>
 
-        {/* 悩みと解決策セクション */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {troubles.map((trouble, index) => (
-            <motion.div
-              key={trouble.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ 
-                scale: 1.02,
-                boxShadow: "0 25px 50px -12px rgba(251,146,60,0.25)"
-              }}
-              className="relative bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-xl border border-orange-100 overflow-hidden group"
-            >
-              {/* デコレーティブな背景アニメーション */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0 }}
-                whileHover={{ opacity: 1, scale: 1 }}
-                className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-500/5"
-              />
-              
-              <div className="relative">
-                <div className="flex items-center space-x-4 mb-6">
-                  <motion.div
-                    whileHover={{ rotate: 360, scale: 1.1 }}
-                    transition={{ duration: 0.5 }}
-                    className="text-orange-500 p-2 bg-orange-100 rounded-xl"
-                  >
-                    {trouble.icon}
-                  </motion.div>
-                  <h3 className="text-xl font-bold text-gray-800">{trouble.title}</h3>
-                </div>
-                
-                <ul className="space-y-4 mb-6">
-                  {trouble.items.map((item, i) => (
-                    <motion.li
-                      key={i}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ delay: 0.2 + (i * 0.1) }}
-                      className="flex items-start space-x-3 group"
-                    >
-                      <motion.div
-                        whileHover={{ scale: 1.2, rotate: 360 }}
-                        className="flex-shrink-0"
-                      >
-                        <CheckCircle className="w-5 h-5 text-orange-500 mt-1" />
-                      </motion.div>
-                      <span className="text-gray-600 group-hover:text-gray-900 transition-colors">
-                        {item}
-                      </span>
-                    </motion.li>
-                  ))}
-                </ul>
-
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  className="relative"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 opacity-10 rounded-xl transform -rotate-1" />
-                  <div className="relative bg-gradient-to-r from-orange-50 to-amber-50 p-4 rounded-xl border border-orange-100">
-                    <p className="text-gray-800 font-medium">
-                      <span className="text-orange-500 font-bold">解決策：</span> {trouble.solution}
-                    </p>
-                  </div>
-                </motion.div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* フッターメッセージ */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mt-20 text-center relative"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-500 opacity-10 rounded-3xl transform rotate-1" />
-          <div className="absolute inset-0 bg-gradient-to-l from-orange-500 to-amber-500 opacity-10 rounded-3xl transform -rotate-1" />
-          <motion.div
-            whileHover={{ scale: 1.02 }}
-            className="relative bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-2xl p-10 shadow-2xl overflow-hidden"
-          >
-            <motion.div
-              animate={{
-                y: [-10, 10, -10],
-                rotate: [-5, 5, -5]
-              }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                repeatType: "reverse"
-              }}
-              className="absolute top-4 right-4"
-            >
-              <Sparkles className="w-12 h-12 opacity-50" />
-            </motion.div>
-            
-            <h3 className="text-2xl md:text-3xl font-bold mb-2">
-              新しい一歩を
-            </h3>
-            <h3 className="text-2xl md:text-3xl font-bold mb-6">
-              一緒に歩み出しましょう
-            </h3>
-            <p className="text-xl opacity-90 max-w-2xl mx-auto mb-8">
-              あなたの状況に合わせた最適な解決策をご提案いたします。
-            </p>
-            <motion.a
-              href="#consultation-form"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="inline-block bg-white text-orange-600 font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
-              onClick={(e) => {
-                e.preventDefault();
-                const element = document.getElementById('consultation-form');
-                if (element) {
-                  element.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start',
-                    inline: 'nearest'
-                  });
-                }
-              }}
-            >
-              まずは無料相談から
-            </motion.a>
-          </motion.div>
-        </motion.div>
+        <WhySoCheap />
+        <TroubleSolutions />
+        <AdditionalExplanations />
+        <FooterCTA />
       </div>
     </section>
+  );
+}
+
+function WhySoCheap() {
+  return (
+    <motion.div
+      className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-14"
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
+    >
+      {whyCheapData.map((item, i) => (
+        <motion.div
+          key={i}
+          whileHover={{ scale: 1.03 }}
+          className="bg-white rounded-lg p-6 shadow-md border border-orange-100 relative overflow-hidden"
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-br from-orange-100 to-amber-50 opacity-20 -z-10"
+            initial={{ opacity: 0 }}
+            whileHover={{ opacity: 0.3 }}
+            transition={{ duration: 1 }}
+          />
+          <div className="flex items-center space-x-3 mb-4">
+            {item.icon}
+            <h3 className="text-xl font-bold text-gray-800">{item.title}</h3>
+          </div>
+          <p className="text-gray-600 leading-relaxed">
+            {item.desc}
+          </p>
+        </motion.div>
+      ))}
+    </motion.div>
+  );
+}
+
+function TroubleSolutions() {
+  return (
+    <div className="max-w-5xl mx-auto mb-16">
+      <motion.h3
+        className="text-2xl md:text-3xl font-extrabold text-center mb-8 bg-gradient-to-r from-orange-500 to-amber-400 bg-clip-text text-transparent"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+      >
+        <span className="md:hidden">
+          こんな不安にも<br />
+          しっかり対応できます
+        </span>
+        <span className="hidden md:inline">
+          こんな不安にも、しっかり対応できます
+        </span>
+      </motion.h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {troubleData.map((trouble, i) => (
+          <motion.div
+            key={trouble.title}
+            className="bg-white rounded-xl p-6 shadow border border-orange-100 relative overflow-hidden"
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1, duration: 0.8 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="flex items-center space-x-2 mb-3">
+              <div className="text-orange-500">{trouble.icon}</div>
+              <h4 className="text-lg font-bold text-gray-800">
+                {trouble.title}
+              </h4>
+            </div>
+            <ul className="space-y-2 mb-4">
+              {trouble.items.map((item, j) => (
+                <li key={j} className="flex items-start space-x-2">
+                  <CheckCircle className="w-5 h-5 text-orange-400" />
+                  <span className="text-gray-600">{item}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 p-3 rounded-lg border border-orange-100">
+              <span className="text-gray-700 font-semibold">解決策：</span>
+              <span className="text-gray-700 ml-1">{trouble.solution}</span>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AdditionalExplanations() {
+  return (
+    <div className="max-w-4xl mx-auto mb-16">
+      <motion.h3
+        className="text-2xl md:text-3xl font-extrabold text-center mb-6 bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+      >
+        それでも不安ですか？
+      </motion.h3>
+      <p className="text-center text-gray-700 mb-8">
+        退職は大きな決断。<br />
+        「本当に2,980円でいいの？」「怪しくない？」<br />
+        そんな不安にもしっかりお答えします。
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {additionalExplanations.map((item, i) => (
+          <motion.div
+            key={i}
+            className="relative bg-white p-6 rounded-xl shadow-lg border border-orange-100"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: i * 0.1 + 0.3, duration: 0.8 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-100 to-amber-50 opacity-20 pointer-events-none -z-10" />
+            <div className="flex items-center space-x-3 mb-4 text-orange-500">
+              {item.icon}
+              <h4 className="text-lg font-bold text-gray-800">{item.title}</h4>
+            </div>
+            <p className="text-gray-600 leading-relaxed">
+              {item.content}
+            </p>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FooterCTA() {
+  return (
+    <motion.div
+      className="text-center max-w-2xl mx-auto"
+      initial={{ opacity: 0, y: 15 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8 }}
+    >
+      {/* 価格カード */}
+      <motion.div
+        className="inline-block bg-white border border-orange-200 rounded-2xl px-6 py-4 shadow-lg mb-6"
+        animate={{
+          boxShadow: [
+            "0 0 20px rgba(255,165,0,0.2)",
+            "0 0 40px rgba(255,165,0,0.4)",
+            "0 0 20px rgba(255,165,0,0.2)",
+          ],
+        }}
+        transition={{ duration: 4, repeat: Infinity }}
+      >
+        <div className="text-xl font-extrabold text-orange-600 mb-2">業界最安値</div>
+        <div className="text-4xl font-extrabold text-orange-500">
+          2,980円<span className="text-base ml-1">(税込)</span>
+        </div>
+        <div className="text-sm text-gray-600 mt-2">
+          AI&広告費ゼロ、法監修でこれだけできる
+        </div>
+      </motion.div>
+
+      <motion.button
+        onClick={() => {
+          window.location.href = "https://lin.ee/h1kk42r";
+        }}
+        className="inline-block bg-gradient-to-r from-orange-500 to-amber-400 text-white font-bold py-3 px-8 rounded-full shadow hover:shadow-lg transition-all duration-300"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+      >
+        今すぐ無料相談する
+      </motion.button>
+    </motion.div>
   );
 }

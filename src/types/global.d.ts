@@ -5,7 +5,8 @@ import { ReactNode } from 'react';
 import { HTMLMotionProps, MotionStyle, MotionValue } from 'framer-motion';
 import { Vector2 } from 'three';
 import { ChromaticAberrationEffect } from 'postprocessing';
-import { ThreeElements } from '@react-three/fiber';
+import { ThreeElements, Object3DNode } from '@react-three/fiber';
+import * as THREE from 'three';
 
 declare module '@react-three/fiber' {
   interface ThreeElements {
@@ -65,18 +66,15 @@ declare global {
       'motion.a': HTMLMotionProps<"a">;
 
       // Three.js elements
-      directionalLight: JSX.IntrinsicElements['mesh'] & {
-        intensity?: number;
-        position?: [number, number, number];
-        castShadow?: boolean;
-        'shadow-mapSize-width'?: number;
-        'shadow-mapSize-height'?: number;
+      ambientLight: Object3DNode<THREE.AmbientLight, typeof THREE.AmbientLight>;
+      directionalLight: Object3DNode<THREE.DirectionalLight, typeof THREE.DirectionalLight>;
+      group: Object3DNode<THREE.Group, typeof THREE.Group>;
+      line: Object3DNode<THREE.Line, typeof THREE.Line> & {
+        geometry?: THREE.BufferGeometry;
+        material?: THREE.LineBasicMaterial;
       };
-      ambientLight: JSX.IntrinsicElements['mesh'] & {
-        intensity?: number;
-      };
-      group: JSX.IntrinsicElements['mesh'];
-      mesh: JSX.IntrinsicElements['mesh'];
+      mesh: Object3DNode<THREE.Mesh, typeof THREE.Mesh>;
+      primitive: Object3DNode<THREE.Object3D, typeof THREE.Object3D>;
       meshStandardMaterial: JSX.IntrinsicElements['mesh'] & {
         color?: string | number;
         emissive?: string | number;

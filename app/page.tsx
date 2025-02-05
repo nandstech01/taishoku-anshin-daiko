@@ -22,11 +22,8 @@ import { PageViewTracker } from '@/components/blog/PageViewTracker';
 import HomePageBlogSection from '@/components/blog/HomePageBlogSection';
 import EnhancedHeroSection from '@/components/EnhancedHeroSection';
 
-declare module 'react' {
-  interface JSX {
-    IntrinsicElements: any;
-  }
-}
+// Import type definitions
+import '@/types/three-fiber.d.ts';
 
 const Home: React.FC = () => {
   const [showMainContent, setShowMainContent] = React.useState(false);

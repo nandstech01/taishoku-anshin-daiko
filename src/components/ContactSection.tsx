@@ -72,12 +72,7 @@ export default function ContactSection() {
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.4 }}
                         >
-                            <a
-                                href="https://lin.ee/h1kk42r"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300"
-                            >
+                            <div className="flex flex-col items-center p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300">
                                 <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-[#06C755]/20 to-[#06C755]/5 rounded-full transform translate-x-16 -translate-y-16" />
                                 
                                 <div className="text-center mb-6">
@@ -108,7 +103,7 @@ export default function ContactSection() {
                                         LINEで相談する
                                     </a>
                                 </motion.div>
-                            </a>
+                            </div>
                         </motion.div>
 
                         {/* メール相談 */}

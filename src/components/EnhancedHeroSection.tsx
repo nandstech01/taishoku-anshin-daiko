@@ -132,7 +132,7 @@ export default function OneMoreSizeSmallerHeroSectionV4() {
         <AnimatePresence>
           {visible && (
             <motion.div
-              className="absolute inset-x-0 bottom-16 flex flex-col items-center pointer-events-none z-[2]"
+              className="absolute inset-x-0 bottom-5 flex flex-col items-center pointer-events-none z-[2]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -567,15 +567,14 @@ function SmartphoneScreen() {
             display: "block",
             marginBottom: "12px"
           }}>なぜ2980円？</strong>
-          当社は徹底的なコスト削減と、
+          AIでコスト削減＆広告費ゼロ！
           <br />
-          <span style={{ color: "#ffd965" }}>弁護士監修</span>のシステムを導入。
+          さらに、<span style={{ color: "#ffd965" }}>弁護士</span>・
+          <span style={{ color: "#ffd965" }}>社労士</span>監修の
           <br />
-          <span style={{ color: "#ffd965" }}>行政書士</span>や
-          <span style={{ color: "#ffd965" }}>社労士</span>
-          との提携で
+          システム導入で、
           <br />
-          低価格を実現しました。
+          安心の低価格を実現しました。
         </div>
       </div>
     </div>
@@ -600,13 +599,13 @@ function MainMessages() {
  * 6) SocialProofSection (下部)
  *****************************************************************************/
 function SocialProofSection() {
-  const [count, setCount] = useState(12873);
+  const [count, setCount] = useState(1273);
   const [latestReview, setLatestReview] = useState("もう何の不安もありません！");
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCount((prev) => {
-        if (prev < 13000) {
+        if (prev < 1300) {
           // ランダムな確率で増加させる（約30%の確率）
           return Math.random() < 0.3 ? prev + 1 : prev;
         }
@@ -634,15 +633,15 @@ function SocialProofSection() {
   return (
     <div
       className="pointer-events-none px-4 text-center flex flex-col gap-3"
-      style={{ maxWidth: "600px", margin: "0 auto" }}
+      style={{ maxWidth: "600px", margin: "0 auto", transform: "translateY(-40px)" }}
     >
-      <div className="text-sm text-white italic opacity-90">「{latestReview}」</div>
       <div>
         <span className="text-2xl font-bold text-yellow-200">
           {count.toLocaleString()}
         </span>
         <span className="text-sm text-white ml-2">人が利用中</span>
       </div>
+      <div className="text-sm text-white italic">「{latestReview}」</div>
     </div>
   );
 }
