@@ -600,18 +600,19 @@ function MainMessages() {
  * 6) SocialProofSection (下部)
  *****************************************************************************/
 function SocialProofSection() {
-  const [count, setCount] = useState(12997);
+  const [count, setCount] = useState(12873);
   const [latestReview, setLatestReview] = useState("もう何の不安もありません！");
 
   useEffect(() => {
     const interval = setInterval(() => {
       setCount((prev) => {
         if (prev < 13000) {
-          return prev + 1;
+          // ランダムな確率で増加させる（約30%の確率）
+          return Math.random() < 0.3 ? prev + 1 : prev;
         }
         return prev;
       });
-    }, 3000); // 3秒ごとに1人増加
+    }, 2000); // 2秒ごとに判定
     return () => clearInterval(interval);
   }, []);
 
