@@ -132,7 +132,7 @@ export default function OneMoreSizeSmallerHeroSectionV4() {
         <AnimatePresence>
           {visible && (
             <motion.div
-              className="absolute inset-x-0 bottom-5 flex flex-col items-center pointer-events-none z-[2]"
+              className="absolute inset-x-0 bottom-16 flex flex-col items-center pointer-events-none z-[2]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -634,9 +634,9 @@ function SocialProofSection() {
   return (
     <div
       className="pointer-events-none px-4 text-center flex flex-col gap-3"
-      style={{ maxWidth: "600px", margin: "0 auto", transform: "translateY(-80px)" }}
+      style={{ maxWidth: "600px", margin: "0 auto" }}
     >
-      <div className="text-sm text-white italic">「{latestReview}」</div>
+      <div className="text-sm text-white italic opacity-90">「{latestReview}」</div>
       <div>
         <span className="text-2xl font-bold text-yellow-200">
           {count.toLocaleString()}
