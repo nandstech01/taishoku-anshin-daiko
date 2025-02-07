@@ -1,0 +1,146 @@
+/* 記事カード */
+.blog-card {
+  @apply bg-white transition-all duration-300 relative border border-transparent;
+}
+
+.blog-card:hover {
+  @apply border-orange-100;
+  transform: translateY(-2px);
+}
+
+.blog-card-image {
+  @apply relative aspect-[16/9] overflow-hidden bg-gray-100;
+}
+
+.blog-card-image img {
+  @apply w-full h-full object-cover transition-transform duration-500;
+}
+
+/* 画像のホバーエフェクト */
+.blog-card:hover .blog-card-image img {
+  transform: scale(1.05);
+}
+
+.blog-card-content {
+  @apply p-5;
+}
+
+.blog-card-category {
+  @apply inline-block text-[0.625rem] font-medium text-orange-600 uppercase tracking-wider mb-2;
+}
+
+.blog-card-title {
+  @apply text-base font-bold text-gray-900 mb-2 line-clamp-2 transition-colors duration-200;
+}
+
+/* タイトルのホバーエフェクト */
+.blog-card:hover .blog-card-title {
+  @apply text-orange-600;
+}
+
+.blog-card-excerpt {
+  @apply text-xs text-gray-600 mb-3 line-clamp-2 leading-relaxed;
+}
+
+.blog-card-meta {
+  @apply text-[0.625rem] text-gray-400 uppercase tracking-wider;
+}
+
+/* ピックアップ記事カード */
+.blog-pickup-card {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  height: 100%;
+  margin: 0 0.5rem;
+}
+
+.blog-pickup-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.blog-pickup-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.blog-pickup-content {
+  padding: 1.25rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.blog-pickup-heading {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* キャリアカード */
+.blog-career-card {
+  display: flex;
+  flex-direction: column;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.03);
+  margin-top: 1rem;
+}
+
+.blog-career-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.blog-career-content {
+  padding: 1.5rem;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+/* コンタクトカード */
+.blog-contact-card {
+  @apply bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6;
+}
+
+.blog-contact-card.flex {
+  background: #f9f9f9;
+  box-shadow: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid #ececec;
+  border-radius: 6px;
+}
+
+/* カテゴリーカード */
+.blog-category-card {
+  @apply bg-white rounded-lg shadow-md overflow-hidden transition-shadow hover:shadow-lg;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 1023px) {
+  .blog-pickup-card {
+    margin: 0 0.5rem;
+  }
+
+  .blog-pickup-content {
+    padding: 0.75rem;
+  }
+} 

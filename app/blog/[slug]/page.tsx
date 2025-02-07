@@ -15,6 +15,8 @@ import { generateBreadcrumbSchema } from '@/schemas/breadcrumb';
 import { AuthorInfo } from '@/components/blog/AuthorInfo';
 import Breadcrumb from '@/components/blog/Breadcrumb';
 import { RelatedTags } from '@/components/blog/RelatedTags';
+import HeadingProcessor from '@/components/HeadingProcessor';
+import ReviewSection from '@/components/blog/ReviewSection';
 
 interface Tag {
   name: string;
@@ -266,6 +268,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     return (
       <>
         <div className="blog-container">
+          <HeadingProcessor />
           <div className="blog-content">
             <article className="blog-post-content max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
               {/* 構造化データの出力 */}
@@ -353,6 +356,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
               {/* 目次 */}
               <TableOfContents items={headings} />
+
+              {/* レビューセクション */}
+              <ReviewSection />
 
               {/* リード文 */}
               {postWithCategory.description && (

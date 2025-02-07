@@ -1,0 +1,77 @@
+/* ニュースセクション */
+.blog-news {
+  @apply py-12;
+}
+
+.blog-news-inner {
+  @apply max-w-7xl mx-auto px-4 sm:px-6;
+}
+
+.blog-news-heading {
+  @apply text-center mb-8;
+}
+
+.blog-news-title {
+  @apply text-2xl font-bold text-gray-900 mb-2;
+}
+
+.blog-news-subtitle {
+  @apply text-sm text-gray-600;
+}
+
+.blog-news-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+/* ニュース記事一覧 */
+.blog-news-list {
+  @apply space-y-6;
+}
+
+.blog-news-item {
+  @apply bg-white rounded-lg shadow-sm overflow-hidden transition-shadow hover:shadow-md;
+}
+
+.blog-news-item-content {
+  @apply p-4;
+}
+
+.blog-news-item-title {
+  @apply text-base font-bold text-gray-900 mb-2 line-clamp-2;
+}
+
+.blog-news-item-excerpt {
+  @apply text-sm text-gray-600 mb-3 line-clamp-3;
+}
+
+.blog-news-item-meta {
+  @apply flex items-center justify-between text-xs text-gray-500;
+}
+
+.blog-news-item-date {
+  @apply flex items-center;
+}
+
+.blog-news-item-date svg {
+  @apply w-4 h-4 mr-1;
+}
+
+/* もっと見るボタン */
+.blog-news-more {
+  @apply mt-8 text-center;
+}
+
+.blog-news-more-button {
+  @apply inline-flex items-center justify-center px-6 py-2 border border-orange-600 text-orange-600 rounded-full hover:bg-orange-600 hover:text-white transition-colors;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .blog-news {
+    @apply py-8;
+  }
+
+  .blog-news-grid {
+    @apply grid-cols-1;
+  }
+} 

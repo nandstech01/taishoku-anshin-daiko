@@ -1,5 +1,6 @@
 /// <reference types="@react-three/fiber" />
 /// <reference types="three" />
+/// <reference types="react" />
 
 import { ReactNode } from 'react';
 import { HTMLMotionProps, MotionStyle, MotionValue } from 'framer-motion';
@@ -101,4 +102,12 @@ declare module '@react-three/postprocessing' {
     radialModulation?: boolean;
     modulationOffset?: number;
   }
-} 
+}
+
+declare global {
+  namespace JSX {
+    interface Element extends React.ReactElement<any, any> {}
+  }
+}
+
+export {} 

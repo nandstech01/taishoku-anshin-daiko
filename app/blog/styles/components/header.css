@@ -1,0 +1,108 @@
+/* ヘッダー */
+.blog-header {
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+/* h1のサイズを調整 */
+.blog-content header h1,
+.blog-content .prose h1 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem !important;
+}
+
+/* カテゴリタグの基本スタイル */
+.blog-category {
+  display: inline-block;
+  width: fit-content;
+  background: linear-gradient(135deg, #FF6B2B 0%, #FF8F3E 100%);
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  letter-spacing: 0.025em;
+}
+
+.blog-category:hover {
+  opacity: 0.9;
+}
+
+.blog-title {
+  @apply text-lg sm:text-xl font-bold text-gray-900 mt-6 mb-4 leading-snug tracking-tight;
+}
+
+.blog-meta {
+  @apply flex flex-col gap-2 mb-3;
+}
+
+/* 日付スタイル */
+.blog-date {
+  @apply inline-flex items-center text-sm text-gray-600 mb-2 font-medium;
+  position: relative;
+}
+
+.blog-date::before {
+  content: "";
+  @apply w-4 h-px bg-gradient-to-r from-orange-500 to-amber-500 mr-2;
+}
+
+/* パンくずリスト共通 */
+.blog-breadcrumbs {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: #ffffff;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+  z-index: 40;
+}
+
+/* カテゴリ一覧ページのパンくずリスト */
+.max-w-7xl > .mb-4 > .blog-breadcrumbs {
+  position: relative;
+  top: 0;
+  padding: 0.75rem 0;
+  margin-top: 64px;
+  border: none;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 640px) {
+  .blog-breadcrumbs {
+    padding: 0.5rem 1rem;
+  }
+
+  .max-w-7xl > .mb-4 > .blog-breadcrumbs {
+    padding: 0.5rem 0;
+  }
+}
+
+/* 記事詳細ページのカテゴリタグ専用スタイル */
+.blog-post-category.blog-category {
+  background-image: none;
+  background-color: #2563eb;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.blog-post-category.blog-category:hover {
+  background-image: none;
+  background-color: #1d4ed8;
+}
+
+/* /blogページ専用のカテゴリタグスタイル */
+.blog-latest-item .blog-category {
+  width: fit-content;
+  margin-bottom: 0.5rem;
+}
+
+/* ピックアップ記事のカテゴリタグ */
+.blog-pickup-content .blog-category {
+  width: fit-content;
+  margin-bottom: 0.5rem;
+} 

@@ -72,6 +72,34 @@ const remarkProcessImages: Plugin<[], Root> = function() {
   };
 };
 
+// 共通のID生成関数
+export function generateHeadingId(text: string): string {
+  // 数字のみの場合は、プレフィックスを追加
+  const match = text.match(/^(\d+)\.\s*(.+)$/);
+  if (match) {
+    const [, number, title] = match;
+    const normalizedTitle = title
+      .toLowerCase()
+      .replace(/[^\w\u3000-\u9fff\s-]/g, '') // 日本語文字、英数字、ハイフン、スペースを許可
+      .replace(/[\(\)（）：\?？、。]/g, '') // 括弧、コロン、疑問符、読点、句点を削除
+      .replace(/[　\s]+/g, '-') // 全角スペース、半角スペースをハイフンに変換
+      .replace(/-+/g, '-') // 連続するハイフンを単一のハイフンに変換
+      .replace(/^-+|-+$/g, '') // 先頭と末尾のハイフンを削除
+      .trim(); // 余分な空白を削除
+    return `section-${number}-${normalizedTitle}`;
+  }
+
+  // 通常のケース
+  return text
+    .toLowerCase()
+    .replace(/[^\w\u3000-\u9fff\s-]/g, '') // 日本語文字、英数字、ハイフン、スペースを許可
+    .replace(/[\(\)（）：\?？、。]/g, '') // 括弧、コロン、疑問符、読点、句点を削除
+    .replace(/[　\s]+/g, '-') // 全角スペース、半角スペースをハイフンに変換
+    .replace(/-+/g, '-') // 連続するハイフンを単一のハイフンに変換
+    .replace(/^-+|-+$/g, '') // 先頭と末尾のハイフンを削除
+    .trim(); // 余分な空白を削除
+}
+
 const remarkExtractHeadings: Plugin<[], Root> = function() {
   return (tree: Root, file: VFile) => {
     const vfile = file as CustomVFile;
@@ -89,6 +117,9 @@ const remarkExtractHeadings: Plugin<[], Root> = function() {
           level: depth,
           children: [],
         };
+
+        // デバッグ用のログを追加
+        console.log('Generated heading:', { text, id, depth });
 
         if (depth === 2) {
           vfile.data.headings.push(item);
@@ -114,10 +145,13 @@ export async function parseMarkdown(content: string): Promise<{ html: string; he
   const file = await unified()
     .use(remarkParse)
     .use(remarkGfm)
-    .use(remarkProcessImages)  // 画像処理を追加
+    .use(remarkProcessImages)
     .use(remarkExtractHeadings)
     .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeSlug)
+    .use(rehypeSlug, {
+      prefix: '',
+      slugify: generateHeadingId
+    })
     .use(rehypeAutolinkHeadings, {
       behavior: 'wrap',
       properties: { class: 'anchor' }
@@ -126,20 +160,20 @@ export async function parseMarkdown(content: string): Promise<{ html: string; he
     .process(content);
 
   const vfile = file as CustomVFile;
+  
+  // デバッグ用：生成されたIDを確認
+  console.log('Generated headings:', vfile.data.headings.map(h => ({
+    text: h.text,
+    id: h.id,
+    level: h.level,
+    originalText: h.text,
+    generatedId: generateHeadingId(h.text)
+  })));
+
   return {
     html: String(file),
     headings: vfile.data.headings,
   };
-}
-
-export function generateHeadingId(text: string): string {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[\s_]/g, '-')
-    .replace(/[^\w\u3000-\u9fff\-]/g, '')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
 }
 
 export function extractTableOfContents(content: string): TableOfContentsItem[] {

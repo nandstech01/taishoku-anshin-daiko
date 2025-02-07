@@ -1,0 +1,31 @@
+/* リストのベーススタイル */
+.blog-content .prose ul {
+  @apply list-disc pl-6 mb-8;
+}
+
+.blog-content .prose > ol {
+  @apply list-decimal pl-6 mb-8;
+}
+
+/* シンプルな番号付きリストのスタイル */
+.blog-content .prose > ol > li {
+  @apply text-base text-gray-700;
+}
+
+/* サブリストのスタイル */
+.blog-content .prose ol ol {
+  @apply list-decimal pl-8 mt-4 mb-4;
+}
+
+.blog-content .prose ol ol > li {
+  @apply text-gray-700 text-base;
+}
+
+.blog-content .prose ol ol > li > p {
+  @apply text-base text-gray-700;
+}
+
+/* 強調テキストのスタイル */
+.blog-content .prose > ol > li strong {
+  @apply text-gray-900;
+} 
