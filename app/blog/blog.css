@@ -15,7 +15,7 @@
   width: 100vw;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  padding: 0;
+  padding: 24px 0 0 0; /* 32pxから24pxに調整 */
 }
 
 .blog-container-top {
@@ -24,7 +24,7 @@
 }
 
 .blog-post-container {
-  padding-top: calc(64px + 48px); /* ヘッダー + パンくず */
+  padding-top: 24px; /* 32pxから24pxに調整 */
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
@@ -713,4 +713,26 @@ h2.blog-toc-title {
   transform: translateY(-2px) !important;
   border-radius: 2px !important;
   pointer-events: none !important;
+}
+
+/* パンくずリスト共通 */
+.blog-breadcrumbs {
+  position: fixed;
+  top: 24px; /* 32pxから24pxに調整 */
+  left: 0;
+  right: 0;
+  width: 100%;
+  background: #ffffff;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eee;
+  z-index: 40;
+}
+
+/* カテゴリ一覧ページのパンくずリスト */
+.max-w-7xl > .mb-4 > .blog-breadcrumbs {
+  position: relative;
+  top: 0;
+  padding: 0.75rem 0;
+  margin-top: 24px; /* 32pxから24pxに調整 */
+  border: none;
 }

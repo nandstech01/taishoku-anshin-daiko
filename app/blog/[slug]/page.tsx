@@ -17,6 +17,7 @@ import Breadcrumb from '@/components/blog/Breadcrumb';
 import { RelatedTags } from '@/components/blog/RelatedTags';
 import HeadingProcessor from '@/components/HeadingProcessor';
 import ReviewSection from '@/components/blog/ReviewSection';
+import BlogContentProcessor from '@/components/blog/BlogContent';
 
 interface Tag {
   name: string;
@@ -369,7 +370,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
               {/* 本文 */}
               <div className="prose mx-auto">
-                <div dangerouslySetInnerHTML={{ __html: html }} />
+                <BlogContentProcessor content={html} />
               </div>
 
               {/* 著者情報 */}

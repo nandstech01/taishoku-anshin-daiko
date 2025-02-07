@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { LineButton } from '@/components/common/LineButton';
+import { LineButton } from '../common/LineButton';
 
 interface InlineLineButtonProps {
   title?: string;
