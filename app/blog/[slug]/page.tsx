@@ -72,11 +72,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         created_at,
         updated_at,
         thumbnail_url,
-        description,
+        meta_description,
         seo_keywords,
         category_slug,
-        reading_time,
-        author_name
+        description
       `)
       .eq('slug', params.slug)
       .eq('status', 'published')
@@ -84,17 +83,13 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
     if (error || !post) {
       return {
-        title: '記事が見つかりません | 退職あんしん代行',
-        description: 'お探しの記事は見つかりませんでした。',
+        title: 'ページが見つかりません | 退職あんしん代行',
+        description: 'お探しのページは見つかりませんでした。',
         robots: {
           index: false,
           follow: true,
           nocache: true,
-          googleBot: {
-            index: false,
-            follow: true,
-          },
-        },
+        }
       };
     }
 
@@ -132,13 +127,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       generateBreadcrumbSchema(breadcrumbItemsForSchema, baseUrl)
     ];
 
-    // メタデータの生成
-    const metadata: Metadata = {
-      metadataBase: new URL(baseUrl),
-      title: {
-        template: '%s | 退職あんしん代行',
-        default: postWithCategory.title,
-      },
+    return {
+      title: `${postWithCategory.title} | 退職あんしん代行`,
       description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
       keywords: [
         ...(postWithCategory.seo_keywords || []),
@@ -160,19 +150,12 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         siteName: '退職あんしん代行',
         locale: 'ja_JP',
         type: 'article',
-        images: postWithCategory.thumbnail_url ? [
-          {
-            url: postWithCategory.thumbnail_url,
-            width: 1200,
-            height: 630,
-            alt: postWithCategory.title,
-          }
-        ] : undefined,
-        publishedTime: postWithCategory.published_at || undefined,
-        modifiedTime: postWithCategory.updated_at,
-        section: postWithCategory.category?.name,
-        authors: [post.author_name || '退職あんしん代行編集部'],
-        tags: [...(postWithCategory.tags || []), ...(postWithCategory.seo_keywords || [])],
+        images: postWithCategory.thumbnail_url ? [{
+          url: postWithCategory.thumbnail_url,
+          width: 1200,
+          height: 630,
+          alt: postWithCategory.title,
+        }] : undefined,
       },
       twitter: {
         card: 'summary_large_image',
@@ -182,36 +165,20 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         site: '@taishoku_anshin',
         creator: '@taishoku_anshin',
       },
-      robots: {
-        index: true,
-        follow: true,
-        googleBot: {
-          index: true,
-          follow: true,
-          'max-video-preview': -1,
-          'max-image-preview': 'large',
-          'max-snippet': -1,
-        },
-      },
-      verification: {
-        google: 'your-google-site-verification',
-      },
       other: {
         'application/ld+json': structuredData.map(item => JSON.stringify(item)).join('\n')
       }
     };
-
-    return metadata;
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'エラー | 退職あんしん代行',
+      title: 'エラーが発生しました | 退職あんしん代行',
       description: '記事の読み込み中にエラーが発生しました。',
       robots: {
         index: false,
         follow: true,
         nocache: true,
-      },
+      }
     };
   }
 }
