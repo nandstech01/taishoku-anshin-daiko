@@ -9,14 +9,25 @@ interface SitemapUrl {
 }
 
 /**
- * 現在の日付を取得する（YYYY-MM-DD形式）
+ * 日時をISO 8601形式に変換する（YYYY-MM-DDThh:mm:ssZ）
  */
-function getCurrentDate(): string {
+function formatDateTime(date: Date): string {
+  return date.toISOString();
+}
+
+/**
+ * 更新頻度を計算する
+ * @param lastModified 最終更新日時
+ */
+function calculateChangeFreq(lastModified: string): string {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  const modDate = new Date(lastModified);
+  const diffDays = Math.floor((now.getTime() - modDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 7) return 'daily';
+  if (diffDays < 30) return 'weekly';
+  if (diffDays < 90) return 'monthly';
+  return 'yearly';
 }
 
 /**
@@ -28,26 +39,26 @@ export function generateSitemapXml(
   categories: Category[]
 ): string {
   const urls: SitemapUrl[] = [];
-  const today = getCurrentDate();
+  const now = new Date();
 
   // 固定ページの追加
   const staticPages = [
-    { path: '', priority: 1.0 },
-    { path: 'blog', priority: 0.9 },
-    { path: 'blog/categories', priority: 0.8 },
-    { path: 'about', priority: 0.8 },
-    { path: 'privacy', priority: 0.5 },
-    { path: 'terms', priority: 0.5 },
-    { path: 'legal', priority: 0.5 },
-    { path: 'faq', priority: 0.8 },
+    { path: '', priority: 1.0, changefreq: 'daily' },
+    { path: 'blog', priority: 0.9, changefreq: 'daily' },
+    { path: 'blog/categories', priority: 0.8, changefreq: 'weekly' },
+    { path: 'about', priority: 0.8, changefreq: 'monthly' },
+    { path: 'privacy', priority: 0.5, changefreq: 'monthly' },
+    { path: 'terms', priority: 0.5, changefreq: 'monthly' },
+    { path: 'legal', priority: 0.5, changefreq: 'monthly' },
+    { path: 'faq', priority: 0.8, changefreq: 'weekly' },
   ];
 
   // 固定ページのURL生成
-  staticPages.forEach(({ path, priority }) => {
+  staticPages.forEach(({ path, priority, changefreq }) => {
     urls.push({
       loc: `${baseUrl}/${path}`.replace(/\/$/, ''),
-      lastmod: today,
-      changefreq: path === '' ? 'daily' : 'monthly',
+      lastmod: formatDateTime(now),
+      changefreq,
       priority,
     });
   });
@@ -56,10 +67,12 @@ export function generateSitemapXml(
   posts.forEach((post) => {
     if (post.status === 'published') {
       const lastmod = post.updated_at || post.published_at || post.created_at;
+      const modDate = lastmod ? new Date(lastmod) : now;
+      
       urls.push({
         loc: `${baseUrl}/blog/${post.slug}`,
-        lastmod: lastmod ? new Date(lastmod).toISOString().split('T')[0] : today,
-        changefreq: 'daily',
+        lastmod: formatDateTime(modDate),
+        changefreq: calculateChangeFreq(modDate.toISOString()),
         priority: 0.8,
       });
 
@@ -69,8 +82,8 @@ export function generateSitemapXml(
           const normalizedTag = normalizeTag(tag);
           urls.push({
             loc: `${baseUrl}/blog/tags/${encodeURIComponent(normalizedTag)}`,
-            lastmod: today,
-            changefreq: 'daily',
+            lastmod: formatDateTime(modDate),
+            changefreq: 'weekly',
             priority: 0.7,
           });
         });
@@ -83,8 +96,8 @@ export function generateSitemapXml(
     const normalizedCategory = normalizeCategory(category.slug);
     urls.push({
       loc: `${baseUrl}/blog/category/${normalizedCategory}`,
-      lastmod: today,
-      changefreq: 'daily',
+      lastmod: formatDateTime(now),
+      changefreq: 'weekly',
       priority: 0.7,
     });
   });

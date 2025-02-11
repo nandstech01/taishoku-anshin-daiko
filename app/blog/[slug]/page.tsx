@@ -72,10 +72,11 @@ export async function generateMetadata({ params }: { params: { slug: string } })
         created_at,
         updated_at,
         thumbnail_url,
-        meta_description,
+        description,
         seo_keywords,
         category_slug,
-        description
+        reading_time,
+        author_name
       `)
       .eq('slug', params.slug)
       .eq('status', 'published')
@@ -83,8 +84,17 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
     if (error || !post) {
       return {
-        title: 'Blog Post Not Found',
-        description: 'The requested blog post could not be found.'
+        title: '記事が見つかりません | 退職あんしん代行',
+        description: 'お探しの記事は見つかりませんでした。',
+        robots: {
+          index: false,
+          follow: true,
+          nocache: true,
+          googleBot: {
+            index: false,
+            follow: true,
+          },
+        },
       };
     }
 
@@ -116,48 +126,92 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
     ];
 
-    // Generate breadcrumb items for UI
-    const breadcrumbItems = breadcrumbItemsForSchema.map(item => ({
-      label: item.name,
-      href: item.url
-    }));
-
     // Generate structured data
     const structuredData = [
       generateArticleSchema(postWithCategory, baseUrl),
       generateBreadcrumbSchema(breadcrumbItemsForSchema, baseUrl)
     ];
 
-    return {
-      title: postWithCategory.title,
-      description: postWithCategory.description || '',
-      // tagsを使用してキーワードを設定
-      keywords: postWithCategory.tags?.join(', ') || '',
+    // メタデータの生成
+    const metadata: Metadata = {
+      metadataBase: new URL(baseUrl),
+      title: {
+        template: '%s | 退職あんしん代行',
+        default: postWithCategory.title,
+      },
+      description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
+      keywords: [
+        ...(postWithCategory.seo_keywords || []),
+        ...(postWithCategory.tags || []),
+        '退職代行',
+        '退職相談',
+        postWithCategory.category?.name
+      ].filter(Boolean).join(', '),
       alternates: {
-        canonical: `${baseUrl}/blog/${postWithCategory.slug}`
+        canonical: `${baseUrl}/blog/${postWithCategory.slug}`,
+        languages: {
+          'ja-JP': `${baseUrl}/blog/${postWithCategory.slug}`,
+        },
       },
       openGraph: {
         title: postWithCategory.title,
-        description: postWithCategory.description || '',
+        description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
         url: `${baseUrl}/blog/${postWithCategory.slug}`,
+        siteName: '退職あんしん代行',
+        locale: 'ja_JP',
         type: 'article',
-        images: postWithCategory.thumbnail_url ? [{ url: postWithCategory.thumbnail_url }] : undefined,
+        images: postWithCategory.thumbnail_url ? [
+          {
+            url: postWithCategory.thumbnail_url,
+            width: 1200,
+            height: 630,
+            alt: postWithCategory.title,
+          }
+        ] : undefined,
+        publishedTime: postWithCategory.published_at || undefined,
+        modifiedTime: postWithCategory.updated_at,
+        section: postWithCategory.category?.name,
+        authors: [post.author_name || '退職あんしん代行編集部'],
+        tags: [...(postWithCategory.tags || []), ...(postWithCategory.seo_keywords || [])],
       },
       twitter: {
         card: 'summary_large_image',
         title: postWithCategory.title,
-        description: postWithCategory.description || '',
+        description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
         images: postWithCategory.thumbnail_url ? [postWithCategory.thumbnail_url] : undefined,
+        site: '@taishoku_anshin',
+        creator: '@taishoku_anshin',
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      },
+      verification: {
+        google: 'your-google-site-verification',
       },
       other: {
         'application/ld+json': structuredData.map(item => JSON.stringify(item)).join('\n')
       }
     };
+
+    return metadata;
   } catch (error) {
     console.error('Error generating metadata:', error);
     return {
-      title: 'Error',
-      description: 'An error occurred while loading the blog post.'
+      title: 'エラー | 退職あんしん代行',
+      description: '記事の読み込み中にエラーが発生しました。',
+      robots: {
+        index: false,
+        follow: true,
+        nocache: true,
+      },
     };
   }
 }
@@ -180,10 +234,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
       created_at,
       updated_at,
       thumbnail_url,
-      meta_description,
+      description,
       seo_keywords,
-      category_slug,
-      description
+      category_slug
     `)
     .eq('slug', params.slug)
     .eq('status', 'published')
@@ -233,7 +286,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     .neq('slug', postWithCategory.slug)
     .eq('status', 'published')
     .order('created_at', { ascending: false })
-    .limit(3);
+    .limit(12);
 
   try {
     const { html, headings } = await parseMarkdown(postWithCategory.content || '');
@@ -381,66 +434,6 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
               {/* 関連記事 */}
               <RelatedPosts relatedPosts={relatedPosts || []} />
-
-              {/* Categories Section */}
-              <section className="blog-categories mt-12 mb-24">
-                <h2 className="blog-tags-title">CATEGORIES</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {postWithCategory.category && (
-                    <Link
-                      key={postWithCategory.category.slug}
-                      href={`/blog/category/${postWithCategory.category.slug}`}
-                      className="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
-                    >
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {postWithCategory.category.name}
-                      </h3>
-                    </Link>
-                  )}
-                </div>
-              </section>
-
-              {/* Tags Section */}
-              {tags?.length > 0 && (
-                <section className="blog-tags mt-12 mb-24">
-                  <h2 className="blog-tags-title">TAGS</h2>
-                  <div className="blog-tags-grid">
-                    {tags.map((tag: Tag) => (
-                      <Link
-                        key={tag.slug}
-                        href={`/blog/tags/${encodeURIComponent(tag.name)}`}
-                        className="blog-tag"
-                      >
-                        {tag.name}
-                      </Link>
-                    ))}
-                  </div>
-                  {/* 関連タグの表示 */}
-                  <RelatedTags
-                    currentTag={tags[0].name}
-                    posts={relatedPosts || []}
-                    maxTags={5}
-                  />
-                </section>
-              )}
-
-              {/* SEO Keywords Section */}
-              {seoKeywords?.length > 0 && (
-                <section className="blog-tags mt-12 mb-24">
-                  <h2 className="blog-tags-title">TAGS</h2>
-                  <div className="blog-tags-grid">
-                    {seoKeywords.map((keyword: Tag) => (
-                      <Link
-                        key={keyword.slug}
-                        href={`/blog/tags/${encodeURIComponent(keyword.name)}`}
-                        className="blog-tag"
-                      >
-                        {keyword.name}
-                      </Link>
-                    ))}
-                  </div>
-                </section>
-              )}
 
               {/* Career Support */}
               <section className="blog-career mt-24">
