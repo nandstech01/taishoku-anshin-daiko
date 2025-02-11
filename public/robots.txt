@@ -1,15 +1,4 @@
-# Global rules
 User-agent: *
 Allow: /
-Allow: /blog/
-Allow: /about/
-Disallow: /api/
-Disallow: /admin/
-Disallow: /dashboard/
-Disallow: /*?*
 
-# Crawl-delay
-Crawl-delay: 10
-
-# Sitemaps
 Sitemap: https://taishoku-anshin-daiko.com/sitemap.xml

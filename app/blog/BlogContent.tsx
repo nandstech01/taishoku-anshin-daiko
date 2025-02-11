@@ -15,15 +15,6 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
-import { Canvas, useFrame, extend, useThree } from "@react-three/fiber";
-import { Html, OrbitControls } from "@react-three/drei";
-import * as THREE from "three";
-import { Color, Vector2, Vector3 } from "three";
-import { EffectComposer, Bloom, ChromaticAberration } from "@react-three/postprocessing";
-import { KernelSize } from "postprocessing";
-import { Suspense } from "react";
-import { BufferGeometry, Material, Mesh, Group } from 'three';
-import type { ThreeElements, Object3DNode } from '@react-three/fiber';
 
 interface BlogPost {
   id: string;
@@ -109,176 +100,6 @@ const BlogStructuredData = ({ posts }: { posts: BlogPost[] }) => {
     />
   );
 };
-
-// Three.js Elements Type Definition
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      torusGeometry: Object3DNode<THREE.TorusGeometry, typeof THREE.TorusGeometry>;
-      sphereGeometry: Object3DNode<THREE.SphereGeometry, typeof THREE.SphereGeometry>;
-      meshStandardMaterial: Object3DNode<THREE.MeshStandardMaterial, typeof THREE.MeshStandardMaterial>;
-      ambientLight: Object3DNode<THREE.AmbientLight, typeof THREE.AmbientLight>;
-      directionalLight: Object3DNode<THREE.DirectionalLight, typeof THREE.DirectionalLight>;
-      group: Object3DNode<THREE.Group, typeof THREE.Group>;
-      mesh: Object3DNode<THREE.Mesh, typeof THREE.Mesh>;
-    }
-  }
-}
-
-// Extend Three Elements
-extend({
-  TorusGeometry: THREE.TorusGeometry,
-  SphereGeometry: THREE.SphereGeometry,
-  MeshStandardMaterial: THREE.MeshStandardMaterial,
-  AmbientLight: THREE.AmbientLight,
-  DirectionalLight: THREE.DirectionalLight,
-  Group: THREE.Group,
-  Mesh: THREE.Mesh,
-});
-
-// SceneBackground Component
-function SceneBackground() {
-  const { scene } = useThree();
-
-  useEffect(() => {
-    scene.fog = new THREE.Fog("#ffffff", 10, 50);
-    scene.background = new THREE.Color("#ffffff");
-  }, [scene]);
-
-  return (
-    <>
-      <primitive object={new THREE.AmbientLight(undefined, 0.4)} />
-      <primitive object={new THREE.DirectionalLight(undefined, 0.8)} position={[10, 10, 10]} />
-
-      <Suspense fallback={null}>
-        <Spiral />
-      </Suspense>
-
-      <Suspense fallback={null}>
-        <FloatingParticles />
-      </Suspense>
-
-      <EffectComposer>
-        <Bloom
-          intensity={0.3}
-          kernelSize={KernelSize.MEDIUM}
-          luminanceThreshold={0.4}
-          luminanceSmoothing={0.7}
-        />
-        <ChromaticAberration
-          offset={new Vector2(0.0003, 0.0003)}
-          radialModulation={true}
-          modulationOffset={0.5}
-        />
-      </EffectComposer>
-    </>
-  );
-}
-
-// Spiral Component
-function Spiral() {
-  const groupRef = useRef<Group>(null);
-  const COUNT = 20;
-
-  const [torusList] = useState(() => {
-    const arr = [];
-    for (let i = 0; i < COUNT; i++) {
-      arr.push({
-        angle: i * 0.3,
-        radius: 2 + i * 0.4,
-        y: i * -0.5,
-        color: new THREE.Color(`hsl(${30 + i*2}, 100%, 75%)`),
-      });
-    }
-    return arr;
-  });
-
-  useFrame((state) => {
-    const time = state.clock.getElapsedTime() * 0.3;
-    if (!groupRef.current) return;
-    groupRef.current.children.forEach((mesh, i) => {
-      const data = torusList[i];
-      const angle = data.angle + time;
-      const x = Math.cos(angle) * data.radius;
-      const z = Math.sin(angle) * data.radius;
-      mesh.position.set(x, data.y, z);
-      mesh.rotation.x = angle * 2;
-      mesh.rotation.y = angle;
-    });
-  });
-
-  return (
-    <primitive object={new THREE.Group()} ref={groupRef}>
-      {torusList.map((item, i) => {
-        const geometry = new THREE.TorusGeometry(0.8, 0.2, 16, 32);
-        const material = new THREE.MeshStandardMaterial({
-          color: item.color,
-          emissive: item.color.clone().offsetHSL(0, -0.2, -0.2),
-          emissiveIntensity: 0.8,
-          metalness: 0.9,
-          roughness: 0.1,
-        });
-        return (
-          <primitive key={i} object={new THREE.Mesh(geometry, material)} castShadow />
-        );
-      })}
-    </primitive>
-  );
-}
-
-// FloatingParticles Component
-function FloatingParticles() {
-  const groupRef = useRef<Group>(null);
-  const COUNT = 80;
-
-  const [particles] = useState(() => {
-    const arr = [];
-    for (let i = 0; i < COUNT; i++) {
-      arr.push({
-        position: new Vector3(
-          (Math.random() - 0.5) * 30,
-          (Math.random() - 0.5) * 20,
-          (Math.random() - 0.5) * 30
-        ),
-        velocity: new Vector3(
-          (Math.random() - 0.5) * 0.02,
-          (Math.random() - 0.5) * 0.02,
-          (Math.random() - 0.5) * 0.02
-        ),
-      });
-    }
-    return arr;
-  });
-
-  useFrame(() => {
-    if (!groupRef.current) return;
-    groupRef.current.children.forEach((mesh, i) => {
-      const p = particles[i];
-      p.position.add(p.velocity);
-      if (p.position.length() > 20) {
-        p.position.setLength(20);
-        p.velocity.multiplyScalar(-1);
-      }
-      mesh.position.copy(p.position);
-    });
-  });
-
-  return (
-    <primitive object={new THREE.Group()} ref={groupRef}>
-      {particles.map((_, i) => {
-        const geometry = new THREE.SphereGeometry(0.05, 8, 8);
-        const material = new THREE.MeshStandardMaterial({
-          color: new Color(0.95, 0.6, 0.2),
-          emissive: new Color(0.95, 0.6, 0.2),
-          emissiveIntensity: 0.3,
-        });
-        return (
-          <primitive key={i} object={new THREE.Mesh(geometry, material)} />
-        );
-      })}
-    </primitive>
-  );
-}
 
 export default function BlogContent() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -408,28 +229,10 @@ export default function BlogContent() {
       <BlogStructuredData posts={posts} />
       
       <div className="blog-container">
-        {/* 3D背景Canvas */}
+        {/* シンプルな背景に置き換え */}
         <div className="blog-banner-background">
-          <Canvas
-            camera={{ position: [0, 0, 15], fov: 60 }}
-            dpr={[1, 2]}
-            gl={{ 
-              antialias: true,
-              alpha: true,
-              powerPreference: "high-performance"
-            }}
-          >
-            <SceneBackground />
-            <OrbitControls
-              enableZoom={false}
-              enablePan={false}
-              enableRotate={false}
-            />
-          </Canvas>
+          <div className="gradient-background"></div>
         </div>
-
-        {/* オーバーレイ */}
-        <div className="blog-banner-overlay" />
 
         <div className="blog-content-wrapper">
           <div className="blog-marquee-container">
