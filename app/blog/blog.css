@@ -11,11 +11,42 @@
 /* 共通スタイル */
 .blog-container {
   min-height: 100vh;
-  background-color: #ffffff;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
-  padding: 24px 0 0 0; /* 32pxから24pxに調整 */
+  background-color: transparent;
+  width: 100%;
+  position: relative;
+  padding-top: 60px; /* ヘッダーの高さ */
+}
+
+/* 3D背景スタイル */
+.blog-banner-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+}
+
+.blog-banner-background canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.blog-banner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 1;
+}
+
+.blog-content-wrapper {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 1rem 0;
 }
 
 .blog-container-top {
@@ -23,19 +54,14 @@
   padding-top: 0;
 }
 
+/* 記事詳細ページのコンテナ */
 .blog-post-container {
-  padding-top: 24px; /* 32pxから24pxに調整 */
+  padding-top: 120px; /* ヘッダー(60px) + パンくず(40px) + 余白(20px) */
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding-left: 1rem;
   padding-right: 1rem;
-}
-
-.blog-content-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
 }
 
 /* 基本的なテキストスタイル */
@@ -715,10 +741,10 @@ h2.blog-toc-title {
   pointer-events: none !important;
 }
 
-/* パンくずリスト共通 */
-.blog-breadcrumbs {
+/* パンくずリスト - 記事詳細ページ */
+.blog-post-content .blog-breadcrumbs {
   position: fixed;
-  top: 24px; /* 32pxから24pxに調整 */
+  top: 60px; /* ヘッダーの直下に配置 */
   left: 0;
   right: 0;
   width: 100%;
@@ -726,13 +752,61 @@ h2.blog-toc-title {
   padding: 0.75rem 1rem;
   border-bottom: 1px solid #eee;
   z-index: 40;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* カテゴリ一覧ページのパンくずリスト */
+/* パンくずリスト - その他のページ */
+.blog-content > .blog-breadcrumbs,
 .max-w-7xl > .mb-4 > .blog-breadcrumbs {
   position: relative;
   top: 0;
   padding: 0.75rem 0;
-  margin-top: 24px; /* 32pxから24pxに調整 */
+  margin-top: 0;
   border: none;
+}
+
+/* マーキーテキストのスタイル */
+.blog-marquee-container {
+  width: 100vw;
+  overflow: hidden;
+  position: fixed;
+  top: 60px; /* ヘッダーの高さと同じく60pxに調整 */
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+  padding: 8px 0;
+  z-index: 30;
+}
+
+.blog-marquee-content {
+  display: flex;
+  animation: marquee 20s linear infinite;
+  white-space: nowrap;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.blog-pickup-title {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #000000;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.1em;
+  text-align: center;
+}
+
+.blog-pickup-description {
+  font-size: 1rem;
+  color: #000000;
+  opacity: 0.9;
+  text-align: center;
 }

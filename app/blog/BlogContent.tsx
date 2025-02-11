@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Image from "next/image";
 import { createClient } from '@/lib/supabase';
 import Footer from '@/components/common/Footer';
@@ -15,6 +15,15 @@ import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+import { Canvas, useFrame, extend, useThree } from "@react-three/fiber";
+import { Html, OrbitControls } from "@react-three/drei";
+import * as THREE from "three";
+import { Color, Vector2, Vector3 } from "three";
+import { EffectComposer, Bloom, ChromaticAberration } from "@react-three/postprocessing";
+import { KernelSize } from "postprocessing";
+import { Suspense } from "react";
+import { BufferGeometry, Material, Mesh, Group } from 'three';
+import type { ThreeElements, Object3DNode } from '@react-three/fiber';
 
 interface BlogPost {
   id: string;
@@ -100,6 +109,176 @@ const BlogStructuredData = ({ posts }: { posts: BlogPost[] }) => {
     />
   );
 };
+
+// Three.js Elements Type Definition
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      torusGeometry: Object3DNode<THREE.TorusGeometry, typeof THREE.TorusGeometry>;
+      sphereGeometry: Object3DNode<THREE.SphereGeometry, typeof THREE.SphereGeometry>;
+      meshStandardMaterial: Object3DNode<THREE.MeshStandardMaterial, typeof THREE.MeshStandardMaterial>;
+      ambientLight: Object3DNode<THREE.AmbientLight, typeof THREE.AmbientLight>;
+      directionalLight: Object3DNode<THREE.DirectionalLight, typeof THREE.DirectionalLight>;
+      group: Object3DNode<THREE.Group, typeof THREE.Group>;
+      mesh: Object3DNode<THREE.Mesh, typeof THREE.Mesh>;
+    }
+  }
+}
+
+// Extend Three Elements
+extend({
+  TorusGeometry: THREE.TorusGeometry,
+  SphereGeometry: THREE.SphereGeometry,
+  MeshStandardMaterial: THREE.MeshStandardMaterial,
+  AmbientLight: THREE.AmbientLight,
+  DirectionalLight: THREE.DirectionalLight,
+  Group: THREE.Group,
+  Mesh: THREE.Mesh,
+});
+
+// SceneBackground Component
+function SceneBackground() {
+  const { scene } = useThree();
+
+  useEffect(() => {
+    scene.fog = new THREE.Fog("#ffffff", 10, 50);
+    scene.background = new THREE.Color("#ffffff");
+  }, [scene]);
+
+  return (
+    <>
+      <primitive object={new THREE.AmbientLight(undefined, 0.4)} />
+      <primitive object={new THREE.DirectionalLight(undefined, 0.8)} position={[10, 10, 10]} />
+
+      <Suspense fallback={null}>
+        <Spiral />
+      </Suspense>
+
+      <Suspense fallback={null}>
+        <FloatingParticles />
+      </Suspense>
+
+      <EffectComposer>
+        <Bloom
+          intensity={0.3}
+          kernelSize={KernelSize.MEDIUM}
+          luminanceThreshold={0.4}
+          luminanceSmoothing={0.7}
+        />
+        <ChromaticAberration
+          offset={new Vector2(0.0003, 0.0003)}
+          radialModulation={true}
+          modulationOffset={0.5}
+        />
+      </EffectComposer>
+    </>
+  );
+}
+
+// Spiral Component
+function Spiral() {
+  const groupRef = useRef<Group>(null);
+  const COUNT = 20;
+
+  const [torusList] = useState(() => {
+    const arr = [];
+    for (let i = 0; i < COUNT; i++) {
+      arr.push({
+        angle: i * 0.3,
+        radius: 2 + i * 0.4,
+        y: i * -0.5,
+        color: new THREE.Color(`hsl(${30 + i*2}, 100%, 75%)`),
+      });
+    }
+    return arr;
+  });
+
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime() * 0.3;
+    if (!groupRef.current) return;
+    groupRef.current.children.forEach((mesh, i) => {
+      const data = torusList[i];
+      const angle = data.angle + time;
+      const x = Math.cos(angle) * data.radius;
+      const z = Math.sin(angle) * data.radius;
+      mesh.position.set(x, data.y, z);
+      mesh.rotation.x = angle * 2;
+      mesh.rotation.y = angle;
+    });
+  });
+
+  return (
+    <primitive object={new THREE.Group()} ref={groupRef}>
+      {torusList.map((item, i) => {
+        const geometry = new THREE.TorusGeometry(0.8, 0.2, 16, 32);
+        const material = new THREE.MeshStandardMaterial({
+          color: item.color,
+          emissive: item.color.clone().offsetHSL(0, -0.2, -0.2),
+          emissiveIntensity: 0.8,
+          metalness: 0.9,
+          roughness: 0.1,
+        });
+        return (
+          <primitive key={i} object={new THREE.Mesh(geometry, material)} castShadow />
+        );
+      })}
+    </primitive>
+  );
+}
+
+// FloatingParticles Component
+function FloatingParticles() {
+  const groupRef = useRef<Group>(null);
+  const COUNT = 80;
+
+  const [particles] = useState(() => {
+    const arr = [];
+    for (let i = 0; i < COUNT; i++) {
+      arr.push({
+        position: new Vector3(
+          (Math.random() - 0.5) * 30,
+          (Math.random() - 0.5) * 20,
+          (Math.random() - 0.5) * 30
+        ),
+        velocity: new Vector3(
+          (Math.random() - 0.5) * 0.02,
+          (Math.random() - 0.5) * 0.02,
+          (Math.random() - 0.5) * 0.02
+        ),
+      });
+    }
+    return arr;
+  });
+
+  useFrame(() => {
+    if (!groupRef.current) return;
+    groupRef.current.children.forEach((mesh, i) => {
+      const p = particles[i];
+      p.position.add(p.velocity);
+      if (p.position.length() > 20) {
+        p.position.setLength(20);
+        p.velocity.multiplyScalar(-1);
+      }
+      mesh.position.copy(p.position);
+    });
+  });
+
+  return (
+    <primitive object={new THREE.Group()} ref={groupRef}>
+      {particles.map((_, i) => {
+        const geometry = new THREE.SphereGeometry(0.05, 8, 8);
+        const material = new THREE.MeshStandardMaterial({
+          color: new Color(0.95, 0.6, 0.2),
+          emissive: new Color(0.95, 0.6, 0.2),
+          emissiveIntensity: 0.3,
+        });
+        return (
+          <primitive key={i} object={new THREE.Mesh(geometry, material)} />
+        );
+      })}
+    </primitive>
+  );
+}
 
 export default function BlogContent() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -228,248 +407,269 @@ export default function BlogContent() {
       <PageViewTracker page_type="blog_top" />
       <BlogStructuredData posts={posts} />
       
-      <div className="blog-container blog-container-top">
-        {/* スクロールテキスト */}
-        <div className="blog-marquee">
-          <div className="blog-marquee-text">
-            退職に関する不安や悩みを解消する情報メディア!!退職のノウハウから、キャリアプランまであなたの新しい一歩を、私たちがサポートします!!
-          </div>
+      <div className="blog-container">
+        {/* 3D背景Canvas */}
+        <div className="blog-banner-background">
+          <Canvas
+            camera={{ position: [0, 0, 15], fov: 60 }}
+            dpr={[1, 2]}
+            gl={{ 
+              antialias: true,
+              alpha: true,
+              powerPreference: "high-performance"
+            }}
+          >
+            <SceneBackground />
+            <OrbitControls
+              enableZoom={false}
+              enablePan={false}
+              enableRotate={false}
+            />
+          </Canvas>
         </div>
 
-        {/* ピックアップセクション */}
-        <section className="blog-pickup blog-pickup-top">
-          <div className="blog-pickup-inner">
-            <div className="blog-pickup-decorations">
-              <span className="decoration-text decoration-career">CAREER</span>
-              <span className="decoration-text decoration-support">転職支援</span>
-              <span className="decoration-text decoration-career-jp">キャリア</span>
-              <span className="decoration-text decoration-success">SUCCESS</span>
-              <span className="decoration-text decoration-retire">退職</span>
-            </div>
-            <div className="blog-pickup-header">
-              <h2 className="blog-pickup-title">PICKUP</h2>
-              <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
-            </div>
-            <div className="blog-pickup-slider" style={{ maxWidth: '744px', margin: '0 auto', overflow: 'hidden' }}>
-              <Swiper
-                modules={[Pagination, Autoplay]}
-                spaceBetween={24}
-                slidesPerView={1.2}
-                centeredSlides={false}
-                loop={true}
-                pagination={{ clickable: true }}
-                autoplay={{ delay: 5000, disableOnInteraction: false }}
-                style={{ width: '100%', maxWidth: '744px' }}
-                breakpoints={{
-                  320: {
-                    slidesPerView: 1.2,
-                    spaceBetween: 24,
-                    centeredSlides: true,
-                    width: undefined
-                  },
-                  640: {
-                    slidesPerView: 2.2,
-                    spaceBetween: 24,
-                    centeredSlides: false,
-                    width: undefined
-                  },
-                  1024: {
-                    slidesPerView: 2,
-                    spaceBetween: 24,
-                    centeredSlides: false,
-                    width: 744
-                  }
-                }}
-              >
-                {posts.slice(0, 8).map((post) => (
-                  <SwiperSlide key={post.id} style={{ width: '360px !important', maxWidth: '360px !important' }}>
-                    <Link href={`/blog/${post.slug}`} className="block">
-                      <div className="blog-pickup-card hover-effect-card">
-                        {post.thumbnail_url && (
-                          <Image
-                            src={post.thumbnail_url}
-                            alt={post.title}
-                            width={360}
-                            height={202}
-                            className="blog-pickup-image"
-                          />
-                        )}
-                        <div className="blog-pickup-content">
-                          {post.category && (
-                            <span className="blog-category">{post.category.name}</span>
-                          )}
-                          <h3 className="blog-pickup-heading">{post.title}</h3>
-                        </div>
-                      </div>
-                    </Link>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
+        {/* オーバーレイ */}
+        <div className="blog-banner-overlay" />
+
+        <div className="blog-content-wrapper">
+          <div className="blog-marquee-container">
+            <div className="blog-marquee-content">
+              退職に関する不安や悩みを解消する情報メディア!!退職のノウハウから、キャリアプランまであなたの新しい一歩を、私たちがサポートします!!
             </div>
           </div>
-        </section>
 
-        <main className="blog-main">
-          {/* News Section */}
-          <section className="blog-news">
-            <h2 className="blog-news-title">News</h2>
-            <div className="blog-news-list">
-              <div><span className="blog-news-label">お知らせ</span>株式会社エヌアンドエスはAI副業支援プログラムを開始いたしました</div>
-              <div><span className="blog-news-label">お知らせ</span>あんしん退職コラムオープンしました</div>
-              {newsArticles.map((article) => (
-                <div key={article.slug}>
-                  {new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP')}　{article.title}
-                </div>
-              ))}
+          {/* Pickup Section */}
+          <section className="blog-pickup blog-pickup-top">
+            <div className="blog-pickup-inner">
+              <div className="blog-pickup-header">
+                <h2 className="blog-pickup-title">PICKUP</h2>
+                <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
+              </div>
+              <div className="blog-pickup-slider" style={{ maxWidth: '744px', margin: '0 auto', overflow: 'hidden' }}>
+                <Swiper
+                  modules={[Pagination, Autoplay]}
+                  spaceBetween={24}
+                  slidesPerView={1.2}
+                  centeredSlides={false}
+                  loop={true}
+                  pagination={{ clickable: true }}
+                  autoplay={{ delay: 5000, disableOnInteraction: false }}
+                  style={{ width: '100%', maxWidth: '744px' }}
+                  breakpoints={{
+                    320: {
+                      slidesPerView: 1.2,
+                      spaceBetween: 24,
+                      centeredSlides: true,
+                      width: undefined
+                    },
+                    640: {
+                      slidesPerView: 2.2,
+                      spaceBetween: 24,
+                      centeredSlides: false,
+                      width: undefined
+                    },
+                    1024: {
+                      slidesPerView: 2,
+                      spaceBetween: 24,
+                      centeredSlides: false,
+                      width: 744
+                    }
+                  }}
+                >
+                  {posts.slice(0, 8).map((post) => (
+                    <SwiperSlide key={post.id} style={{ width: '360px !important', maxWidth: '360px !important' }}>
+                      <Link href={`/blog/${post.slug}`} className="block">
+                        <div className="blog-pickup-card hover-effect-card">
+                          {post.thumbnail_url && (
+                            <Image
+                              src={post.thumbnail_url}
+                              alt={post.title}
+                              width={360}
+                              height={202}
+                              className="blog-pickup-image"
+                            />
+                          )}
+                          <div className="blog-pickup-content">
+                            {post.category && (
+                              <span className="blog-category">{post.category.name}</span>
+                            )}
+                            <h3 className="blog-pickup-heading">{post.title}</h3>
+                          </div>
+                        </div>
+                      </Link>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+              </div>
             </div>
           </section>
 
-          {/* Latest Posts */}
-          <section className="blog-latest mt-12">
-            <h2 className="blog-latest-title">NEW POSTS</h2>
-            <div className="blog-latest-list">
-              {posts.slice(0, 5).map((post, index) => (
-                <Link key={post.slug} href={`/blog/${post.slug}`} className="block">
-                  <article className="blog-latest-item hover-effect-card">
-                    <time className="blog-latest-date">
-                      {new Date(post.published_at || post.created_at).toLocaleDateString('ja-JP')}
-                    </time>
-                    <div className="blog-latest-content-wrapper">
+          <main className="blog-main">
+            {/* News Section */}
+            <section className="blog-news">
+              <h2 className="blog-news-title">News</h2>
+              <div className="blog-news-list">
+                <div><span className="blog-news-label">お知らせ</span>株式会社エヌアンドエスはAI副業支援プログラムを開始いたしました</div>
+                <div><span className="blog-news-label">お知らせ</span>あんしん退職コラムオープンしました</div>
+                {newsArticles.map((article) => (
+                  <div key={article.slug}>
+                    {new Date(article.published_at || article.created_at).toLocaleDateString('ja-JP')}　{article.title}
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Latest Posts */}
+            <section className="blog-latest mt-12">
+              <h2 className="text-xl font-bold text-center mb-8 relative pb-3">
+                NEW POSTS
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500"></span>
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {posts.slice(0, 15).map((post, index) => (
+                  <Link key={post.slug} href={`/blog/${post.slug}`} className="block">
+                    <article className="blog-pickup-card hover-effect-card">
                       {post.thumbnail_url && (
                         <Image
                           src={post.thumbnail_url}
                           alt={post.title}
-                          width={100}
-                          height={50}
-                          className="blog-latest-image"
-                          style={{ height: 'auto' }}
+                          width={360}
+                          height={202}
+                          className="blog-pickup-image"
                           priority={index === 0}
                         />
                       )}
-                      <div className="blog-latest-content">
-                        <h3 className="blog-latest-heading">
-                          {post.title}
-                        </h3>
+                      <div className="blog-pickup-content">
+                        {post.category && (
+                          <span className="blog-category">{post.category.name}</span>
+                        )}
+                        <h3 className="blog-pickup-heading">{post.title}</h3>
+                        <time className="text-sm text-gray-500 mt-2 block">
+                          {new Date(post.published_at || post.created_at).toLocaleDateString('ja-JP')}
+                        </time>
                       </div>
-                    </div>
-                  </article>
-                </Link>
-              ))}
-            </div>
-            <button className="blog-button">
-              記事一覧を見る
-            </button>
-          </section>
-
-          {/* Categories Section */}
-          <section className="blog-categories mt-12 mb-24">
-            <h2 className="blog-tags-title">CATEGORIES</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {categories.map((category) => (
-                <Link
-                  key={category.slug}
-                  href={`/blog/category/${category.slug}`}
-                  className="block p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow"
-                >
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {category.name}
-                  </h3>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* Tags Section */}
-          <section className="blog-tags-section mt-24 mb-24">
-            <h2 className="blog-tags-title">TAGS</h2>
-            <div className="blog-tags max-w-4xl mx-auto px-4">
-              {allTags.map((tag) => (
-                <Link
-                  key={tag.slug}
-                  href={`/blog/tags/${tag.slug}`}
-                  className="blog-tag"
-                >
-                  {tag.name}
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* Career Support */}
-          <section className="blog-career mt-24">
-            <h2 className="blog-career-title">キャリアサポートのお知らせ</h2>
-            <Link href="https://nands.tech/" target="_blank" rel="noopener noreferrer" className="block">
-              <div className="blog-career-card hover-effect-card">
-                <Image
-                  src="/images/career-support.jpg"
-                  alt="Career Support"
-                  width={600}
-                  height={300}
-                  className="blog-career-image"
-                />
-                <div className="blog-career-content">
-                  退職あんしん代行を運営する「株式会社エヌアンドエス」では、
-                  AI時代に合わせた副業・リスキリング支援プログラムを開始しました。
-                  退職後のキャリア形成を一緒に考えませんか？
-                </div>
+                    </article>
+                  </Link>
+                ))}
               </div>
-            </Link>
-          </section>
+            </section>
 
-          {/* Contact Section */}
-          <section className="blog-contact mt-24 mb-24">
-            <h2 className="blog-tags-title">ご相談はこちら</h2>
-            <div className="blog-contact-grid">
-              {/* 電話相談 */}
-              <a href="tel:0120558551" className="blog-contact-card text-center hover-effect-card">
-                <Phone className="w-12 h-12 text-orange-500 mx-auto mb-2" />
-                <h4 className="text-xl font-bold text-gray-900 mb-2">
-                  お電話でのご相談
-                </h4>
-                <p className="blog-contact-value">0120-558-551</p>
-              </a>
+            {/* Categories Section */}
+            <section className="blog-categories mt-16">
+              <h2 className="text-xl font-bold text-center mb-8 relative pb-3">
+                CATEGORIES
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500"></span>
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categories.map((category) => (
+                  <Link
+                    key={category.slug}
+                    href={`/blog/category/${category.slug}`}
+                    className="block p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
+                  >
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      {category.name}
+                    </h3>
+                  </Link>
+                ))}
+              </div>
+            </section>
 
-              {/* LINE相談 */}
-              <div className="blog-contact-card text-center hover-effect-card">
-                <MessageCircle className="w-12 h-12 text-[#06C755] mx-auto mb-2" />
-                <h4 className="text-xl font-bold text-gray-900 mb-2">
-                  公式LINEでお気軽に相談
-                </h4>
-                <p className="text-gray-600 mb-4">
-                  LINEなら、いつでも気軽にご相談いただけます
-                </p>
-                <a
-                  href="https://lin.ee/h1kk42r"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block bg-[#06C755] hover:bg-[#05b34c] text-white text-lg font-bold py-4 px-6 rounded-lg text-center transition-colors"
-                >
-                  LINEで相談する
+            {/* Tags Section */}
+            <section className="mt-16 mb-24">
+              <h2 className="text-xl font-bold text-center mb-8 relative pb-3">
+                TAGS
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500"></span>
+              </h2>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {allTags.map((tag) => (
+                  <Link
+                    key={tag.slug}
+                    href={`/blog/tags/${tag.slug}`}
+                    className="blog-tag inline-block px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors"
+                  >
+                    {tag.name}
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            {/* Career Support */}
+            <section className="blog-career mt-24">
+              <h2 className="blog-career-title">キャリアサポートのお知らせ</h2>
+              <Link href="https://nands.tech/" target="_blank" rel="noopener noreferrer" className="block">
+                <div className="blog-career-card hover-effect-card">
+                  <Image
+                    src="/images/career-support.jpg"
+                    alt="Career Support"
+                    width={600}
+                    height={300}
+                    className="blog-career-image"
+                  />
+                  <div className="blog-career-content">
+                    退職あんしん代行を運営する「株式会社エヌアンドエス」では、
+                    AI時代に合わせた副業・リスキリング支援プログラムを開始しました。
+                    退職後のキャリア形成を一緒に考えませんか？
+                  </div>
+                </div>
+              </Link>
+            </section>
+
+            {/* Contact Section */}
+            <section className="blog-contact mt-24 mb-24">
+              <h2 className="blog-tags-title">ご相談はこちら</h2>
+              <div className="blog-contact-grid">
+                {/* 電話相談 */}
+                <a href="tel:0120558551" className="blog-contact-card text-center hover-effect-card">
+                  <Phone className="w-12 h-12 text-orange-500 mx-auto mb-2" />
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">
+                    お電話でのご相談
+                  </h4>
+                  <p className="blog-contact-value">0120-558-551</p>
+                </a>
+
+                {/* LINE相談 */}
+                <div className="blog-contact-card text-center hover-effect-card">
+                  <MessageCircle className="w-12 h-12 text-[#06C755] mx-auto mb-2" />
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">
+                    公式LINEでお気軽に相談
+                  </h4>
+                  <p className="text-gray-600 mb-4">
+                    LINEなら、いつでも気軽にご相談いただけます
+                  </p>
+                  <a
+                    href="https://lin.ee/h1kk42r"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block bg-[#06C755] hover:bg-[#05b34c] text-white text-lg font-bold py-4 px-6 rounded-lg text-center transition-colors"
+                  >
+                    LINEで相談する
+                  </a>
+                </div>
+
+                {/* メール相談 */}
+                <a href="mailto:contact@taishoku-anshin-daiko.com" className="blog-contact-card text-center hover-effect-card">
+                  <Mail className="w-12 h-12 text-orange-500 mx-auto mb-2" />
+                  <h4 className="text-xl font-bold text-gray-900 mb-2">
+                    メールでのご相談
+                  </h4>
+                  <p className="text-lg text-gray-600">24時間受付中</p>
                 </a>
               </div>
 
-              {/* メール相談 */}
-              <a href="mailto:contact@taishoku-anshin-daiko.com" className="blog-contact-card text-center hover-effect-card">
-                <Mail className="w-12 h-12 text-orange-500 mx-auto mb-2" />
-                <h4 className="text-xl font-bold text-gray-900 mb-2">
-                  メールでのご相談
-                </h4>
-                <p className="text-lg text-gray-600">24時間受付中</p>
-              </a>
-            </div>
-
-            <div className="mt-8 grid grid-cols-2 gap-4">
-              <div className="blog-contact-card flex items-center gap-3">
-                <Clock className="w-6 h-6 text-orange-500" />
-                <p className="text-gray-900 font-medium">365日受付</p>
+              <div className="mt-8 grid grid-cols-2 gap-4">
+                <div className="blog-contact-card flex items-center gap-3">
+                  <Clock className="w-6 h-6 text-orange-500" />
+                  <p className="text-gray-900 font-medium">365日受付</p>
+                </div>
+                <div className="blog-contact-card flex items-center gap-3">
+                  <Shield className="w-6 h-6 text-orange-500" />
+                  <p className="text-gray-900 font-medium">相談無料</p>
+                </div>
               </div>
-              <div className="blog-contact-card flex items-center gap-3">
-                <Shield className="w-6 h-6 text-orange-500" />
-                <p className="text-gray-900 font-medium">相談無料</p>
-              </div>
-            </div>
-          </section>
-        </main>
+            </section>
+          </main>
+        </div>
       </div>
       <Footer />
     </>
