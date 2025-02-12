@@ -76,7 +76,7 @@ export const generateArticleSchema = (post: Post, baseUrl: string) => {
     },
     publisher: {
       '@type': 'Organization',
-      name: '株式会社エヌアンドエス',
+      name: '退職あんしん代行',
       description: '退職代行・退職相談のプロフェッショナル。労働問題の解決から、キャリア支援まで、働く人の未来をサポートします。',
       url: baseUrl,
       logo: {

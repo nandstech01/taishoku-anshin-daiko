@@ -248,39 +248,45 @@ export default function BlogContent() {
                 <h2 className="blog-pickup-title">PICKUP</h2>
                 <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
               </div>
-              <div className="blog-pickup-slider" style={{ maxWidth: '744px', margin: '0 auto', overflow: 'hidden' }}>
+              <div className="blog-pickup-slider">
                 <Swiper
                   modules={[Pagination, Autoplay]}
-                  spaceBetween={24}
-                  slidesPerView={1.2}
+                  spaceBetween={16}
+                  slidesPerView={1}
                   centeredSlides={false}
                   loop={true}
-                  pagination={{ clickable: true }}
+                  pagination={{
+                    clickable: true,
+                    el: '.swiper-pagination-custom',
+                    bulletClass: 'swiper-pagination-bullet',
+                    bulletActiveClass: 'swiper-pagination-bullet-active'
+                  }}
                   autoplay={{ delay: 5000, disableOnInteraction: false }}
-                  style={{ width: '100%', maxWidth: '744px' }}
+                  style={{ 
+                    width: '100%',
+                    overflow: 'visible',
+                    paddingBottom: '2rem'
+                  }}
                   breakpoints={{
                     320: {
-                      slidesPerView: 1.2,
-                      spaceBetween: 24,
-                      centeredSlides: true,
-                      width: undefined
+                      slidesPerView: 1,
+                      spaceBetween: 16,
+                      centeredSlides: false
                     },
                     640: {
-                      slidesPerView: 2.2,
-                      spaceBetween: 24,
-                      centeredSlides: false,
-                      width: undefined
+                      slidesPerView: 2,
+                      spaceBetween: 16,
+                      centeredSlides: false
                     },
                     1024: {
-                      slidesPerView: 2,
+                      slidesPerView: 3,
                       spaceBetween: 24,
-                      centeredSlides: false,
-                      width: 744
+                      centeredSlides: false
                     }
                   }}
                 >
                   {posts.slice(0, 8).map((post) => (
-                    <SwiperSlide key={post.id} style={{ width: '360px !important', maxWidth: '360px !important' }}>
+                    <SwiperSlide key={post.id}>
                       <Link href={`/blog/${post.slug}`} className="block">
                         <div className="blog-pickup-card hover-effect-card">
                           {post.thumbnail_url && (
@@ -303,6 +309,7 @@ export default function BlogContent() {
                     </SwiperSlide>
                   ))}
                 </Swiper>
+                <div className="swiper-pagination-custom"></div>
               </div>
             </div>
           </section>

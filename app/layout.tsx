@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description: '退職代行なら業界最安値2,980円の退職あんしん代行。弁護士監修で料金も明確、即日対応可能。退職に関する無料相談も24時間365日受付中。',
   keywords: '退職代行,退職代行料金,退職代行とは,退職代行弁護士,退職相談,即日対応,無料相談',
   alternates: {
-    canonical: '/',
+    canonical: 'https://taishoku-anshin-daiko.com',
   },
   robots: {
     index: true,
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: '退職代行サービス｜業界最安値2,980円で即日対応【退職あんしん代行】',
     description: '退職代行なら業界最安値2,980円の退職あんしん代行。弁護士監修で料金も明確、即日対応可能。退職に関する無料相談も24時間365日受付中。',
-    url: '/',
+    url: 'https://taishoku-anshin-daiko.com',
     siteName: '退職あんしん代行',
     locale: 'ja_JP',
     type: 'website',
