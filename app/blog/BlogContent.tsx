@@ -101,6 +101,30 @@ const BlogStructuredData = ({ posts }: { posts: BlogPost[] }) => {
   );
 };
 
+const swiperParams = {
+  slidesPerView: 1,
+  spaceBetween: 16,
+  loop: true,
+  autoplay: {
+    delay: 5000,
+    disableOnInteraction: false,
+  },
+  pagination: {
+    el: '.swiper-pagination-custom',
+    clickable: true,
+  },
+  breakpoints: {
+    640: {
+      slidesPerView: 2,
+      spaceBetween: 16,
+    },
+    1024: {
+      slidesPerView: 3,
+      spaceBetween: 24,
+    },
+  },
+};
+
 export default function BlogContent() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -223,17 +247,15 @@ export default function BlogContent() {
   // お知らせ記事を取得
   const newsArticles = posts.filter(post => post.category?.name === 'お知らせ').slice(0, 2);
 
+  // ピックアップ記事の取得部分
+  const pickupPosts = posts.slice(0, 12);
+
   return (
     <>
       <PageViewTracker page_type="blog_top" />
       <BlogStructuredData posts={posts} />
       
       <div className="blog-container">
-        {/* シンプルな背景に置き換え */}
-        <div className="blog-banner-background">
-          <div className="gradient-background"></div>
-        </div>
-
         <div className="blog-content-wrapper">
           <div className="blog-marquee-container">
             <div className="blog-marquee-content">
@@ -241,76 +263,54 @@ export default function BlogContent() {
             </div>
           </div>
 
-          {/* Pickup Section */}
-          <section className="blog-pickup blog-pickup-top">
+          {/* Pickup Section as Banner */}
+          <section className="blog-pickup">
             <div className="blog-pickup-inner">
               <div className="blog-pickup-header">
                 <h2 className="blog-pickup-title">PICKUP</h2>
                 <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
               </div>
-              <div className="blog-pickup-slider">
-                <Swiper
-                  modules={[Pagination, Autoplay]}
-                  slidesPerView={3}
-                  spaceBetween={24}
-                  loop={false}
-                  pagination={{
-                    clickable: true,
-                    el: '.swiper-pagination-custom'
-                  }}
-                  autoplay={{
-                    delay: 3000,
-                    disableOnInteraction: false
-                  }}
-                  breakpoints={{
-                    320: {
-                      slidesPerView: 1,
-                      spaceBetween: 16
-                    },
-                    640: {
-                      slidesPerView: 2,
-                      spaceBetween: 16
-                    },
-                    1024: {
-                      slidesPerView: 3,
-                      spaceBetween: 24,
-                      slidesPerGroup: 3
-                    }
-                  }}
-                  watchOverflow={true}
-                  preventClicksPropagation={true}
-                  className="!overflow-visible"
-                >
-                  {posts.slice(0, 8).map((post, index) => (
-                    <SwiperSlide key={post.id}>
-                      <Link href={`/blog/${post.slug}`} className="block h-full">
-                        <div className="blog-pickup-card">
-                          {post.thumbnail_url && (
+              <Swiper
+                modules={[Pagination, Autoplay]}
+                {...swiperParams}
+                className="blog-pickup-slider"
+              >
+                {pickupPosts.map((post, index) => (
+                  <SwiperSlide key={post.id}>
+                    <Link href={`/blog/${post.slug}`} className="block h-full">
+                      <article className="blog-pickup-card">
+                        {post.thumbnail_url && (
+                          <div className="aspect-w-16 aspect-h-9">
                             <Image
                               src={post.thumbnail_url}
                               alt={post.title}
-                              width={360}
-                              height={202}
+                              width={600}
+                              height={338}
                               className="blog-pickup-image"
-                              priority={index < 3}
+                              priority={index < 2}
                               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                              quality={75}
-                              loading={index < 3 ? "eager" : "lazy"}
+                              quality={85}
+                              loading={index < 2 ? "eager" : "lazy"}
                             />
+                          </div>
+                        )}
+                        <div className="blog-pickup-content">
+                          {post.category && (
+                            <span className="blog-category">{post.category.name}</span>
                           )}
-                          <div className="blog-pickup-content">
-                            {post.category && (
-                              <span className="blog-category">{post.category.name}</span>
-                            )}
-                            <h3 className="blog-pickup-heading">{post.title}</h3>
+                          <h3 className="blog-pickup-heading">{post.title}</h3>
+                          <div className="blog-pickup-meta">
+                            <time dateTime={post.published_at || post.created_at}>
+                              {new Date(post.published_at || post.created_at).toLocaleDateString('ja-JP')}
+                            </time>
                           </div>
                         </div>
-                      </Link>
-                    </SwiperSlide>
-                  ))}
-                </Swiper>
-                <div className="swiper-pagination-custom"></div>
-              </div>
+                      </article>
+                    </Link>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+              <div className="swiper-pagination-custom"></div>
             </div>
           </section>
 

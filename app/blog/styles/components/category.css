@@ -1,10 +1,10 @@
 /* カテゴリーページ */
 .blog-category-page {
-  @apply py-12;
+  @apply min-h-screen w-full relative pt-16 overflow-hidden;
 }
 
 .blog-category-inner {
-  @apply max-w-7xl mx-auto px-4 sm:px-6;
+  @apply relative z-10 max-w-7xl mx-auto px-4;
 }
 
 .blog-category-heading {
@@ -21,7 +21,7 @@
 
 /* カテゴリー一覧 */
 .blog-category-list {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  @apply grid gap-6 mt-8;
 }
 
 .blog-category-item {
@@ -56,11 +56,6 @@
   @apply flex items-center justify-between text-xs text-gray-500;
 }
 
-/* カテゴリータグ */
-.blog-category-tag {
-  @apply inline-block px-3 py-1 text-xs font-medium text-orange-600 bg-orange-50 rounded-full;
-}
-
 /* ページネーション */
 .blog-category-pagination {
   @apply mt-12 flex justify-center items-center gap-2;
@@ -76,10 +71,10 @@
 
 /* レスポンシブ対応 */
 @media (max-width: 768px) {
-  .blog-category-page {
-    @apply py-8;
+  .blog-category-inner {
+    @apply px-4;
   }
-
+  
   .blog-category-list {
     @apply grid-cols-1;
   }
