@@ -53,7 +53,9 @@ export async function getPostWithCategory(slug: string) {
       category: category as Category | null,
       description: post.description || null,
       seo_keywords: post.seo_keywords || [],
-      tags: post.tags || []
+      tags: post.tags || [],
+      category_id: category?.id || null,
+      thumbnail_variants: null
     };
 
     return {
@@ -125,16 +127,17 @@ export async function getRelatedPosts(categorySlug: string, currentPostId: strin
       created_at: post.created_at,
       updated_at: post.updated_at,
       thumbnail_url: post.thumbnail_url,
-      description: post.description,
+      description: post.description || null,
       category_slug: post.category_slug,
-      tags: post.tags,
-      seo_keywords: post.seo_keywords,
+      tags: post.tags || [],
+      seo_keywords: post.seo_keywords || [],
       category: category ? {
         id: category.id,
         name: category.name,
         slug: category.slug
       } : null,
-      thumbnail_variants: null
+      thumbnail_variants: null,
+      category_id: category?.id || null
     }));
 
     return {

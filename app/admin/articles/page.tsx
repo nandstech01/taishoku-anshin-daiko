@@ -33,13 +33,19 @@ export default function ArticlesPage() {
             content: item.content,
             slug: item.slug,
             status: item.status,
-            meta_description: item.meta_description,
+            description: item.meta_description || item.description || null,
             thumbnail_url: item.thumbnail_url,
             created_at: item.created_at,
             updated_at: item.updated_at,
             category_id: item.category_id,
             view_count: item.view_count,
-            category: item.category
+            category: item.category,
+            category_slug: item.category_slug || null,
+            views: item.views || 0,
+            tags: item.tags || null,
+            seo_keywords: item.seo_keywords || null,
+            thumbnail_variants: item.thumbnail_variants || null,
+            published_at: item.published_at || item.created_at
           } as BlogPost));
           setArticles(typedData);
         }
@@ -82,7 +88,7 @@ export default function ArticlesPage() {
             <Link href={`/admin/articles/${article.id}`}>
               <div>
                 <h2 className="text-xl font-semibold mb-2">{article.title}</h2>
-                <p className="text-gray-600 mb-2">{article.meta_description}</p>
+                <p className="text-gray-600 mb-2">{article.description}</p>
                 <div className="text-sm text-gray-500">
                   作成日: {new Date(article.created_at).toLocaleDateString('ja-JP')}
                 </div>

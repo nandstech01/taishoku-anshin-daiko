@@ -24,7 +24,7 @@ const newsCategory: Category = {
 
 export const mockPosts: BlogPostWithAuthor[] = [
   {
-    id: 1,
+    id: '1',
     slug: 'blog-launch',
     title: 'あんしん退職コラムをオープンしました',
     content: `
@@ -52,12 +52,16 @@ export const mockPosts: BlogPostWithAuthor[] = [
     author: mockAuthor,
     category: newsCategory,
     category_id: 2,
+    category_slug: newsCategory.slug,
     tags: ['お知らせ', 'メディア', 'オープン'],
     views: 150,
-    status: 'published'
+    status: 'published',
+    thumbnail_url: '/images/blog/launch.jpg',
+    thumbnail_variants: null,
+    seo_keywords: ['退職', 'ブログ', 'お知らせ']
   },
   {
-    id: 2,
+    id: '2',
     slug: 'ai-career-support',
     title: '株式会社エヌアンドエスがAI副業支援プログラムを開始',
     content: `
@@ -83,12 +87,16 @@ export const mockPosts: BlogPostWithAuthor[] = [
     author: mockAuthor,
     category: newsCategory,
     category_id: 2,
+    category_slug: newsCategory.slug,
     tags: ['お知らせ', 'AI', '副業', 'キャリア'],
     views: 120,
-    status: 'published'
+    status: 'published',
+    thumbnail_url: '/images/blog/ai-career-support.jpg',
+    thumbnail_variants: null,
+    seo_keywords: ['退職', 'AI', '副業', 'キャリア']
   },
   {
-    id: 3,
+    id: '3',
     slug: 'getting-started-with-nextjs',
     title: 'Getting Started with Next.js',
     content: '# Getting Started with Next.js\n\nNext.js is a powerful framework...',
@@ -100,12 +108,16 @@ export const mockPosts: BlogPostWithAuthor[] = [
     author: mockAuthor,
     category: mockCategory,
     category_id: 1,
+    category_slug: mockCategory.slug,
     tags: ['nextjs', 'react', 'web-development'],
     views: 100,
-    status: 'published'
+    status: 'published',
+    thumbnail_url: '/images/blog/getting-started-with-nextjs.jpg',
+    thumbnail_variants: null,
+    seo_keywords: ['Next.js', 'React', 'Web Development']
   },
   {
-    id: 4,
+    id: '4',
     slug: 'mastering-typescript',
     title: 'Mastering TypeScript',
     content: '# Mastering TypeScript\n\nTypeScript is a typed superset of JavaScript...',
@@ -117,12 +129,16 @@ export const mockPosts: BlogPostWithAuthor[] = [
     author: mockAuthor,
     category: mockCategory,
     category_id: 1,
+    category_slug: mockCategory.slug,
     tags: ['typescript', 'javascript', 'programming'],
     views: 150,
-    status: 'published'
+    status: 'published',
+    thumbnail_url: '/images/blog/mastering-typescript.jpg',
+    thumbnail_variants: null,
+    seo_keywords: ['TypeScript', 'JavaScript', 'Programming']
   },
   {
-    id: 5,
+    id: '5',
     slug: 'react-best-practices',
     title: 'React Best Practices',
     content: '# React Best Practices\n\nLearn how to write better React code...',
@@ -134,9 +150,13 @@ export const mockPosts: BlogPostWithAuthor[] = [
     author: mockAuthor,
     category: mockCategory,
     category_id: 1,
+    category_slug: mockCategory.slug,
     tags: ['react', 'javascript', 'web-development'],
     views: 200,
-    status: 'published'
+    status: 'published',
+    thumbnail_url: '/images/blog/react-best-practices.jpg',
+    thumbnail_variants: null,
+    seo_keywords: ['React', 'JavaScript', 'Web Development']
   }
 ];
 
