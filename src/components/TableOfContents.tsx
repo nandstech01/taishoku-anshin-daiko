@@ -3,6 +3,13 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { TableOfContentsItem, generateHeadingId } from '../utils/markdown';
 
+// カスタムイベントの型定義
+declare global {
+  interface WindowEventMap {
+    'headingsProcessed': CustomEvent<{ headings: { id: string; text: string }[] }>;
+  }
+}
+
 type Props = {
   items: TableOfContentsItem[];
 };
@@ -11,7 +18,9 @@ export default function TableOfContents({ items }: Props) {
   const [activeId, setActiveId] = useState<string>('');
   const [progress, setProgress] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
   // h2の見出しのみをフィルタリング
   const h2Items = items.filter(item => item.level === 2);
@@ -19,46 +28,58 @@ export default function TableOfContents({ items }: Props) {
   const hiddenItems = h2Items.slice(7);
 
   useEffect(() => {
-    // デバッグ用：すべての見出しIDを確認
-    console.log('Available heading IDs:', h2Items.map(item => {
-      const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
-      const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
-      return {
-        text: item.text,
-        elementId,
-        exists: document.getElementById(elementId) !== null
-      };
-    }));
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const id = entry.target.id;
-            console.log('Intersecting element:', { id, element: entry.target });
-            setActiveId(id);
-          }
-        });
-      },
-      { rootMargin: '-20% 0px -35% 0px' }
-    );
-
-    // h2の見出し要素のみを監視
-    h2Items.forEach((item) => {
-      const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
-      const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
-      const element = document.getElementById(elementId);
-      
-      if (!element) {
-        console.warn(`Element not found for heading: ${item.text}`, {
+    const setupObserver = () => {
+      // デバッグ用：すべての見出しIDを確認
+      console.log('Available heading IDs:', h2Items.map(item => {
+        const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
+        const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
+        return {
+          text: item.text,
           elementId,
-          exists: document.getElementById(elementId) !== null,
-          allIds: Array.from(document.querySelectorAll('[id]')).map(el => el.id)
-        });
-      } else {
-        observer.observe(element);
-      }
-    });
+          exists: document.getElementById(elementId) !== null
+        };
+      }));
+
+      observerRef.current = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              console.log('Intersecting element:', { id, element: entry.target });
+              setActiveId(id);
+            }
+          });
+        },
+        { rootMargin: '-20% 0px -35% 0px' }
+      );
+
+      // h2の見出し要素のみを監視
+      h2Items.forEach((item) => {
+        const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
+        const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
+        const element = document.getElementById(elementId);
+        
+        if (!element) {
+          console.warn(`Element not found for heading: ${item.text}`, {
+            elementId,
+            exists: document.getElementById(elementId) !== null,
+            allIds: Array.from(document.querySelectorAll('[id]')).map(el => el.id)
+          });
+        } else {
+          observerRef.current?.observe(element);
+        }
+      });
+    };
+
+    // 見出し処理完了イベントのリスナー
+    const handleHeadingsProcessed = () => {
+      console.log('Headings processing completed');
+      setIsReady(true);
+      setupObserver();
+    };
+
+    // イベントリスナーを登録
+    window.addEventListener('headingsProcessed', handleHeadingsProcessed);
 
     // スクロール進捗の計算
     const handleScroll = () => {
@@ -72,14 +93,23 @@ export default function TableOfContents({ items }: Props) {
 
     window.addEventListener('scroll', handleScroll);
 
+    // 初期設定（見出しがすでに処理済みの場合のため）
+    if (document.querySelector('.blog-content .prose h2[id^="section-"]')) {
+      setIsReady(true);
+      setupObserver();
+    }
+
     return () => {
-      h2Items.forEach((item) => {
-        const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
-        const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
-        const element = document.getElementById(elementId);
-        if (element) observer.unobserve(element);
-      });
+      if (observerRef.current) {
+        h2Items.forEach((item) => {
+          const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
+          const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
+          const element = document.getElementById(elementId);
+          if (element) observerRef.current?.unobserve(element);
+        });
+      }
       window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('headingsProcessed', handleHeadingsProcessed);
     };
   }, [h2Items]);
 
@@ -99,7 +129,7 @@ export default function TableOfContents({ items }: Props) {
     }
 
     // ヘッダーの高さを考慮してスクロール位置を調整
-    const headerOffset = 120; // ヘッダー + パンくずの高さ
+    const headerOffset = 120;
     const elementPosition = element.getBoundingClientRect().top;
     const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -113,7 +143,6 @@ export default function TableOfContents({ items }: Props) {
     setActiveId(elementId);
   };
 
-  // 見出しテキストから数字と残りのテキストを分離する関数
   const splitNumberAndText = (text: string) => {
     const match = text.match(/^(\d+)\.\s*(.+)$/);
     if (match) {
@@ -131,6 +160,15 @@ export default function TableOfContents({ items }: Props) {
   const toggleToc = () => {
     setIsExpanded(!isExpanded);
   };
+
+  if (!isReady) {
+    return (
+      <nav className="blog-toc relative" style={{ counterReset: 'toc-counter' }}>
+        <h2 className="blog-toc-title">目次</h2>
+        <div className="blog-toc-loading">Loading...</div>
+      </nav>
+    );
+  }
 
   return (
     <nav className={`blog-toc relative ${isExpanded ? 'expanded' : ''}`} style={{ counterReset: 'toc-counter' }}>

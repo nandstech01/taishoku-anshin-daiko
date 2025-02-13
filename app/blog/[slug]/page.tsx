@@ -18,6 +18,7 @@ import { RelatedTags } from '@/components/blog/RelatedTags';
 import HeadingProcessor from '@/components/HeadingProcessor';
 import ReviewSection from '@/components/blog/ReviewSection';
 import BlogContentProcessor from '@/components/blog/BlogContent';
+import { getPostWithCategory, getRelatedPosts } from '@/utils/blog-helpers';
 
 interface Tag {
   name: string;
@@ -53,127 +54,13 @@ const processSeoKeywords = (keywords: string[] | null): Tag[] => {
 };
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const supabase = createClient();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
+  const { post: postWithCategory, error } = await getPostWithCategory(params.slug);
 
-  try {
-    const { data: post, error } = await supabase
-      .from('posts')
-      .select(`
-        id,
-        title,
-        content,
-        slug,
-        status,
-        views,
-        tags,
-        likes,
-        published_at,
-        created_at,
-        updated_at,
-        thumbnail_url,
-        meta_description,
-        seo_keywords,
-        category_slug,
-        description
-      `)
-      .eq('slug', params.slug)
-      .eq('status', 'published')
-      .single();
-
-    if (error || !post) {
-      return {
-        title: 'ページが見つかりません | 退職あんしん代行',
-        description: 'お探しのページは見つかりませんでした。',
-        robots: {
-          index: false,
-          follow: true,
-          nocache: true,
-        }
-      };
-    }
-
-    // カテゴリー情報を取得
-    const { data: category } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('slug', post.category_slug)
-      .single();
-
-    const postWithCategory: Post = {
-      ...post,
-      category: category as Category | null,
-      description: post.description || null,
-      seo_keywords: post.seo_keywords || [],
-      tags: post.tags || []
-    };
-
-    // Generate breadcrumb items for structured data
-    const breadcrumbItemsForSchema = [
-      { name: 'ホーム', url: '/' },
-      { name: 'ブログ', url: '/blog' },
-      ...(postWithCategory.category ? [
-        { 
-          name: postWithCategory.category.name, 
-          url: `/blog/category/${postWithCategory.category.slug}` 
-        }
-      ] : []),
-      { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
-    ];
-
-    // Generate structured data
-    const structuredData = [
-      generateArticleSchema(postWithCategory, baseUrl),
-      generateBreadcrumbSchema(breadcrumbItemsForSchema, baseUrl)
-    ];
-
+  if (error || !postWithCategory) {
     return {
-      title: `${postWithCategory.title} | 退職あんしん代行`,
-      description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
-      keywords: [
-        ...(postWithCategory.seo_keywords || []),
-        ...(postWithCategory.tags || []),
-        '退職代行',
-        '退職相談',
-        postWithCategory.category?.name
-      ].filter(Boolean).join(', '),
-      alternates: {
-        canonical: `${baseUrl}/blog/${postWithCategory.slug}`,
-        languages: {
-          'ja-JP': `${baseUrl}/blog/${postWithCategory.slug}`,
-        },
-      },
-      openGraph: {
-        title: postWithCategory.title,
-        description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
-        url: `${baseUrl}/blog/${postWithCategory.slug}`,
-        siteName: '退職あんしん代行',
-        locale: 'ja_JP',
-        type: 'article',
-        images: postWithCategory.thumbnail_url ? [{
-          url: postWithCategory.thumbnail_url,
-          width: 1200,
-          height: 630,
-          alt: postWithCategory.title,
-        }] : undefined,
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: postWithCategory.title,
-        description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
-        images: postWithCategory.thumbnail_url ? [postWithCategory.thumbnail_url] : undefined,
-        site: '@taishoku_anshin',
-        creator: '@taishoku_anshin',
-      },
-      other: {
-        'application/ld+json': structuredData.map(item => JSON.stringify(item)).join('\n')
-      }
-    };
-  } catch (error) {
-    console.error('Error generating metadata:', error);
-    return {
-      title: 'エラーが発生しました | 退職あんしん代行',
-      description: '記事の読み込み中にエラーが発生しました。',
+      title: 'ページが見つかりません | 退職あんしん代行',
+      description: 'お探しのページは見つかりませんでした。',
       robots: {
         index: false,
         follow: true,
@@ -181,33 +68,75 @@ export async function generateMetadata({ params }: { params: { slug: string } })
       }
     };
   }
+
+  // Generate breadcrumb items for structured data
+  const breadcrumbItemsForSchema = [
+    { name: 'ホーム', url: '/' },
+    { name: 'ブログ', url: '/blog' },
+    ...(postWithCategory.category ? [
+      { 
+        name: postWithCategory.category.name, 
+        url: `/blog/category/${postWithCategory.category.slug}` 
+      }
+    ] : []),
+    { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
+  ];
+
+  // Generate structured data
+  const structuredData = [
+    generateArticleSchema(postWithCategory, baseUrl),
+    generateBreadcrumbSchema(breadcrumbItemsForSchema, baseUrl)
+  ];
+
+  return {
+    title: `${postWithCategory.title} | 退職あんしん代行`,
+    description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
+    keywords: [
+      ...(postWithCategory.seo_keywords || []),
+      ...(postWithCategory.tags || []),
+      '退職代行',
+      '退職相談',
+      postWithCategory.category?.name
+    ].filter(Boolean).join(', '),
+    alternates: {
+      canonical: `${baseUrl}/blog/${postWithCategory.slug}`,
+      languages: {
+        'ja-JP': `${baseUrl}/blog/${postWithCategory.slug}`,
+      },
+    },
+    openGraph: {
+      title: postWithCategory.title,
+      description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
+      url: `${baseUrl}/blog/${postWithCategory.slug}`,
+      siteName: '退職あんしん代行',
+      locale: 'ja_JP',
+      type: 'article',
+      images: postWithCategory.thumbnail_url ? [{
+        url: postWithCategory.thumbnail_url,
+        width: 1200,
+        height: 630,
+        alt: postWithCategory.title,
+      }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: postWithCategory.title,
+      description: postWithCategory.description || `${postWithCategory.title}に関する詳しい情報をご紹介します。`,
+      images: postWithCategory.thumbnail_url ? [postWithCategory.thumbnail_url] : undefined,
+      site: '@taishoku_anshin',
+      creator: '@taishoku_anshin',
+    },
+    other: {
+      'application/ld+json': structuredData.map(item => JSON.stringify(item)).join('\n')
+    }
+  };
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
   const supabase = createClient();
   
-  const { data: post, error } = await supabase
-    .from('posts')
-    .select(`
-      id,
-      title,
-      content,
-      slug,
-      status,
-      views,
-      tags,
-      likes,
-      published_at,
-      created_at,
-      updated_at,
-      thumbnail_url,
-      description,
-      seo_keywords,
-      category_slug
-    `)
-    .eq('slug', params.slug)
-    .eq('status', 'published')
-    .single();
+  // 共通のデータフェッチ関数を使用
+  const { post: postWithCategory, error } = await getPostWithCategory(params.slug);
 
   if (error) {
     console.error('Error fetching post:', error);
@@ -221,39 +150,19 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     );
   }
 
-  if (!post) {
+  if (!postWithCategory) {
     return notFound();
   }
-
-  // カテゴリー情報を取得
-  const { data: category } = await supabase
-    .from('categories')
-    .select('*')
-    .eq('slug', post.category_slug)
-    .single();
-
-  const postWithCategory: Post = {
-    ...post,
-    category: category as Category | null,
-    description: post.description || null,
-    seo_keywords: post.seo_keywords || [],
-    tags: post.tags || []
-  };
 
   // タグ情報を生成
   const tags = processTags(postWithCategory.tags);
   // SEOキーワード情報を生成
   const seoKeywords = processSeoKeywords(postWithCategory.seo_keywords);
 
-  // 同じカテゴリの関連記事を取得
-  const { data: relatedPosts } = await supabase
-    .from('posts')
-    .select('*')
-    .eq('category_slug', postWithCategory.category_slug)
-    .neq('slug', postWithCategory.slug)
-    .eq('status', 'published')
-    .order('created_at', { ascending: false })
-    .limit(12);
+  // 関連記事を取得
+  const { posts: relatedPosts } = postWithCategory.category_slug
+    ? await getRelatedPosts(postWithCategory.category_slug, postWithCategory.id)
+    : { posts: [] };
 
   try {
     const { html, headings } = await parseMarkdown(postWithCategory.content || '');

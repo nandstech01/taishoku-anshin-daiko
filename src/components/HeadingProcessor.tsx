@@ -2,17 +2,40 @@
 
 import { useEffect } from 'react';
 
+// カスタムイベントを定義
+const HEADINGS_PROCESSED_EVENT = 'headingsProcessed';
+
 export default function HeadingProcessor() {
   useEffect(() => {
+    const processH2Headings = () => {
+      const h2Elements = document.querySelectorAll('.blog-content .prose h2');
+      const processedHeadings: { id: string; text: string }[] = [];
+      
+      h2Elements.forEach(h2 => {
+        const text = h2.textContent || '';
+        const match = text.match(/^(\d+)\.\s*(.*)/);
+        if (match) {
+          const [, number] = match;
+          const id = `section-${number}`;
+          h2.id = id;
+          processedHeadings.push({ id, text });
+          console.log('Generated heading:', { text, id, depth: 2 });
+        }
+      });
+
+      // 処理完了を通知
+      window.dispatchEvent(new CustomEvent(HEADINGS_PROCESSED_EVENT, {
+        detail: { headings: processedHeadings }
+      }));
+    };
+
     const processH3Headings = () => {
       const h3Elements = document.querySelectorAll('.blog-content .prose h3');
       h3Elements.forEach(h3 => {
         const text = h3.textContent || '';
-        // 番号パターン（例：1-1.）にマッチする正規表現
         const match = text.match(/^\d+[-\.]\d+\.\s*(.*)/);
         if (match) {
           const [, mainText] = match;
-          // h3は元の処理を維持
           h3.innerHTML = mainText;
         }
       });
@@ -22,19 +45,26 @@ export default function HeadingProcessor() {
       const h4Elements = document.querySelectorAll('.blog-content .prose h4:not(.blog-toc-title)');
       h4Elements.forEach(h4 => {
         const text = h4.textContent || '';
-        // 番号パターン（例：5-2-1.）にマッチする正規表現
         const match = text.match(/^(\d+[-\.]\d+[-\.]\d+\.)\s*(.*)/);
         if (match) {
           const [, number, mainText] = match;
-          // データ属性を設定してから内容を変更
           h4.setAttribute('data-heading-number', number);
           h4.textContent = mainText;
         }
       });
     };
 
-    processH3Headings();
-    processH4Headings();
+    // 見出し処理を即時実行
+    requestAnimationFrame(() => {
+      processH2Headings();
+      processH3Headings();
+      processH4Headings();
+    });
+
+    return () => {
+      // クリーンアップ時にイベントリスナーを削除
+      window.removeEventListener(HEADINGS_PROCESSED_EVENT, () => {});
+    };
   }, []);
 
   return null;

@@ -1,3 +1,7 @@
+import type { Database } from '@/lib/supabase/database.types';
+
+export type DatabasePost = Database['public']['Tables']['posts']['Row'];
+
 export interface BasePost {
   id?: number;
   title: string;
@@ -20,13 +24,6 @@ export interface BasePost {
   views?: number;
 }
 
-export interface Post extends BasePost {
-  id: number;
-  category_id: number;
-  created_at: string;
-  updated_at: string;
-}
-
 export interface Category {
   id: number;
   name: string;
@@ -34,8 +31,23 @@ export interface Category {
   description?: string;
 }
 
-export interface BlogPost extends Post {
-  category: Category;
+export interface Post extends BasePost {
+  id: number;
+  category_id: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BlogPost extends DatabasePost {
+  description: string | null;
+  thumbnail_url: string | null;
+  category_slug: string | null;
+  status: string;
+  views: number;
+  tags: string[] | null;
+  seo_keywords: string[] | null;
+  category: Category | null;
+  thumbnail_variants?: string[] | null;
 }
 
 export interface User {

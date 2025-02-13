@@ -43,7 +43,8 @@ export default function ReviewSection() {
                       src="/images/editorial/editorial-team.png"
                       alt="退職あんしん代行編集部"
                       fill
-                      className="object-contain"
+                      sizes="(max-width: 768px) 96px, 192px"
+                      className="object-cover rounded-full"
                       priority
                     />
                   </div>
