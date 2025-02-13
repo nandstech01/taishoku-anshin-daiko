@@ -14,13 +14,19 @@ export default function HeadingProcessor() {
       h2Elements.forEach(h2 => {
         const text = h2.textContent || '';
         const match = text.match(/^(\d+)\.\s*(.*)/);
+        
+        let id;
         if (match) {
           const [, number] = match;
-          const id = `section-${number}`;
-          h2.id = id;
-          processedHeadings.push({ id, text });
-          console.log('Generated heading:', { text, id, depth: 2 });
+          id = `section-${number}`;
+        } else {
+          // 番号なしの見出しの場合、テキストをそのままIDとして使用
+          id = text.toLowerCase().replace(/\s+/g, '-');
         }
+        
+        h2.id = id;
+        processedHeadings.push({ id, text });
+        console.log('Generated heading:', { text, id, depth: 2 });
       });
 
       // 処理完了を通知
