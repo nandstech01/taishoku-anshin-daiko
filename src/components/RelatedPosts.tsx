@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { BlogPost } from '@/types/blog';
-import { createClient } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 import React, { Suspense } from 'react';
 
 type Props = {
@@ -64,8 +64,6 @@ function AdditionalSections() {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      const supabase = createClient();
-      
       // カテゴリーの取得
       const { data: categoriesData } = await supabase
         .from('categories')

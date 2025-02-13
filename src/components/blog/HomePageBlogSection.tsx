@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase';
-import { PostgrestResponse } from '@supabase/supabase-js';
+import { supabase, SupabaseClientType } from '@/lib/supabase/supabase';
+import type { PostgrestResponse } from '@supabase/supabase-js';
 
 interface BlogPost {
   id: string;
@@ -49,8 +49,6 @@ interface RawPost {
     slug: string;
   }> | null;
 }
-
-const supabase = createClient();
 
 // タグの正規化（安全な実装）
 const normalizeTag = (keyword: string) => {

@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useEffect, useState, useRef } from 'react';
 import Image from "next/image";
-import { createClient } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 import Footer from '@/components/common/Footer';
 import './blog.css';
 import Link from 'next/link';
@@ -56,7 +56,12 @@ interface RawPost {
   category_slug: string | null;
 }
 
-const supabase = createClient();
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string;
+}
 
 const BlogStructuredData = ({ posts }: { posts: BlogPost[] }) => {
   const structuredData = {
@@ -125,59 +130,62 @@ const swiperParams = {
   },
 };
 
-export default function BlogContent() {
+const BlogContent = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
     const fetchPosts = async () => {
       try {
         console.log('Fetching posts...');
-        const { data: postsData, error: postsError } = await supabase
-          .from('posts')
-          .select(`
-            id,
-            title,
-            content,
-            slug,
-            status,
-            views,
-            tags,
-            likes,
-            published_at,
-            created_at,
-            updated_at,
-            thumbnail_url,
-            meta_description,
-            seo_keywords,
-            category_slug
-          `)
-          .eq('status', 'published')
-          .order('created_at', { ascending: false }) as PostgrestResponse<RawPost>;
+        const [postsResponse, categoriesResponse] = await Promise.all([
+          supabase
+            .from('posts')
+            .select(`
+              id,
+              title,
+              content,
+              slug,
+              status,
+              views,
+              tags,
+              likes,
+              published_at,
+              created_at,
+              updated_at,
+              thumbnail_url,
+              meta_description,
+              seo_keywords,
+              category_slug
+            `)
+            .eq('status', 'published')
+            .order('created_at', { ascending: false }),
+          
+          supabase
+            .from('categories')
+            .select('*')
+        ]);
 
-        if (postsError) {
-          console.error('Error fetching posts:', postsError);
-          throw postsError;
+        if (postsResponse.error) {
+          console.error('Error fetching posts:', postsResponse.error);
+          throw postsResponse.error;
         }
 
-        // カテゴリーを別途取得
-        const { data: categoriesData, error: categoriesError } = await supabase
-          .from('categories')
-          .select('*');
-
-        if (categoriesError) {
-          console.error('Error fetching categories:', categoriesError);
-          throw categoriesError;
+        if (categoriesResponse.error) {
+          console.error('Error fetching categories:', categoriesResponse.error);
+          throw categoriesResponse.error;
         }
 
         // 記事データにカテゴリー情報を追加
-        const typedPostsData = (postsData || []).map((post: RawPost) => {
-          const category = categoriesData?.find(cat => cat.slug === post.category_slug);
+        const typedPostsData = (postsResponse.data || []).map((rawPost: any) => {
+          const post = rawPost as unknown as RawPost;
+          const category = categoriesResponse.data?.find((cat: Category) => cat.slug === post.category_slug);
           let parsedTags = [];
           try {
             if (post.tags) {
-              parsedTags = typeof post.tags === 'string' ? JSON.parse(post.tags) : post.tags;
+              parsedTags = Array.isArray(post.tags) ? post.tags : 
+                (typeof post.tags === 'string' ? JSON.parse(post.tags) : []);
             }
           } catch (e) {
             console.error('Error parsing tags for post:', post.slug, e);
@@ -190,7 +198,7 @@ export default function BlogContent() {
             slug: post.slug,
             status: post.status,
             views: post.views ?? 0,
-            tags: Array.isArray(parsedTags) ? parsedTags : [],
+            tags: parsedTags,
             likes: post.likes ?? 0,
             published_at: post.published_at,
             created_at: post.created_at,
@@ -200,10 +208,10 @@ export default function BlogContent() {
             seo_keywords: post.seo_keywords ?? [],
             category: category
           } as BlogPost;
-        }) || [];
+        });
         
         setPosts(typedPostsData);
-        setCategories(categoriesData || []);
+        setCategories(categoriesResponse.data || []);
       } catch (error) {
         console.error('Failed to fetch data:', error);
         setPosts([]);
@@ -488,3 +496,5 @@ export default function BlogContent() {
     </>
   );
 }
+
+export default BlogContent;
