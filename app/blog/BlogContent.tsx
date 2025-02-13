@@ -251,44 +251,40 @@ export default function BlogContent() {
               <div className="blog-pickup-slider">
                 <Swiper
                   modules={[Pagination, Autoplay]}
-                  spaceBetween={16}
-                  slidesPerView={1}
-                  centeredSlides={false}
-                  loop={true}
+                  slidesPerView={3}
+                  spaceBetween={24}
+                  loop={false}
                   pagination={{
                     clickable: true,
-                    el: '.swiper-pagination-custom',
-                    bulletClass: 'swiper-pagination-bullet',
-                    bulletActiveClass: 'swiper-pagination-bullet-active'
+                    el: '.swiper-pagination-custom'
                   }}
-                  autoplay={{ delay: 5000, disableOnInteraction: false }}
-                  style={{ 
-                    width: '100%',
-                    overflow: 'visible',
-                    paddingBottom: '2rem'
+                  autoplay={{
+                    delay: 3000,
+                    disableOnInteraction: false
                   }}
                   breakpoints={{
                     320: {
                       slidesPerView: 1,
-                      spaceBetween: 16,
-                      centeredSlides: false
+                      spaceBetween: 16
                     },
                     640: {
                       slidesPerView: 2,
-                      spaceBetween: 16,
-                      centeredSlides: false
+                      spaceBetween: 16
                     },
                     1024: {
                       slidesPerView: 3,
                       spaceBetween: 24,
-                      centeredSlides: false
+                      slidesPerGroup: 3
                     }
                   }}
+                  watchOverflow={true}
+                  preventClicksPropagation={true}
+                  className="!overflow-visible"
                 >
-                  {posts.slice(0, 8).map((post) => (
+                  {posts.slice(0, 8).map((post, index) => (
                     <SwiperSlide key={post.id}>
-                      <Link href={`/blog/${post.slug}`} className="block">
-                        <div className="blog-pickup-card hover-effect-card">
+                      <Link href={`/blog/${post.slug}`} className="block h-full">
+                        <div className="blog-pickup-card">
                           {post.thumbnail_url && (
                             <Image
                               src={post.thumbnail_url}
@@ -296,6 +292,10 @@ export default function BlogContent() {
                               width={360}
                               height={202}
                               className="blog-pickup-image"
+                              priority={index < 3}
+                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                              quality={75}
+                              loading={index < 3 ? "eager" : "lazy"}
                             />
                           )}
                           <div className="blog-pickup-content">
@@ -346,7 +346,10 @@ export default function BlogContent() {
                           width={360}
                           height={202}
                           className="blog-pickup-image"
-                          priority={index === 0}
+                          priority={index < 2}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          quality={75}
+                          loading={index < 2 ? "eager" : "lazy"}
                         />
                       )}
                       <div className="blog-pickup-content">
