@@ -1,4 +1,77 @@
+# グローバルルール
 User-agent: *
 Allow: /
+Allow: /blog/
+Allow: /blog/*
+Allow: /images/
+Allow: /sitemap.xml
+Allow: /robots.txt
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /*?*
+Disallow: /*?
+Disallow: /*/amp/
+Disallow: /*.json$
+Disallow: /*preview=true
+Disallow: /*draft=true
 
+# Googlebot特別ルール
+User-agent: Googlebot
+Allow: /
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.gif$
+Allow: /*.svg$
+Allow: /*.ico$
+Crawl-delay: 1
+
+# Googlebot画像
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.png$
+Allow: /*.webp$
+Allow: /*.svg$
+Disallow: /
+
+# Bingbot特別ルール
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 5
+
+# その他の主要ボット
+User-agent: Twitterbot
+Allow: /
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.png$
+Allow: /*.svg$
+
+User-agent: facebookexternalhit
+Allow: /
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.png$
+Allow: /*.svg$
+
+# 負荷の高いボットの制御
+User-agent: AhrefsBot
+Crawl-delay: 10
+Disallow: /admin/
+Disallow: /api/
+
+User-agent: Yandex
+Crawl-delay: 10
+Disallow: /admin/
+Disallow: /api/
+
+# サイトマップ
 Sitemap: https://taishoku-anshin-daiko.com/sitemap.xml
+Host: https://taishoku-anshin-daiko.com
