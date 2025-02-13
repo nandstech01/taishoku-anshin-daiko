@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { TableOfContentsItem } from '../utils/markdown';
+import type { TableOfContentsItem } from '../utils/markdown';
 
 // カスタムイベントの型定義
 declare global {
@@ -19,19 +19,18 @@ export default function TableOfContents({ items }: Props) {
   const [progress, setProgress] = useState(0);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [processedItems, setProcessedItems] = useState<TableOfContentsItem[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
-  const isInitializedRef = useRef(false);
 
   // h2の見出しのみをフィルタリング（メモ化）
-  const { h2Items, visibleItems, hiddenItems } = useMemo(() => {
-    const h2Items = items.filter(item => item.level === 2);
+  const { visibleItems, hiddenItems } = useMemo(() => {
+    const filteredItems = processedItems.filter(item => item.level === 2);
     return {
-      h2Items,
-      visibleItems: h2Items.slice(0, 7),
-      hiddenItems: h2Items.slice(7)
+      visibleItems: filteredItems.slice(0, 7),
+      hiddenItems: filteredItems.slice(7)
     };
-  }, [items]);
+  }, [processedItems]);
 
   // IntersectionObserverのコールバックをメモ化
   const observerCallback = useCallback((entries: IntersectionObserverEntry[]) => {
@@ -42,30 +41,27 @@ export default function TableOfContents({ items }: Props) {
     });
   }, []);
 
-  // スクロールハンドラをメモ化（デバウンス処理を追加）
+  // スクロールハンドラをメモ化
   const handleScroll = useCallback(() => {
-    if (!isInitializedRef.current) return;
-    
     requestAnimationFrame(() => {
-      const winScroll = document.documentElement.scrollTop;
-      const height = 
-        document.documentElement.scrollHeight - 
-        document.documentElement.clientHeight;
+      const winScroll = window.scrollY;
+      const height = document.documentElement.scrollHeight - window.innerHeight;
       const scrolled = (winScroll / height) * 100;
-      setProgress(scrolled);
+      setProgress(Math.min(100, Math.max(0, scrolled)));
     });
   }, []);
 
   // 見出しクリックハンドラをメモ化
-  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, item: TableOfContentsItem) => {
+  const handleClick = useCallback((e: React.MouseEvent<HTMLAnchorElement>, elementId: string) => {
     e.preventDefault();
-    const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
-    const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
     const element = document.getElementById(elementId);
     
-    if (!element) return;
+    if (!element) {
+      console.warn(`Element with id ${elementId} not found`);
+      return;
+    }
 
-    const headerOffset = 120;
+    const headerOffset = 80;
     const elementPosition = element.getBoundingClientRect().top;
     const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
@@ -74,73 +70,59 @@ export default function TableOfContents({ items }: Props) {
       behavior: 'smooth'
     });
 
-    window.history.replaceState(null, '', `#${elementId}`);
     setActiveId(elementId);
   }, []);
 
-  // 初期化処理をメモ化
-  const initializeObserver = useCallback(() => {
-    if (observerRef.current) {
-      observerRef.current.disconnect();
-    }
+  // 見出し処理のイベントリスナー
+  useEffect(() => {
+    const handleHeadingsProcessed = (event: CustomEvent<{ headings: TableOfContentsItem[] }>) => {
+      console.log('Headings processed:', event.detail.headings);
+      setProcessedItems(event.detail.headings);
+      setIsReady(true);
+    };
 
-    observerRef.current = new IntersectionObserver(
-      observerCallback,
-      { rootMargin: '-20% 0px -35% 0px' }
-    );
+    window.addEventListener('headingsProcessed', handleHeadingsProcessed as EventListener);
+    return () => {
+      window.removeEventListener('headingsProcessed', handleHeadingsProcessed as EventListener);
+    };
+  }, []);
 
-    h2Items.forEach((item) => {
-      const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
-      const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
-      const element = document.getElementById(elementId);
-      
-      if (element) {
-        observerRef.current?.observe(element);
-      }
+  // Intersection Observerの設定
+  useEffect(() => {
+    if (!isReady) return;
+
+    observerRef.current = new IntersectionObserver(observerCallback, {
+      rootMargin: '-20% 0px -35% 0px'
     });
 
-    isInitializedRef.current = true;
-  }, [h2Items, observerCallback]);
-
-  useEffect(() => {
-    const handleHeadingsProcessed = () => {
-      setIsReady(true);
-      initializeObserver();
-    };
-
-    const throttledScroll = () => {
-      requestAnimationFrame(handleScroll);
-    };
-
-    window.addEventListener('headingsProcessed', handleHeadingsProcessed);
-    window.addEventListener('scroll', throttledScroll, { passive: true });
-
-    if (document.querySelector('.blog-content .prose h2[id]')) {
-      setIsReady(true);
-      initializeObserver();
-    }
+    const elements = document.querySelectorAll('.blog-content .prose h2[id]');
+    elements.forEach(element => {
+      observerRef.current?.observe(element);
+    });
 
     return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
-      }
-      window.removeEventListener('scroll', throttledScroll);
-      window.removeEventListener('headingsProcessed', handleHeadingsProcessed);
-      isInitializedRef.current = false;
+      observerRef.current?.disconnect();
     };
-  }, [handleScroll, initializeObserver]);
+  }, [isReady, observerCallback]);
 
-  if (!isReady) {
-    return (
-      <nav className="blog-toc relative" style={{ counterReset: 'toc-counter' }}>
-        <h2 className="blog-toc-title">目次</h2>
-        <div className="blog-toc-loading">Loading...</div>
-      </nav>
-    );
+  // スクロールイベントの設定
+  useEffect(() => {
+    if (!isReady) return;
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll(); // 初期値を設定
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isReady, handleScroll]);
+
+  if (!isReady || processedItems.length === 0) {
+    return null;
   }
 
   return (
-    <nav className={`blog-toc relative ${isExpanded ? 'expanded' : ''}`} style={{ counterReset: 'toc-counter' }}>
+    <nav className="blog-toc relative" style={{ counterReset: 'toc-counter' }}>
       <div 
         className="blog-toc-progress"
         style={{ transform: `scaleX(${progress / 100})` }}
@@ -148,21 +130,17 @@ export default function TableOfContents({ items }: Props) {
       <h2 className="blog-toc-title">目次</h2>
       <div className="blog-toc-visible">
         <ul>
-          {visibleItems.map((item) => {
-            const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
-            const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
-            return (
-              <li key={elementId}>
-                <a
-                  href={`#${elementId}`}
-                  onClick={(e) => handleClick(e, item)}
-                  className={`${activeId === elementId ? 'active' : ''}`}
-                >
-                  {item.text}
-                </a>
-              </li>
-            );
-          })}
+          {visibleItems.map((item) => (
+            <li key={item.id}>
+              <a
+                href={`#${item.id}`}
+                onClick={(e) => handleClick(e, item.id)}
+                className={activeId === item.id ? 'active' : ''}
+              >
+                {item.text}
+              </a>
+            </li>
+          ))}
         </ul>
       </div>
       {hiddenItems.length > 0 && (
@@ -172,23 +150,27 @@ export default function TableOfContents({ items }: Props) {
             onClick={() => setIsExpanded(!isExpanded)}
             aria-label={isExpanded ? '目次を閉じる' : '目次をもっと見る'}
           />
-          <div className="blog-toc-content" ref={contentRef} style={isExpanded ? { height: contentRef.current?.scrollHeight + 'px' } : undefined}>
+          <div 
+            className="blog-toc-content"
+            ref={contentRef}
+            style={{
+              height: isExpanded ? contentRef.current?.scrollHeight + 'px' : 0,
+              overflow: 'hidden',
+              transition: 'height 0.3s ease-in-out'
+            }}
+          >
             <ul>
-              {hiddenItems.map((item) => {
-                const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
-                const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
-                return (
-                  <li key={elementId}>
-                    <a
-                      href={`#${elementId}`}
-                      onClick={(e) => handleClick(e, item)}
-                      className={`${activeId === elementId ? 'active' : ''}`}
-                    >
-                      {item.text}
-                    </a>
-                  </li>
-                );
-              })}
+              {hiddenItems.map((item) => (
+                <li key={item.id}>
+                  <a
+                    href={`#${item.id}`}
+                    onClick={(e) => handleClick(e, item.id)}
+                    className={activeId === item.id ? 'active' : ''}
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </>
