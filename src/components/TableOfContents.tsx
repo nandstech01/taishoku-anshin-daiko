@@ -21,6 +21,7 @@ export default function TableOfContents({ items }: Props) {
   const [isReady, setIsReady] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
+  const isInitializedRef = useRef(false);
 
   // h2の見出しのみをフィルタリング（メモ化）
   const { h2Items, visibleItems, hiddenItems } = useMemo(() => {
@@ -41,14 +42,18 @@ export default function TableOfContents({ items }: Props) {
     });
   }, []);
 
-  // スクロールハンドラをメモ化
+  // スクロールハンドラをメモ化（デバウンス処理を追加）
   const handleScroll = useCallback(() => {
-    const winScroll = document.documentElement.scrollTop;
-    const height = 
-      document.documentElement.scrollHeight - 
-      document.documentElement.clientHeight;
-    const scrolled = (winScroll / height) * 100;
-    setProgress(scrolled);
+    if (!isInitializedRef.current) return;
+    
+    requestAnimationFrame(() => {
+      const winScroll = document.documentElement.scrollTop;
+      const height = 
+        document.documentElement.scrollHeight - 
+        document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      setProgress(scrolled);
+    });
   }, []);
 
   // 見出しクリックハンドラをメモ化
@@ -58,14 +63,7 @@ export default function TableOfContents({ items }: Props) {
     const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
     const element = document.getElementById(elementId);
     
-    if (!element) {
-      console.warn(`Click target element not found:`, {
-        text: item.text,
-        elementId,
-        allIds: Array.from(document.querySelectorAll('[id]')).map(el => el.id)
-      });
-      return;
-    }
+    if (!element) return;
 
     const headerOffset = 120;
     const elementPosition = element.getBoundingClientRect().top;
@@ -80,49 +78,57 @@ export default function TableOfContents({ items }: Props) {
     setActiveId(elementId);
   }, []);
 
-  useEffect(() => {
-    const setupObserver = () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+  // 初期化処理をメモ化
+  const initializeObserver = useCallback(() => {
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    observerRef.current = new IntersectionObserver(
+      observerCallback,
+      { rootMargin: '-20% 0px -35% 0px' }
+    );
+
+    h2Items.forEach((item) => {
+      const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
+      const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
+      const element = document.getElementById(elementId);
+      
+      if (element) {
+        observerRef.current?.observe(element);
       }
+    });
 
-      observerRef.current = new IntersectionObserver(
-        observerCallback,
-        { rootMargin: '-20% 0px -35% 0px' }
-      );
+    isInitializedRef.current = true;
+  }, [h2Items, observerCallback]);
 
-      h2Items.forEach((item) => {
-        const sectionNumber = item.text.match(/^(\d+)\./)?.[1];
-        const elementId = sectionNumber ? `section-${sectionNumber}` : item.id;
-        const element = document.getElementById(elementId);
-        
-        if (element) {
-          observerRef.current?.observe(element);
-        }
-      });
-    };
-
+  useEffect(() => {
     const handleHeadingsProcessed = () => {
       setIsReady(true);
-      setupObserver();
+      initializeObserver();
+    };
+
+    const throttledScroll = () => {
+      requestAnimationFrame(handleScroll);
     };
 
     window.addEventListener('headingsProcessed', handleHeadingsProcessed);
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', throttledScroll, { passive: true });
 
     if (document.querySelector('.blog-content .prose h2[id]')) {
       setIsReady(true);
-      setupObserver();
+      initializeObserver();
     }
 
     return () => {
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', throttledScroll);
       window.removeEventListener('headingsProcessed', handleHeadingsProcessed);
+      isInitializedRef.current = false;
     };
-  }, [h2Items, observerCallback, handleScroll]);
+  }, [handleScroll, initializeObserver]);
 
   if (!isReady) {
     return (
