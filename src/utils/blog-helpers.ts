@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 import type { BlogPost, Category } from '@/types/blog';
 
 export async function getPostWithCategory(slug: string) {
+  const supabase = createServerClient();
   try {
     const [postResult, categoryResult] = await Promise.all([
       supabase
@@ -72,6 +73,7 @@ export async function getPostWithCategory(slug: string) {
 }
 
 export async function getRelatedPosts(categorySlug: string, currentPostId: string) {
+  const supabase = createServerClient();
   try {
     const { data: posts, error } = await supabase
       .from('posts')

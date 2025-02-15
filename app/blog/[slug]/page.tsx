@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 import { parseMarkdown } from '@/utils/markdown';
 import TableOfContents from '@/components/TableOfContents';
 import RelatedPosts from '@/components/RelatedPosts';
@@ -133,7 +133,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const supabase = createClient();
+  const supabase = createServerClient();
   
   // 共通のデータフェッチ関数を使用
   const { post: postWithCategory, error } = await getPostWithCategory(params.slug);

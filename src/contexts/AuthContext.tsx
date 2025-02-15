@@ -2,97 +2,66 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { supabase, type SupabaseClientType } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 
 interface AuthContextType {
   session: Session | null;
-  loading: boolean;
   user: User | null;
-  supabase: SupabaseClientType;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
-  loading: true,
   user: null,
-  supabase,
+  isLoading: true,
 });
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    let mounted = true;
-
-    async function getInitialSession() {
+    // 初期セッションの設定
+    const initSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('AuthContext - Error getting initial session:', error);
-          throw error;
-        }
-        
-        if (mounted) {
-          if (session) {
-            setSession(session);
-            setUser(session.user);
-            console.log('AuthContext - Initial session loaded:', session.user.email);
-          } else {
-            console.log('AuthContext - No initial session');
-            setSession(null);
-            setUser(null);
-          }
+        const { data: { session: initialSession } } = await supabase.auth.getSession();
+        if (initialSession) {
+          setSession(initialSession);
+          setUser(initialSession.user);
         }
       } catch (error) {
-        console.error('AuthContext - Error getting initial session:', error);
+        console.error('Error getting initial session:', error);
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        setIsLoading(false);
       }
-    }
+    };
 
-    getInitialSession();
+    initSession();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('AuthContext - Auth state changed:', event, session?.user?.email);
-      
-      if (mounted) {
-        if (session) {
-          setSession(session);
-          setUser(session.user);
-        } else {
-          setSession(null);
-          setUser(null);
-        }
-        setLoading(false);
-      }
+    // 認証状態の変更を監視
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession);
+      setUser(newSession?.user ?? null);
+      setIsLoading(false);
     });
 
     return () => {
-      mounted = false;
       subscription.unsubscribe();
     };
   }, []);
 
-  const value = {
-    session,
-    loading,
-    user,
-    supabase,
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ session, user, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  return useContext(AuthContext);
-} 
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}; 

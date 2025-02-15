@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -118,7 +118,7 @@ function aggregateAnalytics(analyticsData: Analytics[] | null) {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { session, loading: authLoading } = useAuth();
+  const { session, isLoading } = useAuth();
   const [stats, setStats] = useState<DashboardStats>({
     totalPosts: 0,
     publishedPosts: 0,
@@ -135,19 +135,19 @@ export default function DashboardPage() {
 
   // 認証チェック
   useEffect(() => {
-    if (!authLoading && !session) {
+    if (!isLoading && !session) {
       console.log('Dashboard - No session, redirecting to login...');
       router.replace('/admin');
     }
-  }, [session, authLoading, router]);
+  }, [session, isLoading, router]);
 
   useEffect(() => {
     const fetchStats = async () => {
+      if (!session) return;
+
       try {
         setLoading(true);
         setError(null);
-
-        const supabase = createClient();
 
         // 記事データの取得
         const { data: posts, error: queryError } = await supabase
@@ -240,27 +240,17 @@ export default function DashboardPage() {
       }
     };
 
-    if (!authLoading && session) {
+    if (!isLoading && session) {
       fetchStats();
     }
-  }, [session, authLoading]);
+  }, [session, isLoading]);
 
   // 認証のローディング中
-  if (authLoading) {
+  if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
         <span className="ml-2 text-gray-600">認証状態を確認中...</span>
-      </div>
-    );
-  }
-
-  // データ取得のローディング中
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-        <span className="ml-2 text-gray-600">データを読み込み中...</span>
       </div>
     );
   }
