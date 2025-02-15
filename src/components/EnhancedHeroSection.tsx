@@ -35,7 +35,7 @@ import {
 import { ChromaticAberration } from "@react-three/postprocessing";
 import { KernelSize } from "postprocessing";
 import * as THREE from "three";
-import { Vector2 } from 'three';
+import { Vector2, Vector3 } from 'three';
 
 // Three.jsのコンポーネントを登録
 extend({
@@ -105,7 +105,7 @@ export default function OneMoreSizeSmallerHeroSectionV4() {
     <>
       <style jsx>{marqueeStyles}</style>
       <section
-        className="relative w-full h-screen text-white overflow-hidden bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400"
+        className="relative w-full h-screen text-white overflow-hidden bg-gradient-to-b from-white to-white"
         style={{ backgroundSize: "cover", backgroundPosition: "center" }}
       >
         {/* 3Dシーン */}
@@ -155,23 +155,38 @@ function SceneContainer() {
   return (
     <Canvas
       shadows
-      onCreated={({ gl }) => {
-        gl.setClearColor(new THREE.Color("#000000"), 0);
-      }}
       className="w-full h-full"
       dpr={[1, 2]}
+      gl={{ 
+        antialias: true,
+        alpha: true,
+        powerPreference: "high-performance"
+      }}
     >
+      <Scene />
       <CameraController />
+      <PostEffects />
+    </Canvas>
+  );
+}
 
+function Scene() {
+  const { scene } = useThree();
+
+  useEffect(() => {
+    scene.fog = new THREE.Fog("#ffffff", 10, 50);
+    scene.background = new THREE.Color("#ffffff");
+  }, [scene]);
+
+  return (
+    <>
       {/* ライト */}
       <directionalLight
         intensity={0.7}
-        position={[10, 20, 15]}
+        position={[10, 10, 10]}
         castShadow
-        shadow-mapSize-width={2048}
-        shadow-mapSize-height={2048}
       />
-      <ambientLight intensity={0.3} />
+      <ambientLight intensity={0.2} />
 
       {/* 背景Plane + パーティクル */}
       <Suspense fallback={null}>
@@ -182,10 +197,7 @@ function SceneContainer() {
       <Suspense fallback={null}>
         <EvenSmallerSmartphone />
       </Suspense>
-
-      {/* ポストエフェクト */}
-      <PostEffects />
-    </Canvas>
+    </>
   );
 }
 
@@ -194,47 +206,56 @@ function SceneContainer() {
  *   - 波打つPlane + 浮遊パーティクル
  *****************************************************************************/
 function BackgroundAnimation() {
-  const planeRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<THREE.Group>(null);
 
-  const planeGeo = useMemo(() => {
-    return new THREE.PlaneGeometry(180, 180, 160, 160);
-  }, []);
+  // トーラスの数を少し減らして、サイズを大きく
+  const COUNT = 15;
 
-  // Wave animation
-  useFrame((state) => {
-    if (!planeRef.current) return;
-    const time = state.clock.getElapsedTime() * 0.4;
-    const geo = planeRef.current.geometry;
-    const posAttr = geo.getAttribute("position") as THREE.BufferAttribute;
-
-    for (let i = 0; i < posAttr.count; i++) {
-      const x = posAttr.getX(i);
-      const y = posAttr.getY(i);
-      const wave = Math.sin(x * 0.3 + time) + Math.sin(y * 0.4 + time * 0.6);
-      posAttr.setZ(i, wave * 0.7);
+  // メッシュ情報
+  const [torusList] = useState(() => {
+    const arr = [];
+    for (let i = 0; i < COUNT; i++) {
+      arr.push({
+        angle: i * 0.3,
+        radius: 2 + i * 0.4,
+        y: i * -0.8,
+        color: new THREE.Color(`hsl(${20 + i*2}, 70%, 50%)`),
+      });
     }
-    posAttr.needsUpdate = true;
+    return arr;
+  });
 
-    planeRef.current.rotation.z = time * 0.03;
+  useFrame((state) => {
+    const time = state.clock.getElapsedTime() * 0.3;
+    if (!groupRef.current) return;
+    groupRef.current.children.forEach((mesh, i) => {
+      const data = torusList[i];
+      const angle = data.angle + time;
+      const x = Math.cos(angle) * data.radius;
+      const z = Math.sin(angle) * data.radius;
+      mesh.position.set(x, data.y, z);
+      mesh.rotation.x = angle * 2;
+      mesh.rotation.y = angle;
+    });
   });
 
   return (
     <group>
-      <mesh
-        ref={planeRef}
-        geometry={planeGeo}
-        rotation={[-Math.PI / 2, 0, 0]}
-        position={[0, -5, 0]}
-      >
-        <meshStandardMaterial
-          color="#8d5223"
-          emissive="#2d1500"
-          emissiveIntensity={0.4}
-          side={THREE.DoubleSide}
-          metalness={0.2}
-          roughness={0.4}
-        />
-      </mesh>
+      <group ref={groupRef}>
+        {torusList.map((item, i) => (
+          <mesh key={i} castShadow>
+            <torusGeometry args={[0.8, 0.3, 16, 32]} />
+            <meshStandardMaterial
+              color={item.color}
+              emissive={item.color.clone().offsetHSL(0, -0.3, -0.3)}
+              emissiveIntensity={0.6}
+              metalness={0.7}
+              roughness={0.2}
+              envMapIntensity={1.5}
+            />
+          </mesh>
+        ))}
+      </group>
 
       <FloatingParticles />
     </group>
@@ -246,41 +267,60 @@ function BackgroundAnimation() {
  *****************************************************************************/
 function FloatingParticles() {
   const groupRef = useRef<THREE.Group>(null);
+  const COUNT = 60;
 
-  const COUNT = 400;
-  const [positions] = useState(() => {
-    const arr: { x: number; y: number; z: number; seed: number }[] = [];
+  const [particles] = useState(() => {
+    const arr = [];
     for (let i = 0; i < COUNT; i++) {
       arr.push({
-        x: (Math.random() - 0.5) * 160,
-        y: (Math.random() - 0.5) * 50,
-        z: (Math.random() - 0.5) * 160,
-        seed: Math.random() * 1000,
+        position: new Vector3(
+          (Math.random() - 0.5) * 35,
+          (Math.random() - 0.5) * 25,
+          (Math.random() - 0.5) * 35
+        ),
+        velocity: new Vector3(
+          (Math.random() - 0.5) * 0.02,
+          (Math.random() - 0.5) * 0.02,
+          (Math.random() - 0.5) * 0.02
+        ),
+        scale: 0.15 + Math.random() * 0.2,
       });
     }
     return arr;
   });
 
-  useFrame((state) => {
+  useFrame(() => {
     if (!groupRef.current) return;
-    const time = state.clock.getElapsedTime() * 0.12;
+    groupRef.current.children.forEach((mesh, i) => {
+      const particle = particles[i];
+      particle.position.add(particle.velocity);
 
-    groupRef.current.children.forEach((obj, i) => {
-      const data = positions[i];
-      const mesh = obj as THREE.Mesh;
-      const t = time + data.seed;
-      mesh.position.y = data.y + Math.sin(t * 2) * 0.8;
-      mesh.position.x = data.x + Math.cos(t * 1.3) * 0.4;
-      mesh.position.z = data.z + Math.sin(t * 1.4) * 0.4;
+      // 境界チェックとバウンス
+      ['x', 'y', 'z'].forEach((axis) => {
+        const limit = axis === 'y' ? 12.5 : 17.5;
+        if (Math.abs(particle.position[axis]) > limit) {
+          particle.position[axis] = Math.sign(particle.position[axis]) * limit;
+          particle.velocity[axis] *= -1;
+        }
+      });
+
+      mesh.position.copy(particle.position);
     });
   });
 
   return (
     <group ref={groupRef}>
-      {positions.map((pos, i) => (
-        <mesh key={i} position={[pos.x, pos.y, pos.z]}>
-          <sphereGeometry args={[0.3, 8, 8]} />
-          <meshBasicMaterial color="#ffffff" transparent opacity={0.2} />
+      {particles.map((particle, i) => (
+        <mesh key={i} position={particle.position} scale={particle.scale}>
+          <sphereGeometry args={[1, 16, 16]} />
+          <meshStandardMaterial
+            color="#ff6b00"
+            emissive="#ff6b00"
+            emissiveIntensity={0.4}
+            metalness={0.6}
+            roughness={0.2}
+            envMapIntensity={1.5}
+          />
         </mesh>
       ))}
     </group>
@@ -294,8 +334,6 @@ function FloatingParticles() {
  *****************************************************************************/
 function EvenSmallerSmartphone() {
   const phoneRef = useRef<THREE.Group>(null);
-
-  // 同じscale
   const phoneScale = useMemo(() => new THREE.Vector3(15, 15, 6), []);
 
   useFrame((state) => {
@@ -305,18 +343,63 @@ function EvenSmallerSmartphone() {
     phoneRef.current.rotation.x = Math.cos(t * 0.3) * 0.1;
   });
 
-  // 位置だけさらに下げてヘッダーとの距離を確保
   return (
     <group ref={phoneRef} position={[0, -5.0, -8]} scale={phoneScale}>
+      {/* メインボディ */}
+      <RoundedBox args={[0.365, 0.725, 0.04]} radius={0.05} smoothness={4}>
+        <meshStandardMaterial
+          color="#f5f5f7"
+          metalness={0.6}
+          roughness={0.2}
+          envMapIntensity={1}
+        />
+      </RoundedBox>
+
+      {/* 画面ベゼル（黒枠） */}
+      <RoundedBox args={[0.355, 0.715, 0.041]} radius={0.048} smoothness={4} position={[0, 0, 0.001]}>
+        <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.2} />
+      </RoundedBox>
+
+      {/* ノッチ */}
+      <RoundedBox args={[0.12, 0.02, 0.01]} radius={0.005} smoothness={4} position={[0, 0.33, 0.021]}>
+        <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.2} />
+      </RoundedBox>
+
+      {/* サイドボタン */}
+      <RoundedBox args={[0.002, 0.03, 0.01]} position={[0.183, 0.2, 0]} radius={0.001}>
+        <meshStandardMaterial color="#e2e2e2" metalness={0.7} roughness={0.2} />
+      </RoundedBox>
+      <RoundedBox args={[0.002, 0.03, 0.01]} position={[0.183, 0.15, 0]} radius={0.001}>
+        <meshStandardMaterial color="#e2e2e2" metalness={0.7} roughness={0.2} />
+      </RoundedBox>
+      <RoundedBox args={[0.002, 0.05, 0.01]} position={[-0.183, 0.15, 0]} radius={0.001}>
+        <meshStandardMaterial color="#e2e2e2" metalness={0.7} roughness={0.2} />
+      </RoundedBox>
+
+      {/* カメラ島 */}
+      <RoundedBox args={[0.08, 0.08, 0.015]} position={[-0.12, 0.3, -0.02]} radius={0.01}>
+        <meshStandardMaterial color="#1a1a1a" metalness={0.9} roughness={0.2} />
+      </RoundedBox>
+
+      {/* メインカメラレンズ */}
+      <mesh position={[-0.12, 0.31, -0.012]}>
+        <cylinderGeometry args={[0.015, 0.015, 0.01, 32]} />
+        <meshStandardMaterial color="#223344" metalness={0.9} roughness={0.1} />
+      </mesh>
+      <mesh position={[-0.12, 0.29, -0.012]}>
+        <cylinderGeometry args={[0.015, 0.015, 0.01, 32]} />
+        <meshStandardMaterial color="#223344" metalness={0.9} roughness={0.1} />
+      </mesh>
+
       {/* 画面UI */}
       <Html
         transform
         distanceFactor={1.0}
-        position={[0, 0, 0.03]}
+        position={[0, 0, 0.021]}
         style={{
           width: "360px",
           height: "680px",
-          background: "linear-gradient(180deg, #2c2c2c 10%, #1e1e1e 90%)",
+          background: "linear-gradient(180deg, #ffffff 10%, #f8f8f8 90%)",
           borderRadius: "20px",
           overflow: "hidden",
           display: "flex",
@@ -354,14 +437,13 @@ function SmartphoneScreen() {
         padding: "24px",
         display: "flex",
         flexDirection: "column",
-        background: "linear-gradient(180deg, #2c2c2c 10%, #1e1e1e 90%)",
+        background: "linear-gradient(180deg, #ffffff 10%, #f8f8f8 90%)",
       }}
     >
       <div style={{ flex: 1, overflow: "auto" }}>
-        {/* 「もう無理しなくていい」 */}
         <h3
           style={{
-            color: "#ffffff",
+            color: "#1a1a1a",
             fontSize: "1.6rem",
             textAlign: "center",
             marginTop: "16px",
@@ -385,6 +467,7 @@ function SmartphoneScreen() {
                 display: "inline-block",
                 textShadow: "0 2px 4px rgba(0,0,0,0.1)",
                 position: "relative",
+                color: "#1a1a1a"
               }}
             >
               {index === 0 && "「"}
@@ -392,34 +475,11 @@ function SmartphoneScreen() {
               {index === 9 && "」"}
             </motion.span>
           ))}
-          <motion.span
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: [0, 1, 1, 0] }}
-            transition={{
-              duration: 0.5,
-              repeat: Infinity,
-              repeatDelay: 1,
-              times: [0, 0.4, 0.8, 1]
-            }}
-            style={{
-              position: "absolute",
-              right: "-20px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              width: "3px",
-              height: "1.6em",
-              background: "#ffffff",
-              display: "inline-block",
-              transformOrigin: "center",
-              boxShadow: "0 0 8px rgba(255,255,255,0.5)"
-            }}
-          />
         </h3>
 
-        {/* 「あなたの新しい人生を支援する 確かな退職代行」 */}
         <motion.p
           style={{
-            color: "#ffffff",
+            color: "#1a1a1a",
             fontSize: "1.2rem",
             textAlign: "center",
             margin: "16px",
@@ -439,6 +499,7 @@ function SmartphoneScreen() {
               style={{
                 display: "inline-block",
                 textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                color: "#1a1a1a"
               }}
             >
               {char}
@@ -458,12 +519,38 @@ function SmartphoneScreen() {
               style={{
                 display: "inline-block",
                 textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+                color: "#1a1a1a"
               }}
             >
               {char}
             </motion.span>
           ))}
         </motion.p>
+
+        <div
+          style={{
+            marginTop: "36px",
+            fontSize: "1.1rem",
+            color: "#1a1a1a",
+            textAlign: "center",
+            lineHeight: 1.6,
+          }}
+        >
+          <strong style={{ 
+            color: "#1a1a1a",
+            fontSize: "1.2rem",
+            display: "block",
+            marginBottom: "12px"
+          }}>なぜ2980円？</strong>
+          AIでコスト削減＆広告費ゼロ！
+          <br />
+          さらに、<span style={{ color: "#ff8400" }}>弁護士</span>・
+          <span style={{ color: "#ff8400" }}>社労士</span>監修の
+          <br />
+          システム導入で、
+          <br />
+          安心の低価格を実現しました。
+        </div>
 
         {/* CTAボタン */}
         <motion.button
@@ -551,31 +638,6 @@ function SmartphoneScreen() {
             </span>
           </motion.div>
         </motion.button>
-
-        <div
-          style={{
-            marginTop: "36px",
-            fontSize: "1.1rem",
-            color: "#fff",
-            textAlign: "center",
-            lineHeight: 1.6,
-          }}
-        >
-          <strong style={{ 
-            color: "#fff",
-            fontSize: "1.2rem",
-            display: "block",
-            marginBottom: "12px"
-          }}>なぜ2980円？</strong>
-          AIでコスト削減＆広告費ゼロ！
-          <br />
-          さらに、<span style={{ color: "#ffd965" }}>弁護士</span>・
-          <span style={{ color: "#ffd965" }}>社労士</span>監修の
-          <br />
-          システム導入で、
-          <br />
-          安心の低価格を実現しました。
-        </div>
       </div>
     </div>
   );
@@ -636,12 +698,12 @@ function SocialProofSection() {
       style={{ maxWidth: "600px", margin: "0 auto", transform: "translateY(-40px)" }}
     >
       <div>
-        <span className="text-2xl font-bold text-yellow-200">
+        <span className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>
           {count.toLocaleString()}
         </span>
-        <span className="text-sm text-white ml-2">人が利用中</span>
+        <span className="text-sm ml-2" style={{ color: "#1a1a1a" }}>人が利用中</span>
       </div>
-      <div className="text-sm text-white italic">「{latestReview}」</div>
+      <div className="text-sm italic" style={{ color: "#1a1a1a" }}>「{latestReview}」</div>
     </div>
   );
 }
@@ -688,23 +750,20 @@ function CameraController() {
  * 8) PostEffects
  *****************************************************************************/
 function PostEffects() {
-  const offset = new Vector2(0.0005, 0.0005);
-
   return (
     <EffectComposer>
       <Bloom
-        intensity={0.6}
-        kernelSize={KernelSize.LARGE}
+        intensity={0.4}
+        kernelSize={KernelSize.MEDIUM}
         luminanceThreshold={0.2}
-        luminanceSmoothing={0.8}
+        luminanceSmoothing={0.7}
       />
-      <ChromaticAberration 
-        offset={offset}
-        radialModulation={false}
+      <ChromaticAberration
+        offset={new Vector2(0.0005, 0.0005)}
+        radialModulation={true}
         modulationOffset={0.5}
       />
       <DepthOfField focusDistance={0} focalLength={0.02} bokehScale={2} />
-      <Vignette eskil={false} offset={0.2} darkness={1.1} />
     </EffectComposer>
   );
 }
