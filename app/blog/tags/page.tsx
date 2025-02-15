@@ -96,7 +96,7 @@ export default async function TagsPage() {
               {tags.map(({ tag, count }) => (
                 <Link
                   key={tag}
-                  href={`/blog/tags/${encodeURIComponent(tag)}`}
+                  href={`/blog/tags/${encodeURIComponent(tag.replace(/-/g, ' '))}`}
                   className="group p-5 border-2 border-gray-100 rounded-xl hover:border-blue-200 transition-all duration-200 hover:shadow-lg bg-white"
                 >
                   <div className="font-medium text-lg mb-3 group-hover:text-blue-600 transition-colors flex items-center justify-between">

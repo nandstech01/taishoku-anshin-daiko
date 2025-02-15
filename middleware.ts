@@ -61,6 +61,17 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/', req.url), { status: 301 });
   }
 
+  // タグページのリダイレクト処理
+  if (url.pathname.startsWith('/blog/tags/')) {
+    const tagPath = url.pathname.replace('/blog/tags/', '');
+    // ハイフンが含まれているかチェック
+    if (tagPath.includes('-')) {
+      // ハイフンをスペースに変換した新しいURLを生成
+      const newPath = `/blog/tags/${tagPath.replace(/-/g, ' ')}`;
+      return NextResponse.redirect(new URL(newPath, url.origin), { status: 301 });
+    }
+  }
+
   const res = NextResponse.next();
   const supabase = createMiddlewareClient({ req, res });
 
@@ -87,5 +98,6 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/blog/tags/:path*'
   ]
 }; 
