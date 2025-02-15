@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { createClient } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { pageCache } from '../../../lib/cache';
@@ -154,7 +154,6 @@ export default function CategoryPosts({ slug }: { slug: string }) {
         return;
       }
 
-      const supabase = createClient();
       const currentSort = sortOptions.find(opt => opt.value === sortBy) || sortOptions[0];
       
       try {

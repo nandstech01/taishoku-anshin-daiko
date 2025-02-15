@@ -2,7 +2,7 @@
 
 import { useEffect, useState, memo } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 import { Suspense } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { pageCache } from '../../../lib/cache';
@@ -99,8 +99,6 @@ export default function RelatedCategories({ currentCategoryId }: { currentCatego
         return;
       }
 
-      const supabase = createClient();
-      
       try {
         const { data: categoriesWithCount, error } = await supabase
           .from('categories')

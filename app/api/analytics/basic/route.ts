@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/supabase/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 export const revalidate = 60;
 
 export async function GET(request: Request) {
+  const supabase = createServerClient();
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
@@ -16,7 +17,6 @@ export async function GET(request: Request) {
       );
     }
 
-    const supabase = createClient();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 30);
 

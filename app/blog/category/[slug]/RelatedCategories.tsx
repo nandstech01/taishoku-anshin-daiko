@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 
 interface Category {
   id: number;
@@ -10,6 +10,7 @@ interface Category {
   slug: string;
   description?: string;
   post_count?: number;
+  posts?: any[];
 }
 
 export default function RelatedCategories({ currentCategoryId }: { currentCategoryId: number }) {
@@ -18,8 +19,6 @@ export default function RelatedCategories({ currentCategoryId }: { currentCatego
 
   useEffect(() => {
     const fetchRelatedCategories = async () => {
-      const supabase = createClient();
-      
       try {
         // 現在のカテゴリ以外のカテゴリを取得し、記事数で並び替え
         const { data: categoriesWithCount, error } = await supabase

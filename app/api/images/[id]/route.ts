@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createClient();
+  const supabase = createServerClient();
 
   try {
     const { data, error } = await supabase
@@ -22,6 +22,21 @@ export async function GET(
     return NextResponse.redirect(data.image_url);
   } catch (error) {
     console.error('Error fetching image:', error);
+    return new NextResponse('Internal Server Error', { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const supabase = createServerClient();
+  try {
+    const { id } = params;
+
+    // ... rest of the code ...
+  } catch (error) {
+    console.error('Error deleting image:', error);
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 } 

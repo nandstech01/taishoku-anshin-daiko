@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { createClient } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
+import type { Database } from '@/lib/supabase/database.types';
 
 interface DeviceStat {
   device: string;
@@ -39,8 +40,6 @@ export function useOverallStats(days: number = 30) {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const supabase = createClient();
-      
       try {
         // 総ビュー数とユニークビジター数を取得
         const { data: viewsData, error: viewsError } = await supabase
@@ -51,18 +50,18 @@ export function useOverallStats(days: number = 30) {
         if (viewsError) throw viewsError;
 
         // ユニークビジター数の計算（user_agentでグループ化）
-        const uniqueVisitors = new Set(viewsData?.map(d => d.user_agent)).size;
+        const uniqueVisitors = new Set(viewsData?.map((d: { user_agent: string }) => d.user_agent)).size;
 
         // トップページの取得
-        const pageViews = viewsData?.reduce((acc, curr) => {
+        const pageViews = viewsData?.reduce((acc: Record<string, number>, curr: { path: string }) => {
           acc[curr.path] = (acc[curr.path] || 0) + 1;
           return acc;
         }, {} as Record<string, number>);
 
         const topPages = Object.entries(pageViews || {})
-          .sort(([, a], [, b]) => b - a)
+          .sort(([, a], [, b]) => (b as number) - (a as number))
           .slice(0, 5)
-          .map(([path, views]) => ({ path, views }));
+          .map(([path, views]) => ({ path, views: views as number }));
 
         setStats({
           totalViews: viewsData?.length || 0,

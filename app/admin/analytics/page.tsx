@@ -1,10 +1,12 @@
 'use client';
 
 import React from 'react';
-import { createClient } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 import { Analytics } from '@/components/admin/Analytics';
 import { useOverallStats } from '@/hooks/useOverallStats';
 import type { Database } from '@/lib/supabase/database.types';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 
 type Post = {
   slug: string;
@@ -18,7 +20,6 @@ export default function AnalyticsPage() {
 
   React.useEffect(() => {
     async function fetchPosts() {
-      const supabase = createClient();
       const { data } = await supabase
         .from('posts')
         .select('slug, title')

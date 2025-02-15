@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 import Breadcrumb from '@/components/blog/Breadcrumb';
 import BlogCard from '@/components/blog/BlogCard';
 import { RelatedTags } from '@/components/blog/RelatedTags';
@@ -7,6 +7,7 @@ import { notFound } from 'next/navigation';
 import { Post, Category } from '@/types/blog';
 import Link from 'next/link';
 import { normalizeTag } from '@/utils/url';
+import type { Database } from '@/lib/supabase/database.types';
 
 // 構造化データの生成
 const generateTagStructuredData = (tag: string, posts: Post[], baseUrl: string) => {
@@ -40,9 +41,9 @@ const generateTagStructuredData = (tag: string, posts: Post[], baseUrl: string) 
 };
 
 export async function generateMetadata({ params }: { params: { tag: string } }): Promise<Metadata> {
+  const supabase = createServerClient();
   const tag = decodeURIComponent(params.tag);
   const normalizedTag = normalizeTag(tag);
-  const supabase = createClient();
 
   const { data: posts } = await supabase
     .from('posts')
@@ -110,7 +111,7 @@ export async function generateMetadata({ params }: { params: { tag: string } }):
 }
 
 export default async function TagPage({ params }: { params: { tag: string } }) {
-  const supabase = createClient();
+  const supabase = createServerClient();
   const decodedTag = decodeURIComponent(params.tag);
   const normalizedTag = normalizeTag(decodedTag);
 

@@ -1,8 +1,10 @@
 import { google } from 'googleapis';
-import { createClient } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 import { searchconsole_v1 } from 'googleapis';
+import type { Database } from '@/lib/supabase/database.types';
 
 type Schema$ApiDataRow = searchconsole_v1.Schema$ApiDataRow;
+type Post = Database['public']['Tables']['posts']['Row'];
 
 interface SearchAnalyticsRow {
   keys?: string[] | null;
@@ -20,8 +22,6 @@ const auth = new google.auth.JWT({
 });
 
 export async function fetchAndStoreSearchAnalytics(startDate: string, endDate: string) {
-  const supabase = createClient();
-
   try {
     const response = await searchConsole.searchanalytics.query({
       auth,
@@ -60,7 +60,7 @@ export async function fetchAndStoreSearchAnalytics(startDate: string, endDate: s
       .from('posts')
       .select('slug');
 
-    const slugSet = new Set(posts?.map(post => post.slug));
+    const slugSet = new Set((posts as Post[] || []).map(post => post.slug));
 
     const validData = analyticsData.filter(data => slugSet.has(data.slug));
 
@@ -85,7 +85,6 @@ export async function fetchAndStoreSearchAnalytics(startDate: string, endDate: s
 }
 
 export async function getSearchAnalytics(slug: string, days: number = 30) {
-  const supabase = createClient();
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 

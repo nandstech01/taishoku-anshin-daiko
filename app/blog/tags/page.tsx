@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 import Breadcrumb from '@/components/blog/Breadcrumb';
 import Link from 'next/link';
 import { normalizeTag } from '@/utils/url';
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function TagsPage() {
-  const supabase = createClient();
+  const supabase = createServerClient();
 
   try {
     // 公開済みの記事を全て取得

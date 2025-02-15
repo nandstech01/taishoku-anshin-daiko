@@ -1,7 +1,7 @@
-import { createClient } from '@/lib/supabase/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 
 export async function checkDatabaseNumbers() {
-  const supabase = createClient();
+  const supabase = createServerClient();
   const results: Record<string, any> = {};
   
   try {

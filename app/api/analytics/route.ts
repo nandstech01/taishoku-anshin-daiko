@@ -1,10 +1,11 @@
-import { createClient } from '@/lib/supabase/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
 export const runtime = 'edge';
 export const revalidate = 60; // 1分ごとに再検証
 
 export async function GET(request: Request) {
+  const supabase = createServerClient();
   try {
     const { searchParams } = new URL(request.url);
     const slug = searchParams.get('slug');
@@ -17,7 +18,6 @@ export async function GET(request: Request) {
       );
     }
 
-    const supabase = createClient();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 
@@ -57,9 +57,9 @@ export async function GET(request: Request) {
 
 // 全体の統計を取得するエンドポイント
 export async function POST(request: Request) {
+  const supabase = createServerClient();
   try {
     const { days = 30 } = await request.json();
-    const supabase = createClient();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
 

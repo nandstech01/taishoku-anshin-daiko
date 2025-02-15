@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase/supabase';
+import { supabase } from '@/lib/supabase/supabase';
 import type { Database } from '@/lib/supabase/database.types';
 
 type AnalyticsRow = Database['public']['Tables']['analytics']['Row'];
@@ -10,8 +10,6 @@ export function useAnalytics(slug?: string) {
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
-    const supabase = createClient();
-
     // 初期データの取得
     const fetchAnalytics = async () => {
       try {

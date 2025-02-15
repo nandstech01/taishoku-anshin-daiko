@@ -1,9 +1,11 @@
 'use client';
 
-import { createClient } from '@/lib/supabase/supabase';
-import { generateSlug } from '@/utils/slug';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/lib/supabase/supabase';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import PostForm from '@/components/admin/PostForm';
+import { generateSlug } from '@/utils/slug';
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -28,7 +30,6 @@ export default function NewPostPage() {
       }
 
       const slug = await generateSlug(title);
-      const supabase = createClient();
 
       const { data, error: insertError } = await supabase
         .from('posts')

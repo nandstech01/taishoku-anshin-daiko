@@ -1,18 +1,18 @@
-import { createClient } from '@/lib/supabase/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 
 export async function POST(request: Request) {
+  const supabase = createServerClient();
   try {
-    const { slug, page_path, page_type } = await request.json();
+    const body = await request.json();
+    const { slug, page_path, page_type } = body;
     console.log('Received page view request:', { slug, page_path, page_type });
 
     const headersList = headers();
     const userAgent = headersList.get('user-agent') || '';
     const referer = headersList.get('referer') || '';
     const ip = headersList.get('x-forwarded-for')?.split(',')[0] || '';
-
-    const supabase = createClient();
 
     // 訪問者IDの生成（実際のプロダクションでは、より堅牢な方法を使用すべき）
     const visitorId = Buffer.from(`${ip}-${userAgent}`).toString('base64');
