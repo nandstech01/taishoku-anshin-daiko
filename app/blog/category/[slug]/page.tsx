@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { createServerClient } from '@/lib/supabase';
+import { createServerClient } from '@/lib/supabase/server';
 import { PageViewTracker } from '@/components/analytics/PageViewTracker';
 import ClientBoundary from './ClientBoundary';
 import { ErrorBoundary } from 'react-error-boundary';
@@ -24,16 +24,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const supabase = createServerClient();
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
   
-  const { data: category } = await supabase
+  const { data: category, error } = await supabase
     .from('categories')
-    .select('name, description')
-    .eq('slug', params.slug)
-    .single<Pick<Category, 'name' | 'description'>>();
+    .select('*')
+    .eq('slug', decodeURIComponent(params.slug))
+    .single();
 
-  if (!category) {
+  if (error || !category) {
     return {
-      title: 'カテゴリが見つかりません',
+      title: 'カテゴリが見つかりません | 退職代行なら退職安心代行',
       description: 'お探しのカテゴリページは存在しません。',
+      robots: {
+        index: false,
+        follow: true,
+        nocache: true
+      }
     };
   }
 
@@ -41,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const breadcrumbItems = [
     { name: 'ホーム', url: '/' },
     { name: 'ブログ', url: '/blog' },
-    { name: category.name, url: `/blog/category/${params.slug}` }
+    { name: category.name, url: `/blog/category/${category.slug}` }
   ];
 
   // Generate structured data
@@ -53,7 +58,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description: category.description || `${category.name}に関する記事の一覧です。`,
       mainEntityOfPage: {
         '@type': 'WebPage',
-        '@id': `${baseUrl}/blog/category/${params.slug}`
+        '@id': `${baseUrl}/blog/category/${category.slug}`
       },
       isPartOf: {
         '@type': 'Blog',
@@ -65,16 +70,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ];
 
   const title = `${category.name}の記事一覧 | 退職代行なら退職安心代行`;
-  const description = category.description || `${category.name}に関する記事の一覧です。`;
+  const description = category.description || `${category.name}に関する記事の一覧です。退職に関する様々な情報を提供しています。`;
+  const canonicalUrl = `${baseUrl}/blog/category/${category.slug}`;
 
   return {
     title,
     description,
+    alternates: {
+      canonical: canonicalUrl
+    },
+    robots: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1
+    },
     openGraph: {
       title,
       description,
       type: 'website',
-      url: `${baseUrl}/blog/category/${params.slug}`,
+      url: canonicalUrl,
       siteName: '退職代行なら退職安心代行',
     },
     twitter: {

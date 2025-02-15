@@ -1,23 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase';
 
-interface Category {
+interface DatabaseCategory {
   id: number;
-  slug: string;
   name: string;
+  slug: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 interface DatabasePost {
+  id: string;
   slug: string;
   title: string;
-  meta_description: string;
+  meta_description: string | null;
   thumbnail_url: string | null;
   created_at: string;
-  view_count: number | null;
   category_slug: string;
   status: string;
 }
@@ -28,7 +34,6 @@ interface Post {
   meta_description: string;
   thumbnail_url: string;
   created_at: string;
-  view_count?: number;
 }
 
 type SortOption = {
@@ -40,83 +45,85 @@ type SortOption = {
 
 const sortOptions: SortOption[] = [
   { label: '新着順', value: 'newest', column: 'created_at', ascending: false },
-  { label: '古い順', value: 'oldest', column: 'created_at', ascending: true },
-  { label: '閲覧数順', value: 'popular', column: 'view_count', ascending: false },
+  { label: '古い順', value: 'oldest', column: 'created_at', ascending: true }
 ];
 
 export default function CategoryPosts({ slug }: { slug: string }) {
-  console.log('CategoryPosts component mounted with slug:', slug);
-  
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [sortBy, setSortBy] = useState<string>('newest');
+  const [category, setCategory] = useState<Category | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log('CategoryPosts useEffect triggered with slug:', slug);
+  const currentSort = useMemo(() => 
+    sortOptions.find(opt => opt.value === sortBy) || sortOptions[0],
+    [sortBy]
+  );
+
+  const fetchCategoryAndPosts = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    const supabase = createClient();
     
-    const fetchPosts = async () => {
-      setIsLoading(true);
-      const supabase = createClient();
-      const currentSort = sortOptions.find(opt => opt.value === sortBy) || sortOptions[0];
+    try {
       const decodedSlug = decodeURIComponent(slug);
       
-      try {
-        console.log('Fetching posts with parameters:', {
-          originalSlug: slug,
-          decodedSlug,
-          status: 'published',
-          sortColumn: currentSort.column,
-          sortAscending: currentSort.ascending
-        });
+      // カテゴリの存在を確認
+      const { data: categoryData, error: categoryError } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('slug', decodedSlug)
+        .single<DatabaseCategory>();
 
-        // カテゴリに属する投稿を取得
-        const { data: posts, error: queryError } = await supabase
-          .from('posts')
-          .select('*')
-          .eq('category_slug', decodedSlug)
-          .eq('status', 'published')
-          .order(currentSort.column, { ascending: currentSort.ascending })
-          .returns<DatabasePost[]>();
-
-        console.log('Supabase query result:', {
-          success: !queryError,
-          error: queryError,
-          postsCount: posts?.length || 0,
-          firstPost: posts?.[0]
-        });
-
-        if (queryError) throw queryError;
-        
-        const processedPosts = posts?.map(post => ({
-          slug: post.slug,
-          title: post.title,
-          meta_description: post.meta_description,
-          thumbnail_url: post.thumbnail_url || '',
-          created_at: post.created_at,
-          view_count: post.view_count ?? undefined
-        })) || [];
-        
-        console.log('Setting posts state with:', {
-          count: processedPosts.length,
-          posts: processedPosts
-        });
-        
-        setPosts(processedPosts);
-      } catch (error) {
-        console.error('Error in fetchPosts:', error);
-      } finally {
-        setIsLoading(false);
+      if (categoryError) {
+        throw new Error('カテゴリの取得中にエラーが発生しました');
       }
-    };
 
-    fetchPosts();
-  }, [slug, sortBy]);
+      if (!categoryData) {
+        throw new Error('カテゴリが見つかりません');
+      }
 
-  console.log('CategoryPosts rendering with state:', {
-    postsCount: posts.length,
-    isLoading,
-    sortBy
-  });
+      const category: Category = {
+        id: String(categoryData.id),
+        name: String(categoryData.name),
+        slug: String(categoryData.slug)
+      };
+
+      setCategory(category);
+      
+      const { data: postsData, error: postsError } = await supabase
+        .from('posts')
+        .select('*')
+        .eq('category_slug', categoryData.slug)
+        .eq('status', 'published')
+        .order(currentSort.column, { ascending: currentSort.ascending });
+
+      if (postsError) {
+        throw new Error('記事の取得中にエラーが発生しました');
+      }
+
+      const processedPosts: Post[] = (postsData || []).map(post => ({
+        slug: String(post.slug),
+        title: String(post.title),
+        meta_description: String(post.meta_description || ''),
+        thumbnail_url: String(post.thumbnail_url || ''),
+        created_at: String(post.created_at)
+      }));
+
+      setPosts(processedPosts);
+    } catch (error) {
+      console.error('Error in fetchCategoryAndPosts:', error);
+      setError(error instanceof Error ? error.message : 'エラーが発生しました');
+      setCategory(null);
+      setPosts([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [slug, currentSort]);
+
+  useEffect(() => {
+    fetchCategoryAndPosts();
+  }, [fetchCategoryAndPosts]);
 
   if (isLoading) {
     return (
@@ -126,8 +133,29 @@ export default function CategoryPosts({ slug }: { slug: string }) {
     );
   }
 
+  if (error || !category) {
+    return (
+      <div className="text-center py-12">
+        <h1 className="text-2xl font-bold text-gray-900 mb-4">カテゴリが見つかりません</h1>
+        <p className="text-gray-600">
+          お探しのカテゴリページは存在しません。
+        </p>
+        <Link href="/blog" className="text-orange-600 hover:text-orange-700 mt-4 inline-block">
+          ブログトップへ戻る
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div>
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">{category.name}</h1>
+        <p className="text-gray-600">
+          {category.name}に関する記事の一覧です。
+        </p>
+      </div>
+      
       <div className="flex justify-end mb-6">
         <select
           value={sortBy}
@@ -162,6 +190,8 @@ export default function CategoryPosts({ slug }: { slug: string }) {
                     src={post.thumbnail_url}
                     alt={post.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    priority={posts.indexOf(post) === 0}
                     className="object-cover"
                   />
                 ) : (
@@ -179,11 +209,6 @@ export default function CategoryPosts({ slug }: { slug: string }) {
                   <time className="blog-card-meta">
                     {new Date(post.created_at).toLocaleDateString('ja-JP')}
                   </time>
-                  {post.view_count !== undefined && (
-                    <span className="text-xs text-gray-500">
-                      {post.view_count} views
-                    </span>
-                  )}
                 </div>
               </div>
             </Link>
