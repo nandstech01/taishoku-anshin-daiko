@@ -365,27 +365,48 @@ MainMessages.displayName = 'MainMessages';
 /*****************************************************************************
  * 6) SocialProofSection (下部)
  *****************************************************************************/
+const socialMessages = [
+  "もう何の不安もありません！",
+  "意外と簡単に退職できました！",
+  "親身になって相談に乗ってくれました！",
+  "こんなに安くて大丈夫かと思いましたが、とても丁寧でした！",
+  "退職後の生活まで考えてくれて安心でした！",
+  "すぐに対応してもらえて助かりました！",
+  "上司との交渉も全て任せられて楽でした！"
+];
+
 const SocialProofSection = memo(() => {
+  const [messageIndex, setMessageIndex] = useState(0);
   const [count] = useState(1273);
-  const [latestReview] = useState("もう何の不安もありません！");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMessageIndex((prev) => (prev + 1) % socialMessages.length);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div
-      className="pointer-events-none px-4 text-center flex flex-col gap-3"
-      style={{ 
-        maxWidth: "600px", 
-        margin: "0 auto", 
-        transform: "translateY(-40px)",
-        contain: "content" 
-      }}
-    >
-      <div>
-        <span className="text-2xl font-bold" style={{ color: "#1a1a1a" }}>
+    <div className="text-center transform -translate-y-8">
+      <div className="mb-3">
+        <span className="text-xl font-bold text-gray-900">
           {count.toLocaleString()}
         </span>
-        <span className="text-sm ml-2" style={{ color: "#1a1a1a" }}>人が利用中</span>
+        <span className="text-sm ml-2 text-gray-900">人が利用中</span>
       </div>
-      <div className="text-sm italic" style={{ color: "#1a1a1a" }}>「{latestReview}」</div>
+      <AnimatePresence mode="wait">
+        <motion.p
+          key={messageIndex}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.5 }}
+          className="text-sm md:text-base font-medium text-gray-900"
+        >
+          {socialMessages[messageIndex]}
+        </motion.p>
+      </AnimatePresence>
     </div>
   );
 });
