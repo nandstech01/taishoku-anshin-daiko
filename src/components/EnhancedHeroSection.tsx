@@ -300,6 +300,13 @@ const EvenSmallerSmartphone = memo(() => {
 EvenSmallerSmartphone.displayName = 'EvenSmallerSmartphone';
 
 const SmartphoneScreen = memo(() => {
+  const [isVisible, setIsVisible] = useState(false);
+  const screenContent = useMemo(() => ({
+    title: "もう無理しなくていい",
+    description: ["あなたの新しい人生を支援する", "確かな退職代行"],
+    buttonText: "退職をはじめる"
+  }), []);
+
   const screenStyle = useMemo(() => ({
     width: "360px",
     height: "680px",
@@ -315,30 +322,43 @@ const SmartphoneScreen = memo(() => {
     contain: "content"
   }), []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => setIsVisible(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <Html
       transform
       distanceFactor={1.0}
       position={[0, 0, 0]}
       style={screenStyle}
+      prepend
     >
       <div className="w-full h-full flex flex-col items-center justify-center p-6">
-        <div className="text-center animate-fadeIn">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            もう無理しなくていい
-          </h2>
-          <p className="text-gray-600 mb-8">
-            あなたの新しい人生を支援する
-            <br />
-            確かな退職代行
-          </p>
-          <button
-            className="bg-orange-500 text-white px-12 py-4 rounded-full text-xl font-semibold shadow-lg hover:scale-105 hover:bg-orange-600 transition-all duration-200"
-            onClick={() => window.open('https://lin.ee/h1kk42r', '_blank')}
+        {isVisible && (
+          <motion.div
+            className="text-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
           >
-            退職をはじめる
-          </button>
-        </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              {screenContent.title}
+            </h2>
+            <p className="text-gray-600 mb-8">
+              {screenContent.description[0]}
+              <br />
+              {screenContent.description[1]}
+            </p>
+            <button
+              className="bg-orange-500 text-white px-12 py-4 rounded-full text-xl font-semibold shadow-lg hover:scale-105 hover:bg-orange-600 transition-all duration-200"
+              onClick={() => window.open('https://lin.ee/h1kk42r', '_blank')}
+            >
+              {screenContent.buttonText}
+            </button>
+          </motion.div>
+        )}
       </div>
     </Html>
   );
