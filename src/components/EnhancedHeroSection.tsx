@@ -110,6 +110,9 @@ const EnhancedHeroSection = memo(() => {
   const [webGLSupported, setWebGLSupported] = useState(true);
   const observerRef = useRef(null);
 
+  const MemoizedMainMessages = useMemo(() => <MainMessages />, []);
+  const MemoizedSocialProofSection = useMemo(() => <SocialProofSection />, []);
+
   useEffect(() => {
     // WebGL対応チェック
     setWebGLSupported(checkWebGLSupport());
@@ -144,9 +147,6 @@ const EnhancedHeroSection = memo(() => {
   if (!webGLSupported) {
     return <FallbackHeroContent />;
   }
-
-  const MemoizedMainMessages = useMemo(() => <MainMessages />, []);
-  const MemoizedSocialProofSection = useMemo(() => <SocialProofSection />, []);
 
   return (
     <>
