@@ -301,9 +301,20 @@ EvenSmallerSmartphone.displayName = 'EvenSmallerSmartphone';
 
 const SmartphoneScreen = memo(() => {
   const [isVisible, setIsVisible] = useState(false);
+  const [typedTitle, setTypedTitle] = useState("");
+  const [typedDesc1, setTypedDesc1] = useState("");
+  const [typedDesc2, setTypedDesc2] = useState("");
+  
   const screenContent = useMemo(() => ({
     title: "もう無理しなくていい",
     description: ["あなたの新しい人生を支援する", "確かな退職代行"],
+    features: {
+      title: "なぜ２,980円?",
+      points: [
+        "AIで業務効率化で実現",
+        "弁護士などの連携システム導入"
+      ]
+    },
     buttonText: "退職をはじめる"
   }), []);
 
@@ -323,6 +334,46 @@ const SmartphoneScreen = memo(() => {
   }), []);
 
   useEffect(() => {
+    if (!isVisible) return;
+
+    let currentIndex = 0;
+    const typeTitle = setInterval(() => {
+      if (currentIndex <= screenContent.title.length) {
+        setTypedTitle(screenContent.title.slice(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(typeTitle);
+        
+        // Start typing first description
+        let descIndex1 = 0;
+        const typeDesc1 = setInterval(() => {
+          if (descIndex1 <= screenContent.description[0].length) {
+            setTypedDesc1(screenContent.description[0].slice(0, descIndex1));
+            descIndex1++;
+          } else {
+            clearInterval(typeDesc1);
+            
+            // Start typing second description
+            let descIndex2 = 0;
+            const typeDesc2 = setInterval(() => {
+              if (descIndex2 <= screenContent.description[1].length) {
+                setTypedDesc2(screenContent.description[1].slice(0, descIndex2));
+                descIndex2++;
+              } else {
+                clearInterval(typeDesc2);
+              }
+            }, 200);
+            return () => clearInterval(typeDesc2);
+          }
+        }, 200);
+        return () => clearInterval(typeDesc1);
+      }
+    }, 200);
+
+    return () => clearInterval(typeTitle);
+  }, [isVisible, screenContent]);
+
+  useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
   }, []);
@@ -335,22 +386,35 @@ const SmartphoneScreen = memo(() => {
       style={screenStyle}
       prepend
     >
-      <div className="w-full h-full flex flex-col items-center justify-center p-6">
+      <div className="w-full h-full flex flex-col items-center justify-start p-6">
         {isVisible && (
           <motion.div
-            className="text-center"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            className="text-center w-full"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              {screenContent.title}
-            </h2>
-            <p className="text-gray-600 mb-8">
-              {screenContent.description[0]}
-              <br />
-              {screenContent.description[1]}
-            </p>
+            <div className="mb-8 pt-4">
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 min-h-[32px]">
+                {typedTitle}
+              </h2>
+              <p className="text-gray-600">
+                <span className="block min-h-[24px]">{typedDesc1}</span>
+                <span className="block min-h-[24px]">{typedDesc2}</span>
+              </p>
+            </div>
+
+            <div className="mt-12 mb-8">
+              <h3 className="text-xl font-bold text-orange-500 mb-4">
+                {screenContent.features.title}
+              </h3>
+              {screenContent.features.points.map((point, index) => (
+                <p key={index} className="text-gray-700 mb-2">
+                  {point}
+                </p>
+              ))}
+            </div>
+
             <button
               className="bg-orange-500 text-white px-12 py-4 rounded-full text-xl font-semibold shadow-lg hover:scale-105 hover:bg-orange-600 transition-all duration-200"
               onClick={() => window.open('https://lin.ee/h1kk42r', '_blank')}
