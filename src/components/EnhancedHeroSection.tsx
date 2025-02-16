@@ -333,7 +333,7 @@ const SmartphoneScreen = memo(() => {
             確かな退職代行
           </p>
           <button
-            className="bg-orange-500 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:scale-105 hover:bg-orange-600 transition-all duration-200"
+            className="bg-orange-500 text-white px-12 py-4 rounded-full text-xl font-semibold shadow-lg hover:scale-105 hover:bg-orange-600 transition-all duration-200"
             onClick={() => window.open('https://lin.ee/h1kk42r', '_blank')}
           >
             退職をはじめる
