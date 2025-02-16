@@ -117,14 +117,19 @@ const EnhancedHeroSection = memo(() => {
     // WebGL対応チェック
     setWebGLSupported(checkWebGLSupport());
     
-    const timer = setTimeout(() => setVisible(true), 100);
+    // ローディング時間と同じ2秒後に表示開始
+    const visibilityTimer = setTimeout(() => setVisible(true), 2000);
     
+    // IntersectionObserverの設定
     observerRef.current = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !isLoaded) {
-          setIsInView(true);
-          setIsLoaded(true);
-          observerRef.current.disconnect();
+          // ローディング時間後にアニメーション開始
+          setTimeout(() => {
+            setIsInView(true);
+            setIsLoaded(true);
+            observerRef.current?.disconnect();
+          }, 2000);
         }
       },
       { threshold: 0.1 }
@@ -136,7 +141,7 @@ const EnhancedHeroSection = memo(() => {
     }
 
     return () => {
-      clearTimeout(timer);
+      clearTimeout(visibilityTimer);
       if (observerRef.current) {
         observerRef.current.disconnect();
       }
@@ -329,6 +334,7 @@ const SmartphoneScreen = memo(() => {
           </p>
           <button
             className="bg-orange-500 text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:scale-105 hover:bg-orange-600 transition-all duration-200"
+            onClick={() => window.open('https://lin.ee/h1kk42r', '_blank')}
           >
             退職をはじめる
           </button>

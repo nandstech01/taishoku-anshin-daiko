@@ -14,7 +14,7 @@ const LoadingContent = () => (
         </span>
       </h1>
       <p className="text-xl mt-4">
-        弁護士監修で安心・安全な退職をサポート
+        弁護士監修であんしん退職をサポート
       </p>
     </div>
   </div>
