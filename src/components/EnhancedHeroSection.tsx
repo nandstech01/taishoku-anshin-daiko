@@ -7,6 +7,7 @@
  * 3Dスマートフォンを使用したヒーローセクション
  * - 3Dモデル表示
  * - パフォーマンス最適化済み
+ * - WebGLエラーハンドリング対応
  ***********************************************************************/
 
 import React, {
@@ -23,6 +24,7 @@ import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
+import { ErrorBoundary } from "./ErrorBoundary";
 
 // Three.jsのコンポーネントを登録
 extend({
@@ -69,13 +71,49 @@ const marqueeStyles = `
   }
 `;
 
+// WebGL対応チェック関数
+const checkWebGLSupport = () => {
+  try {
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
+    if (!gl) {
+      throw new Error('WebGL not supported');
+    }
+    return true;
+  } catch (error) {
+    console.warn('WebGL support check failed:', error);
+    return false;
+  }
+};
+
+// フォールバックコンテンツ
+const FallbackHeroContent = () => (
+  <div className="relative w-full h-screen flex items-center justify-center bg-gradient-to-br from-orange-500 to-orange-600">
+    <div className="text-white text-center max-w-4xl mx-auto px-4">
+      <h1 className="text-4xl md:text-5xl font-bold mb-4">
+        退職代行サービス
+        <span className="block text-2xl md:text-3xl mt-2">
+          業界最安値2,980円で即日対応
+        </span>
+      </h1>
+      <p className="text-xl mt-4">
+        弁護士監修で安心・安全な退職をサポート
+      </p>
+    </div>
+  </div>
+);
+
 const EnhancedHeroSection = memo(() => {
   const [visible, setVisible] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [webGLSupported, setWebGLSupported] = useState(true);
   const observerRef = useRef(null);
 
   useEffect(() => {
+    // WebGL対応チェック
+    setWebGLSupported(checkWebGLSupport());
+    
     const timer = setTimeout(() => setVisible(true), 100);
     
     observerRef.current = new IntersectionObserver(
@@ -102,6 +140,11 @@ const EnhancedHeroSection = memo(() => {
     };
   }, [isLoaded]);
 
+  // WebGLが利用できない場合はフォールバックを表示
+  if (!webGLSupported) {
+    return <FallbackHeroContent />;
+  }
+
   const MemoizedMainMessages = useMemo(() => <MainMessages />, []);
   const MemoizedSocialProofSection = useMemo(() => <SocialProofSection />, []);
 
@@ -118,36 +161,42 @@ const EnhancedHeroSection = memo(() => {
           contain: "layout"
         }}
       >
-        {/* 3Dシーン - 表示領域に入ったときのみレンダリング */}
-        {isInView && (
-          <div className="absolute inset-0 z-[1]" style={{ contain: "content" }}>
-            <Canvas
-              shadows={false}
-              className="w-full h-full"
-              dpr={[1, 1.5]}
-              gl={{ 
-                antialias: false,
-                alpha: false,
-                powerPreference: "high-performance",
-                stencil: false,
-                depth: true,
-                failIfMajorPerformanceCaveat: true
-              }}
-              performance={{
-                min: 0.5,
-                max: 1
-              }}
-              style={{
-                contain: "layout paint size",
-                willChange: "transform"
-              }}
-            >
-              <Suspense fallback={null}>
-                <Scene />
-                <CameraController />
-              </Suspense>
-            </Canvas>
-          </div>
+        {/* 3Dシーン - WebGL対応時のみレンダリング */}
+        {isInView && webGLSupported && (
+          <ErrorBoundary FallbackComponent={FallbackHeroContent}>
+            <div className="absolute inset-0 z-[1]" style={{ contain: "content" }}>
+              <Canvas
+                shadows={false}
+                className="w-full h-full"
+                dpr={[1, 1.5]}
+                gl={{ 
+                  antialias: false,
+                  alpha: false,
+                  powerPreference: "high-performance",
+                  stencil: false,
+                  depth: true,
+                  failIfMajorPerformanceCaveat: true,
+                  onError: (error) => {
+                    console.error('WebGL error:', error);
+                    setWebGLSupported(false);
+                  }
+                }}
+                performance={{
+                  min: 0.5,
+                  max: 1
+                }}
+                style={{
+                  contain: "layout paint size",
+                  willChange: "transform"
+                }}
+              >
+                <Suspense fallback={null}>
+                  <Scene />
+                  <CameraController />
+                </Suspense>
+              </Canvas>
+            </div>
+          </ErrorBoundary>
         )}
 
         {/* メインコピー(上部) */}
