@@ -4,7 +4,11 @@ import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 
-export function PageViewTracker() {
+export interface PageViewTrackerProps {
+  page_type: string;
+}
+
+export function PageViewTracker({ page_type }: PageViewTrackerProps) {
   const pathname = usePathname();
 
   useEffect(() => {
@@ -27,6 +31,20 @@ export function PageViewTracker() {
 
     trackPageView();
   }, [pathname]);
+
+  useEffect(() => {
+    // ページビューを記録
+    fetch('/api/analytics/page-view', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        page_type,
+        page_path: window.location.pathname,
+      }),
+    }).catch(console.error);
+  }, [page_type]);
 
   return null;
 } 
