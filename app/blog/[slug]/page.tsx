@@ -19,15 +19,16 @@ import HeadingProcessor from '@/components/HeadingProcessor';
 import ReviewSection from '@/components/blog/ReviewSection';
 import BlogContentProcessor from '@/components/blog/BlogContent';
 import { getPostWithCategory, getRelatedPosts } from '@/utils/blog-helpers';
+import DiagnosisSection from '@/components/blog/DiagnosisSection';
+
+// キャッシュを無効化
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 interface Tag {
   name: string;
   slug: string;
 }
-
-// キャッシュを無効化
-export const revalidate = 0;
-export const dynamic = 'force-dynamic';
 
 // タグの正規化と変換（SEOに配慮）
 const processTags = (tags: string[] | null): Tag[] => {
@@ -133,9 +134,6 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 }
 
 export default async function BlogPostPage({ params }: { params: { slug: string } }) {
-  const supabase = createServerClient();
-  
-  // 共通のデータフェッチ関数を使用
   const { post: postWithCategory, error } = await getPostWithCategory(params.slug);
 
   if (error) {
@@ -154,45 +152,29 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
     return notFound();
   }
 
-  // タグ情報を生成
-  const tags = processTags(postWithCategory.tags);
-  // SEOキーワード情報を生成
-  const seoKeywords = processSeoKeywords(postWithCategory.seo_keywords);
-
-  // 関連記事を取得
-  const { posts: relatedPosts } = postWithCategory.category_slug
-    ? await getRelatedPosts(postWithCategory.category_slug, postWithCategory.id)
-    : { posts: [] };
-
   try {
     const { html, headings } = await parseMarkdown(postWithCategory.content || '');
+    const tags = processTags(postWithCategory.tags);
+    const seoKeywords = processSeoKeywords(postWithCategory.seo_keywords);
+    const { posts: relatedPosts } = postWithCategory.category_slug
+      ? await getRelatedPosts(postWithCategory.category_slug, postWithCategory.id)
+      : { posts: [] };
+
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://taishoku-anshin-daiko.com';
     const shareUrl = `${baseUrl}/blog/${postWithCategory.slug}`;
     const shareText = `${postWithCategory.title}\n\n`;
 
-    // Generate breadcrumb items for structured data
-    const breadcrumbItemsForSchema = [
-      { name: 'ホーム', url: '/' },
-      { name: 'ブログ', url: '/blog' },
+    // Generate breadcrumb items for UI
+    const breadcrumbItems = [
+      { label: 'ホーム', href: '/' },
+      { label: 'ブログ', href: '/blog' },
       ...(postWithCategory.category ? [
         { 
-          name: postWithCategory.category.name, 
-          url: `/blog/category/${postWithCategory.category.slug}` 
+          label: postWithCategory.category.name, 
+          href: `/blog/category/${postWithCategory.category.slug}` 
         }
       ] : []),
-      { name: postWithCategory.title, url: `/blog/${postWithCategory.slug}` }
-    ];
-
-    // Generate breadcrumb items for UI
-    const breadcrumbItems = breadcrumbItemsForSchema.map(item => ({
-      label: item.name,
-      href: item.url
-    }));
-
-    // Generate structured data
-    const pageStructuredData = [
-      generateArticleSchema(postWithCategory, baseUrl),
-      generateBreadcrumbSchema(breadcrumbItemsForSchema, baseUrl)
+      { label: postWithCategory.title, href: `/blog/${postWithCategory.slug}` }
     ];
 
     return (
@@ -201,14 +183,6 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
           <HeadingProcessor />
           <div className="blog-content">
             <article className="blog-post-content max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-              {/* 構造化データの出力 */}
-              {pageStructuredData.map((item, index) => (
-                <script
-                  key={index}
-                  type="application/ld+json"
-                  dangerouslySetInnerHTML={{ __html: JSON.stringify(item) }}
-                />
-              ))}
               <Breadcrumb items={breadcrumbItems} />
               <PageViewTracker slug={params.slug} page_type="blog_post" />
               <header className="mb-8">
@@ -286,6 +260,9 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
               {/* 目次 */}
               <TableOfContents items={headings} />
+
+              {/* 診断セクション */}
+              <DiagnosisSection />
 
               {/* レビューセクション */}
               <ReviewSection />

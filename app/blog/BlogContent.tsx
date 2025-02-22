@@ -12,9 +12,13 @@ import { PostgrestResponse } from '@supabase/supabase-js';
 import { Phone, MessageCircle, Mail, Clock, Shield } from 'lucide-react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+import dynamic from 'next/dynamic';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
+
+// 診断セクションを動的インポート
+const DiagnosisSection = dynamic(() => import('@/components/blog/DiagnosisSection'), { ssr: false });
 
 interface BlogPost {
   id: string;
@@ -373,6 +377,15 @@ const BlogContent = () => {
                   </Link>
                 ))}
               </div>
+            </section>
+
+            {/* 診断セクション */}
+            <section className="mt-16">
+              <h2 className="text-xl font-bold text-center mb-8 relative pb-3">
+                退職AI適性診断
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500"></span>
+              </h2>
+              <DiagnosisSection />
             </section>
 
             {/* Categories Section */}

@@ -34,7 +34,8 @@ export async function middleware(req: NextRequest) {
     '/admin/analysis', 
     '/admin/dashboard',
     '/admin/posts',
-    '/admin/posts/new'
+    '/admin/posts/new',
+    '/diagnosis/result'
   ];
   
   // 各種ページパターンをチェック
@@ -42,6 +43,7 @@ export async function middleware(req: NextRequest) {
   const isCategory = url.pathname.match(/^\/blog\/category\/[^\/]+\/?$/);
   const isTag = url.pathname.match(/^\/blog\/tags\/[^\/]+\/?$/);
   const isPostEdit = url.pathname.match(/^\/admin\/posts\/[^\/]+\/edit\/?$/);
+  const isDiagnosisResult = url.pathname.startsWith('/diagnosis/result');
   
   if (url.pathname.endsWith('/') && 
       url.pathname !== '/' && 
@@ -49,7 +51,8 @@ export async function middleware(req: NextRequest) {
       !isBlogPost &&
       !isCategory &&
       !isTag &&
-      !isPostEdit) {
+      !isPostEdit &&
+      !isDiagnosisResult) {
     return NextResponse.redirect(
       new URL(url.pathname.slice(0, -1), req.url),
       { status: 301 }
@@ -98,6 +101,7 @@ export async function middleware(req: NextRequest) {
 export const config = {
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    '/blog/tags/:path*'
+    '/blog/tags/:path*',
+    '/diagnosis/result'
   ]
 }; 

@@ -561,4 +561,3 @@ export function FutureExtensionsPlaceholder() {
 
 // デフォルトエクスポートを追加
 export default EnhancedHeroSection;
-

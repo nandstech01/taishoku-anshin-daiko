@@ -5,7 +5,14 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { MenuProvider } from '@/contexts/MenuContext';
 import { metadata } from './metadata';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+  fallback: ['system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'Arial', 'sans-serif'],
+  adjustFontFallback: true,
+  weight: ['400', '500', '600', '700']
+});
 
 export { metadata };
 
@@ -25,14 +32,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="ja">
+    <html lang="ja" className={inter.className}>
       <head>
         <meta name="format-detection" content="telephone=no,address=no,email=no" />
         <meta name="google" content="notranslate" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
       </head>
-      <body className={inter.className}>
+      <body>
         <AuthProvider>
           <MenuProvider>
             {children}
