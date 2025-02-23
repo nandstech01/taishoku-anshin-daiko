@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { questions, tipiScaleChoices, fiveScaleChoices } from "@/data/questions";
 import { Question, Choice, DiagnosisAnswer } from "@/types/diagnosis";
@@ -16,6 +16,28 @@ export default function MultiStepQuestions({
   const [answers, setAnswers] = useState<DiagnosisAnswer>({});
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 診断開始時にAPIを呼び出す
+  useEffect(() => {
+    const recordDiagnosisStart = async () => {
+      try {
+        const response = await fetch('/api/diagnosis/start', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        
+        if (!response.ok) {
+          console.error('Failed to record diagnosis start');
+        }
+      } catch (error) {
+        console.error('Error recording diagnosis start:', error);
+      }
+    };
+
+    recordDiagnosisStart();
+  }, []);
 
   // 1ステップあたり6問表示（最後のステップは残りの問題）
   const QUESTIONS_PER_STEP = 6;

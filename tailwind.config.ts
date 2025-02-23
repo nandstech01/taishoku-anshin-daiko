@@ -93,6 +93,14 @@ const config: Config = {
             opacity: '1',
             filter: 'hue-rotate(180deg) brightness(1.2)'
           }
+        },
+        'float': {
+          '0%, 100%': {
+            transform: 'translateY(0) rotate(-6deg)'
+          },
+          '50%': {
+            transform: 'translateY(-5px) rotate(-6deg)'
+          }
         }
       },
       animation: {
@@ -107,7 +115,8 @@ const config: Config = {
         'glitch': 'glitch 0.5s ease-in-out infinite',
         'cyber-pulse': 'cyber-pulse 2s ease-in-out infinite',
         'data-stream': 'data-stream 1.5s ease-in-out infinite',
-        'hologram': 'hologram 3s ease-in-out infinite'
+        'hologram': 'hologram 3s ease-in-out infinite',
+        'float': 'float 3s ease-in-out infinite'
       }
     },
   },

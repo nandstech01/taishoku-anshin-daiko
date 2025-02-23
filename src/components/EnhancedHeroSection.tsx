@@ -19,6 +19,7 @@ import React, {
   memo,
   lazy
 } from "react";
+import dynamic from 'next/dynamic';
 
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
@@ -103,15 +104,21 @@ const FallbackHeroContent = () => (
   </div>
 );
 
+// 診断モーダルのダイナミックインポート
+const Modal = dynamic(() => import('./Modal'), { ssr: false });
+const MultiStepQuestions = dynamic(() => import('./MultiStepQuestions'), { ssr: false });
+
 const EnhancedHeroSection = memo(() => {
   const [visible, setVisible] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [webGLSupported, setWebGLSupported] = useState(true);
+  const [showDiagnosisModal, setShowDiagnosisModal] = useState(false);
   const observerRef = useRef(null);
 
   const MemoizedMainMessages = useMemo(() => <MainMessages />, []);
   const MemoizedSocialProofSection = useMemo(() => <SocialProofSection />, []);
+  const MemoizedScene = useMemo(() => <Scene showDiagnosisModal={showDiagnosisModal} setShowDiagnosisModal={setShowDiagnosisModal} />, [showDiagnosisModal, setShowDiagnosisModal]);
 
   useEffect(() => {
     // WebGL対応チェック
@@ -166,6 +173,16 @@ const EnhancedHeroSection = memo(() => {
           contain: "layout"
         }}
       >
+        {/* メインコピー(上部) */}
+        {visible && (
+          <div
+            className="absolute inset-x-0 top-0 flex flex-col items-center pointer-events-none pt-4 z-[2] animate-fadeIn"
+            style={{ contain: "layout" }}
+          >
+            {MemoizedMainMessages}
+          </div>
+        )}
+
         {/* 3Dシーン - WebGL対応時のみレンダリング */}
         {isInView && webGLSupported && (
           <ErrorBoundary FallbackComponent={FallbackHeroContent}>
@@ -196,7 +213,7 @@ const EnhancedHeroSection = memo(() => {
                 }}
               >
                 <Suspense fallback={null}>
-                  <Scene />
+                  {MemoizedScene}
                   <CameraController />
                 </Suspense>
               </Canvas>
@@ -204,14 +221,11 @@ const EnhancedHeroSection = memo(() => {
           </ErrorBoundary>
         )}
 
-        {/* メインコピー(上部) */}
-        {visible && (
-          <div
-            className="absolute inset-x-0 top-0 flex flex-col items-center pointer-events-none pt-4 z-[2] animate-fadeIn"
-            style={{ contain: "layout" }}
-          >
-            {MemoizedMainMessages}
-          </div>
+        {/* 診断モーダル */}
+        {showDiagnosisModal && (
+          <Modal onClose={() => setShowDiagnosisModal(false)}>
+            <MultiStepQuestions onClose={() => setShowDiagnosisModal(false)} />
+          </Modal>
         )}
 
         {/* ソーシャルプルーフ(下部) */}
@@ -230,7 +244,7 @@ const EnhancedHeroSection = memo(() => {
 
 EnhancedHeroSection.displayName = 'EnhancedHeroSection';
 
-const Scene = memo(() => {
+const Scene = memo(({ showDiagnosisModal, setShowDiagnosisModal }) => {
   const { scene } = useThree();
   const sceneRef = useRef();
   const initialized = useRef(false);
@@ -256,7 +270,7 @@ const Scene = memo(() => {
   return (
     <group ref={sceneRef}>
       {lights}
-      <EvenSmallerSmartphone />
+      <EvenSmallerSmartphone showDiagnosisModal={showDiagnosisModal} setShowDiagnosisModal={setShowDiagnosisModal} />
     </group>
   );
 });
@@ -268,7 +282,7 @@ Scene.displayName = 'Scene';
  *   - scale (15,15,6) のまま
  *   - position をさらに下げ: y = -5.0 (前回 -3.0)
  *****************************************************************************/
-const EvenSmallerSmartphone = memo(() => {
+const EvenSmallerSmartphone = memo(({ showDiagnosisModal, setShowDiagnosisModal }) => {
   const phoneRef = useRef();
   const phoneScale = useMemo(() => new THREE.Vector3(15, 15, 6), []);
   const lastUpdate = useRef(0);
@@ -288,7 +302,7 @@ const EvenSmallerSmartphone = memo(() => {
     lastUpdate.current = now;
   });
 
-  const MemoizedSmartphoneScreen = useMemo(() => <SmartphoneScreen />, []);
+  const MemoizedSmartphoneScreen = useMemo(() => <SmartphoneScreen showDiagnosisModal={showDiagnosisModal} setShowDiagnosisModal={setShowDiagnosisModal} />, [showDiagnosisModal, setShowDiagnosisModal]);
 
   return (
     <group ref={phoneRef} position={[0, -5.0, -8]} scale={phoneScale}>
@@ -299,7 +313,7 @@ const EvenSmallerSmartphone = memo(() => {
 
 EvenSmallerSmartphone.displayName = 'EvenSmallerSmartphone';
 
-const SmartphoneScreen = memo(() => {
+const SmartphoneScreen = memo(({ showDiagnosisModal, setShowDiagnosisModal }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [typedTitle, setTypedTitle] = useState("");
   const [typedDesc1, setTypedDesc1] = useState("");
@@ -309,10 +323,10 @@ const SmartphoneScreen = memo(() => {
     title: "もう無理しなくていい",
     description: ["あなたの新しい人生を支援する", "確かな退職代行"],
     features: {
-      title: "なぜ２,980円?",
+      title: "なぜ ２,９８０円 ？",
       points: [
         "AIで業務効率化で実現",
-        "弁護士などの連携システム導入"
+        "弁護士監修で安心"
       ]
     },
     buttonText: "退職をはじめる"
@@ -415,12 +429,26 @@ const SmartphoneScreen = memo(() => {
               ))}
             </div>
 
-            <button
-              className="bg-orange-500 text-white px-12 py-4 rounded-full text-xl font-semibold shadow-lg hover:scale-105 hover:bg-orange-600 transition-all duration-200"
-              onClick={() => window.open('https://lin.ee/h1kk42r', '_blank')}
-            >
-              {screenContent.buttonText}
-            </button>
+            <div className="w-full flex flex-col items-center gap-4">
+              <button
+                className="w-full max-w-[280px] bg-orange-500 text-white px-12 py-4 rounded-full text-xl font-semibold shadow-lg hover:scale-105 hover:bg-orange-600 transition-all duration-200 text-center"
+                onClick={() => window.open('https://lin.ee/h1kk42r', '_blank')}
+              >
+                {screenContent.buttonText}
+              </button>
+
+              <div className="relative w-full max-w-[280px]">
+                <div className="absolute -top-3 left-6 bg-white text-blue-600 px-3 py-1 rounded-full text-sm font-bold shadow-md transform -rotate-6 z-10 hover:scale-110 transition-transform animate-float">
+                  AI
+                </div>
+                <button
+                  className="w-full bg-blue-600 text-white px-12 py-4 rounded-full text-xl font-semibold shadow-lg hover:scale-105 hover:bg-blue-700 transition-all duration-200 text-center"
+                  onClick={() => setShowDiagnosisModal(true)}
+                >
+                  退職適性診断をする
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
       </div>
@@ -461,7 +489,8 @@ const socialMessages = [
 
 const SocialProofSection = memo(() => {
   const [messageIndex, setMessageIndex] = useState(0);
-  const [count] = useState(1273);
+  const [diagnosisCounts, setDiagnosisCounts] = useState({ totalCount: 0, recentCount: 0 });
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -471,13 +500,55 @@ const SocialProofSection = memo(() => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const response = await fetch('/api/diagnosis/counts', {
+          cache: 'no-store',
+          headers: {
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache'
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('[SocialProof] Fetched counts:', data);
+        setDiagnosisCounts(data);
+        setError(null);
+      } catch (error) {
+        console.error('[SocialProof] Error fetching diagnosis counts:', error);
+        setError(error instanceof Error ? error : new Error('Failed to fetch counts'));
+      }
+    };
+
+    fetchCounts();
+    const interval = setInterval(fetchCounts, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  if (error) {
+    console.error('[SocialProof] Error state:', error);
+  }
+
   return (
     <div className="text-center transform -translate-y-8">
-      <div className="mb-3">
-        <span className="text-xl font-bold text-gray-900">
-          {count.toLocaleString()}
-        </span>
-        <span className="text-sm ml-2 text-gray-900">人が利用中</span>
+      <div className="mb-3 space-y-2">
+        <div>
+          <span className="text-xl font-bold text-gray-900">
+            全国で {diagnosisCounts.totalCount.toLocaleString()}
+          </span>
+          <span className="text-sm ml-2 text-gray-900">名が退職を決意</span>
+        </div>
+        <div>
+          <span className="text-xl font-bold text-gray-900">
+            現在 {diagnosisCounts.recentCount.toLocaleString()}
+          </span>
+          <span className="text-sm ml-2 text-gray-900">名が退職に向けて準備中</span>
+        </div>
       </div>
       <AnimatePresence mode="wait">
         <motion.p
