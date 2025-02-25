@@ -13,6 +13,34 @@ interface SearchAnalyticsRow {
   position: number;
 }
 
+interface SEOIssue {
+  type: 'redirect' | 'index' | 'performance' | 'mobile' | 'structure';
+  severity: 'high' | 'medium' | 'low';
+  location: string;
+  description: string;
+  recommendation: string;
+  affectedUrls: string[];
+  codeReference?: {
+    file: string;
+    lines: number[];
+  };
+}
+
+interface PerformanceMetrics {
+  fcp: number;  // First Contentful Paint
+  lcp: number;  // Largest Contentful Paint
+  cls: number;  // Cumulative Layout Shift
+  fid: number;  // First Input Delay
+  ttfb: number; // Time to First Byte
+}
+
+interface IndexingStatus {
+  url: string;
+  status: 'indexed' | 'not-indexed' | 'blocked' | 'error';
+  lastCrawled?: string;
+  issues?: string[];
+}
+
 const searchConsole = google.searchconsole('v1');
 
 const auth = new google.auth.JWT({
@@ -100,4 +128,147 @@ export async function getSearchAnalytics(slug: string, days: number = 30) {
   }
 
   return data;
+}
+
+export async function monitorSEOIssues(): Promise<SEOIssue[]> {
+  const issues: SEOIssue[] = [];
+  
+  try {
+    // リダイレクトの監視
+    const redirectIssues = await checkRedirects();
+    issues.push(...redirectIssues);
+
+    // インデックスの監視
+    const indexingIssues = await checkIndexingStatus();
+    issues.push(...indexingIssues);
+
+    // パフォーマンスの監視
+    const performanceIssues = await checkPerformance();
+    issues.push(...performanceIssues);
+
+    return issues;
+  } catch (error) {
+    console.error('Error monitoring SEO issues:', error);
+    throw error;
+  }
+}
+
+async function checkRedirects(): Promise<SEOIssue[]> {
+  const issues: SEOIssue[] = [];
+  try {
+    const response = await searchConsole.urlInspection.index.inspect({
+      requestBody: {
+        inspectionUrl: process.env.SITE_URL || '',
+        siteUrl: process.env.SITE_URL || '',
+        languageCode: 'ja'
+      }
+    });
+
+    const result = await response.data;
+    if (result.inspectionResult?.indexStatusResult?.verdict === 'REDIRECT') {
+      issues.push({
+        type: 'redirect',
+        severity: 'medium',
+        location: process.env.SITE_URL || '',
+        description: 'リダイレクトが検出されました',
+        recommendation: 'リダイレクトチェーンを確認し、必要に応じて直接的なリンクに修正してください',
+        affectedUrls: [process.env.SITE_URL || '']
+      });
+    }
+
+  } catch (error) {
+    console.error('Error checking redirects:', error);
+  }
+  return issues;
+}
+
+async function checkIndexingStatus(): Promise<SEOIssue[]> {
+  const issues: SEOIssue[] = [];
+  try {
+    const response = await searchConsole.urlInspection.index.inspect({
+      requestBody: {
+        inspectionUrl: process.env.SITE_URL || '',
+        siteUrl: process.env.SITE_URL || '',
+        languageCode: 'ja'
+      }
+    });
+
+    const result = await response.data;
+    const indexStatus = result.inspectionResult?.indexStatusResult;
+    if (indexStatus?.verdict !== 'PASS') {
+      issues.push({
+        type: 'index',
+        severity: 'high',
+        location: process.env.SITE_URL || '',
+        description: `インデックスの問題: ${indexStatus?.verdict}`,
+        recommendation: 'robots.txtとサイトマップを確認し、インデックス設定を見直してください',
+        affectedUrls: [process.env.SITE_URL || '']
+      });
+    }
+
+  } catch (error) {
+    console.error('Error checking indexing status:', error);
+  }
+  return issues;
+}
+
+async function checkPerformance(): Promise<SEOIssue[]> {
+  const issues: SEOIssue[] = [];
+  try {
+    // PageSpeed Insights APIを使用してパフォーマンスデータを取得
+    const pagespeed = google.pagespeedonline('v5');
+    const response = await pagespeed.pagespeedapi.runpagespeed({
+      url: process.env.SITE_URL || '',
+      strategy: 'mobile'
+    });
+
+    const result = await response.data;
+    const metrics = result.lighthouseResult?.audits;
+
+    if (metrics) {
+      // Core Web Vitalsのチェック
+      const lcp = metrics['largest-contentful-paint']?.numericValue;
+      const fid = metrics['first-input-delay']?.numericValue;
+      const cls = metrics['cumulative-layout-shift']?.numericValue;
+
+      if (lcp && lcp > 2500) {
+        issues.push({
+          type: 'performance',
+          severity: 'high',
+          location: process.env.SITE_URL || '',
+          description: `Largest Contentful Paint (LCP) が遅い: ${Math.round(lcp)}ms`,
+          recommendation: 'メインコンテンツの読み込み速度を改善してください',
+          affectedUrls: [process.env.SITE_URL || '']
+        });
+      }
+
+      if (cls && cls > 0.1) {
+        issues.push({
+          type: 'performance',
+          severity: 'medium',
+          location: process.env.SITE_URL || '',
+          description: `Cumulative Layout Shift (CLS) が高い: ${cls.toFixed(3)}`,
+          recommendation: 'レイアウトの安定性を改善してください',
+          affectedUrls: [process.env.SITE_URL || '']
+        });
+      }
+
+      // モバイルフレンドリーチェック
+      const mobileScore = result.lighthouseResult?.categories?.['performance']?.score;
+      if (mobileScore && mobileScore < 0.9) {
+        issues.push({
+          type: 'mobile',
+          severity: 'medium',
+          location: process.env.SITE_URL || '',
+          description: `モバイルパフォーマンススコアが低い: ${Math.round(mobileScore * 100)}%`,
+          recommendation: 'モバイル向けの最適化を行ってください',
+          affectedUrls: [process.env.SITE_URL || '']
+        });
+      }
+    }
+
+  } catch (error) {
+    console.error('Error checking performance:', error);
+  }
+  return issues;
 } 

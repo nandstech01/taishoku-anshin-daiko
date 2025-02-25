@@ -8,6 +8,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['var(--font-inter)', 'sans-serif'],
+      },
       keyframes: {
         shimmer: {
           '0%': { transform: 'translateX(-100%)' },
@@ -54,4 +57,34 @@ module.exports = {
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
   ],
+  // 未使用のスタイルを削減して最終的なCSSバンドルサイズを最小化
+  future: {
+    hoverOnlyWhenSupported: true,
+    respectDefaultRingColorOpacity: true,
+    disableColorOpacityUtilitiesByDefault: true,
+    relativeContentPathsByDefault: true,
+  },
+  // パフォーマンス最適化のための追加設定
+  safelist: [
+    // 動的に生成されるクラスで、必ず保持する必要があるもの
+    'bg-orange-500',
+    'bg-blue-500',
+    'text-white',
+    'rounded-full',
+  ],
+  // 未使用のバリアントを削除
+  corePlugins: {
+    // 使用していないプラグインを無効化
+    container: false,
+    accessibility: false,
+    backdropBlur: false,
+    backdropBrightness: false,
+    backdropContrast: false,
+    backdropGrayscale: false,
+    backdropHueRotate: false,
+    backdropInvert: false,
+    backdropOpacity: false,
+    backdropSaturate: false,
+    backdropSepia: false,
+  },
 }

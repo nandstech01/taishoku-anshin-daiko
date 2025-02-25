@@ -26,8 +26,7 @@ import {
   GraduationCap,
 } from "lucide-react";
 
-// Three.jsシーン
-import FeaturesSceneWrapper from "./FeaturesScene";
+// Three.jsシーンのインポートは削除（3D要素を使用しないため）
 
 /******************************************************************************
  * 1) 退職対応データ

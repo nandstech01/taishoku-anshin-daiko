@@ -38,6 +38,51 @@ declare module 'framer-motion' {
     onMouseLeave?: () => void;
     onClick?: () => void;
   }
+
+  // パフォーマンス最適化のための拡張型
+  interface OptimizedMotionConfig {
+    scrollConfig: {
+      mobile: {
+        viewport: { once: boolean, amount: number },
+        transition: {
+          type: string,
+          ease: string,
+          duration: number
+        }
+      },
+      desktop: {
+        viewport: { once: boolean, amount: number },
+        transition: {
+          type: string,
+          stiffness: number,
+          damping: number
+        }
+      }
+    },
+    commonTransition: {
+      type: string,
+      ease: number[],
+      duration: number
+    },
+    reduceMotion: {
+      transition: { duration: number },
+      initial: Record<string, any>,
+      animate: Record<string, any>,
+      exit: Record<string, any>
+    },
+    optimizedParallax: (strength?: number) => MotionProps,
+    optimizedInView: {
+      threshold: number,
+      triggerOnce: boolean,
+      rootMargin: string
+    },
+    isMobile: boolean
+  }
+
+  // willChangeプロパティを明示的に型定義
+  interface MotionStyle {
+    willChange?: string;
+  }
 }
 
 declare global {

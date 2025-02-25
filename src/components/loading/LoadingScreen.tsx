@@ -1,18 +1,17 @@
 'use client';
 
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
 
-// 初期表示用の静的コンテンツ
+// 初期表示用の静的コンテンツ（シンプル化）
 const LoadingContent = () => (
   <div className="w-full h-screen bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center">
     <div className="text-white text-center max-w-4xl mx-auto px-4">
-      <h1 className="text-4xl md:text-5xl font-bold mb-4">
+      <h2 className="text-4xl md:text-5xl font-bold mb-4">
         退職代行サービス
         <span className="block text-2xl md:text-3xl mt-2">
           業界最安値2,980円で即日対応
         </span>
-      </h1>
+      </h2>
       <p className="text-xl mt-4">
         弁護士監修であんしん退職をサポート
       </p>
@@ -21,29 +20,35 @@ const LoadingContent = () => (
 );
 
 export default function LoadingScreen() {
-  const [show, setShow] = React.useState(true);
+  const [show, setShow] = useState(true);
+  const [opacity, setOpacity] = useState(1);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    // 初期表示時間を大幅に短縮（800ms）
     const timer = setTimeout(() => {
-      setShow(false);
-    }, 2000);
+      // フェードアウト効果開始
+      setOpacity(0);
+      
+      // アニメーション後に非表示に（300msでフェードアウト）
+      setTimeout(() => {
+        setShow(false);
+      }, 300);
+    }, 800);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
+  if (!show) return null;
+
   return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          initial={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="fixed inset-0 z-50 pointer-events-none"
-          aria-hidden="true"
-        >
-          <LoadingContent />
-        </motion.div>
-      )}
-    </AnimatePresence>
+    <div
+      className="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 ease-out"
+      style={{ opacity }}
+      aria-hidden="true"
+    >
+      <LoadingContent />
+    </div>
   );
 } 

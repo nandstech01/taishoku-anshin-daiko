@@ -3,6 +3,56 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
+  const res = NextResponse.next();
+  const supabase = createMiddlewareClient({ req, res });
+
+  // セッションの更新
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // 認証不要のパスをチェック
+  const publicPaths = [
+    '/',
+    '/admin',
+    '/api/auth',
+    '/api/seo/auth',
+    '/api/seo/search-console/issues',
+    '/api/seo/search-console/inspect',
+    '/api/test',
+    '/api/monitor',
+    '/api/monitor/performance'
+  ];
+
+  // APIエンドポイントかどうかをチェック
+  const isApiRoute = req.nextUrl.pathname.startsWith('/api/');
+
+  // APIパスの簡易マッチング関数
+  const pathStartsWith = (path: string) => req.nextUrl.pathname.startsWith(path);
+
+  // パフォーマンスモニタリングAPI呼び出しを最初に処理（優先度最高）
+  if (pathStartsWith('/api/monitor/performance')) {
+    console.log('Allowing performance monitoring API access');
+    return res;
+  }
+
+  // 認証関連のAPIエンドポイントの場合は、処理をスキップ
+  if (isApiRoute && (
+    pathStartsWith('/api/auth/') ||
+    pathStartsWith('/api/seo/auth/')
+  )) {
+    return res;
+  }
+
+  // 公開パスの場合は認証チェックをスキップ
+  if (req.nextUrl.pathname === '/' || publicPaths.some(path => req.nextUrl.pathname.startsWith(path))) {
+    return res;
+  }
+
+  // 管理画面の保護（/admin/以下のパスのみ）
+  if (req.nextUrl.pathname.startsWith('/admin/') && !session) {
+    return NextResponse.redirect(new URL('/admin', req.url));
+  }
+
+  // 以下は既存のミドルウェアロジック
   const url = req.nextUrl.clone();
   
   // 1. タグページのリダイレクト
@@ -35,7 +85,14 @@ export async function middleware(req: NextRequest) {
     '/admin/dashboard',
     '/admin/posts',
     '/admin/posts/new',
-    '/diagnosis/result'
+    '/admin/seo',
+    '/admin/seo/search-console',
+    '/diagnosis/result',
+    '/api/auth/init',
+    '/api/auth/callback',
+    '/api/test/search-console',
+    '/api/test/oauth',
+    '/api/test/oauth/'
   ];
   
   // 各種ページパターンをチェック
@@ -75,9 +132,6 @@ export async function middleware(req: NextRequest) {
     }
   }
 
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
-
   // ブログ記事へのアクセスのみを記録
   if (req.nextUrl.pathname.startsWith('/blog/')) {
     const slug = req.nextUrl.pathname.split('/').pop();
@@ -100,8 +154,6 @@ export async function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
-    '/blog/tags/:path*',
-    '/diagnosis/result'
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ]
 }; 

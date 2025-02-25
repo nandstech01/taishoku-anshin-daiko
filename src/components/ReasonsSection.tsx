@@ -1,9 +1,10 @@
 'use client'
 
 import * as React from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, MotionStyle } from 'framer-motion';
 import Image from 'next/image';
 import { Shield, Clock, Scale, DollarSign, Users, Sparkles } from 'lucide-react';
+import { optimizedMotionConfig, getDeviceOptimizedConfig } from '@/lib/motion-config';
 
 interface ReasonCardProps {
     number: string;
@@ -16,25 +17,42 @@ interface ReasonCardProps {
 
 const ReasonCard = ({ number, icon, title, description, delay, image }: ReasonCardProps) => {
     const cardRef = React.useRef<HTMLDivElement>(null);
+    
+    // デバイスに応じた最適化設定を取得
+    const deviceConfig = React.useMemo(() => getDeviceOptimizedConfig(), []);
+
+    // スクロール検出を最適化 - 閾値を調整し、リフローを減らす
     const { scrollYProgress } = useScroll({
         target: cardRef as React.RefObject<HTMLElement>,
-        offset: ["0 1", "1.2 1"]
+        offset: deviceConfig.viewport.once ? ["0 1", "0.8 1"] : ["0 1", "1.2 1"]
     });
     
+    // パフォーマンス最適化のためにtransform値を事前計算
     const opacity = useTransform(scrollYProgress, [0, 1], [0, 1]);
-    const y = useTransform(scrollYProgress, [0, 1], [100, 0]);
+    const y = useTransform(scrollYProgress, [0, 1], [50, 0]); // 移動距離を縮小
+    
+    // メモ化したスタイルオブジェクト - 型を修正
+    const motionStyle: MotionStyle = React.useMemo(() => ({ 
+        opacity, 
+        y, 
+        position: 'relative',
+        willChange: 'transform, opacity' // GPUヒントを追加
+    }), [opacity, y]);
 
     return (
         <motion.div
             ref={cardRef}
-            style={{ opacity, y }}
+            style={motionStyle}
             className="relative group"
         >
             <div className="absolute inset-0 bg-white/20 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl" />
             <motion.div
-                initial={{ scale: 0.8 }}
+                initial={{ scale: 0.95 }} // より小さなアニメーション効果に調整
                 animate={{ scale: 1 }}
-                transition={{ delay, duration: 0.5 }}
+                transition={{ 
+                    ...optimizedMotionConfig.commonTransition,
+                    delay 
+                }}
                 className="relative bg-white/95 backdrop-blur-sm p-6 rounded-2xl shadow-xl hover:shadow-2xl transition-shadow duration-300"
             >
                 {image && (
@@ -70,10 +88,10 @@ export default function ReasonsSection() {
     const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
     return (
-        <div
-            ref={sectionRef}
-            className="relative py-20 md:py-32 bg-gradient-to-br from-orange-500 via-orange-400 to-amber-400 overflow-hidden"
-            id="reasons"
+        <section 
+            ref={sectionRef} 
+            className="py-20 overflow-hidden"
+            style={{ position: 'relative' }}
         >
             <motion.div
                 initial={{ opacity: 0 }}
@@ -160,6 +178,6 @@ export default function ReasonsSection() {
                     </div>
                 </div>
             </motion.div>
-        </div>
+        </section>
     );
 } 

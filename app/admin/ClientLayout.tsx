@@ -18,16 +18,42 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
   const supabase = createClient();
 
   useEffect(() => {
-    // ... existing code ...
+    const getSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        setSession(session);
+      } catch (error) {
+        console.error('Error fetching session:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getSession();
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  // ローディング中は何も表示しない
+  if (isLoading) {
+    return null;
+  }
 
   // ログインページの場合は、ヘッダーなしで表示
   if (pathname === '/admin') {
     return children;
   }
 
-  // 認証が必要なページで未認証の場合は何も表示しない
+  // 認証が必要なページで未認証の場合はログインページにリダイレクト
   if (!session) {
+    router.replace('/admin');
     return null;
   }
 
@@ -62,6 +88,16 @@ export default function ClientLayout({ children }: ClientLayoutProps) {
                   } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
                 >
                   ダッシュボード
+                </Link>
+                <Link
+                  href="/admin/seo"
+                  className={`${
+                    pathname === '/admin/seo'
+                      ? 'border-indigo-500 text-gray-900'
+                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                >
+                  SEO管理
                 </Link>
               </div>
             </div>
