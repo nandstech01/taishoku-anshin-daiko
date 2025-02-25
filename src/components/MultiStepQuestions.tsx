@@ -16,6 +16,7 @@ export default function MultiStepQuestions({
   const [answers, setAnswers] = useState<DiagnosisAnswer>({});
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const [activeQuestion, setActiveQuestion] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
