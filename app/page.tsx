@@ -17,9 +17,8 @@ import Footer from '../src/components/common/Footer';
 import HomePageBlogSection from '@/components/blog/HomePageBlogSection';
 import FixedButtons from '@/components/ui/FixedButtons';
 import LoadingScreen from '@/components/loading/LoadingScreen';
-
-// Import type definitions
-import '@/types/three-fiber.d.ts';
+import { Metadata } from 'next';
+import { Suspense } from 'react';
 
 // EnhancedHeroSectionをSSR有効で動的インポート
 const EnhancedHeroSection = dynamic(

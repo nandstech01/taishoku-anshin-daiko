@@ -8,8 +8,6 @@ interface ContentImageProps {
 }
 
 export default function ContentImage({ imageId, className = '' }: ContentImageProps) {
-  console.log('ContentImage component mounted with ID:', imageId);
-
   const [imageData, setImageData] = React.useState<{
     image_url: string;
     alt_text: string;
@@ -18,7 +16,6 @@ export default function ContentImage({ imageId, className = '' }: ContentImagePr
 
   React.useEffect(() => {
     const fetchImageData = async () => {
-      console.log('Fetching image data for ID:', imageId);
       const { data, error } = await supabase
         .from('post_images')
         .select('image_url, alt_text, caption')
@@ -31,7 +28,6 @@ export default function ContentImage({ imageId, className = '' }: ContentImagePr
       }
 
       if (data) {
-        console.log('Image data received:', data);
         setImageData(data);
       }
     };
@@ -40,11 +36,9 @@ export default function ContentImage({ imageId, className = '' }: ContentImagePr
   }, [imageId]);
 
   if (!imageData) {
-    console.log('No image data available yet');
     return null;
   }
 
-  console.log('Rendering image with data:', imageData);
   return (
     <figure className={`my-8 ${className}`}>
       <div className="relative w-full h-[400px]">
@@ -53,6 +47,9 @@ export default function ContentImage({ imageId, className = '' }: ContentImagePr
           alt={imageData.alt_text}
           fill
           className="object-contain"
+          loading="lazy"
+          quality={75}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
       </div>
       {imageData.caption && (

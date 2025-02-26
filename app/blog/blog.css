@@ -24,16 +24,14 @@
 
 /* ピックアップバナー */
 .blog-pickup {
-  margin-bottom: 4rem;
-  position: relative;
-  width: 100%;
-  overflow: hidden;
+  @apply relative w-full overflow-hidden mb-16;
+  max-width: 360px;
+  margin: 0 auto;
 }
 
 .blog-pickup-inner {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 1rem;
+  @apply relative w-full;
+  padding: 0 24px;
 }
 
 .blog-pickup-header {
@@ -55,33 +53,24 @@
   margin-bottom: 2rem;
 }
 
-.blog-pickup-slider {
-  margin-bottom: 4rem !important;
-  overflow: visible !important;
-}
-
-.swiper-slide {
-  height: auto !important;
-  display: flex !important;
+.blog-pickup-content {
+  @apply w-full overflow-hidden mb-12;
 }
 
 .blog-pickup-card {
-  @apply bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow;
+  @apply bg-white rounded-lg shadow-md hover:shadow-lg transition-all duration-300;
+  width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
 .blog-pickup-image {
-  @apply object-cover w-full;
-  aspect-ratio: 16/9;
+  @apply w-full object-cover;
+  aspect-ratio: 600/300;
   height: auto;
-}
-
-.blog-pickup-content {
-  @apply p-4 flex-1;
-  display: flex;
-  flex-direction: column;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* カテゴリーボタン */
@@ -114,40 +103,40 @@
 }
 
 .blog-pickup-heading {
-  @apply text-lg font-bold text-gray-900 mb-2 line-clamp-2;
-  flex-grow: 1;
-  min-height: 3.5rem;
+  @apply text-lg font-bold text-gray-900 mt-2 line-clamp-2;
 }
 
 .blog-pickup-meta {
   @apply text-sm text-gray-500 mt-auto;
 }
 
-.swiper-pagination-custom {
-  position: relative;
-  width: 100%;
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
+.swiper-pagination {
+  @apply relative bottom-0 left-0 right-0 flex justify-center gap-2 mt-4;
+}
+
+.swiper-pagination-bullet {
+  @apply w-2 h-2 rounded-full bg-gray-300 cursor-pointer transition-colors;
+}
+
+.swiper-pagination-bullet-active {
+  @apply bg-orange-500;
 }
 
 @media (max-width: 768px) {
   .blog-pickup-inner {
-    padding: 0 0.5rem;
+    @apply px-4;
   }
   
-  .blog-pickup-content {
-    padding: 0.75rem;
+  .blog-pickup-card {
+    max-width: 300px;
   }
   
   .blog-pickup-heading {
-    font-size: 1rem;
-    min-height: 3rem;
+    @apply text-base;
   }
   
   .swiper-slide {
-    padding: 0.25rem;
+    padding: 0;
   }
 }
 

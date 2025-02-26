@@ -10,12 +10,7 @@ import Link from 'next/link';
 import { PageViewTracker } from '@/components/blog/PageViewTracker';
 import { PostgrestResponse } from '@supabase/supabase-js';
 import { Phone, MessageCircle, Mail, Clock, Shield } from 'lucide-react';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Navigation, Pagination, Autoplay } from 'swiper/modules';
 import dynamic from 'next/dynamic';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 
 // 診断セクションを動的インポート
 const DiagnosisSection = dynamic(() => import('@/components/blog/DiagnosisSection'), { ssr: false });
@@ -110,30 +105,6 @@ const BlogStructuredData = ({ posts }: { posts: BlogPost[] }) => {
   );
 };
 
-const swiperParams = {
-  slidesPerView: 1,
-  spaceBetween: 16,
-  loop: true,
-  autoplay: {
-    delay: 5000,
-    disableOnInteraction: false,
-  },
-  pagination: {
-    el: '.swiper-pagination-custom',
-    clickable: true,
-  },
-  breakpoints: {
-    640: {
-      slidesPerView: 2,
-      spaceBetween: 16,
-    },
-    1024: {
-      slidesPerView: 3,
-      spaceBetween: 24,
-    },
-  },
-};
-
 const BlogContent = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -142,84 +113,26 @@ const BlogContent = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        console.log('Fetching posts...');
         const [postsResponse, categoriesResponse] = await Promise.all([
           supabase
             .from('posts')
-            .select(`
-              id,
-              title,
-              content,
-              slug,
-              status,
-              views,
-              tags,
-              likes,
-              published_at,
-              created_at,
-              updated_at,
-              thumbnail_url,
-              meta_description,
-              seo_keywords,
-              category_slug
-            `)
-            .eq('status', 'published')
-            .order('created_at', { ascending: false }),
-          
+            .select('*')
+            .eq('published', true)
+            .order('created_at', { ascending: false })
+            .limit(1),
           supabase
             .from('categories')
             .select('*')
+            .order('id', { ascending: true }),
         ]);
 
-        if (postsResponse.error) {
-          console.error('Error fetching posts:', postsResponse.error);
-          throw postsResponse.error;
-        }
+        if (postsResponse.error) throw postsResponse.error;
+        if (categoriesResponse.error) throw categoriesResponse.error;
 
-        if (categoriesResponse.error) {
-          console.error('Error fetching categories:', categoriesResponse.error);
-          throw categoriesResponse.error;
-        }
-
-        // 記事データにカテゴリー情報を追加
-        const typedPostsData = (postsResponse.data || []).map((rawPost: any) => {
-          const post = rawPost as unknown as RawPost;
-          const category = categoriesResponse.data?.find((cat: Category) => cat.slug === post.category_slug);
-          let parsedTags = [];
-          try {
-            if (post.tags) {
-              parsedTags = Array.isArray(post.tags) ? post.tags : 
-                (typeof post.tags === 'string' ? JSON.parse(post.tags) : []);
-            }
-          } catch (e) {
-            console.error('Error parsing tags for post:', post.slug, e);
-          }
-
-          return {
-            id: post.id,
-            title: post.title,
-            content: post.content,
-            slug: post.slug,
-            status: post.status,
-            views: post.views ?? 0,
-            tags: parsedTags,
-            likes: post.likes ?? 0,
-            published_at: post.published_at,
-            created_at: post.created_at,
-            updated_at: post.updated_at,
-            thumbnail_url: post.thumbnail_url,
-            meta_description: post.meta_description,
-            seo_keywords: post.seo_keywords ?? [],
-            category: category
-          } as BlogPost;
-        });
-        
-        setPosts(typedPostsData);
-        setCategories(categoriesResponse.data || []);
+        setPosts(postsResponse.data);
+        setCategories(categoriesResponse.data);
       } catch (error) {
-        console.error('Failed to fetch data:', error);
-        setPosts([]);
-        setCategories([]);
+        console.error('Error fetching posts:', error);
       } finally {
         setIsLoading(false);
       }
@@ -228,13 +141,7 @@ const BlogContent = () => {
     fetchPosts();
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-      </div>
-    );
-  }
+  if (isLoading) return null;
 
   // 人気記事を取得（views数でソート）
   const popularPosts = [...posts]
@@ -280,49 +187,39 @@ const BlogContent = () => {
             <div className="blog-pickup-inner">
               <div className="blog-pickup-header">
                 <h2 className="blog-pickup-title">PICKUP</h2>
-                <p className="blog-pickup-description">注目の記事を厳選してお届け！</p>
+                <p className="blog-pickup-description">注目の記事をピックアップ</p>
               </div>
-              <Swiper
-                modules={[Pagination, Autoplay]}
-                {...swiperParams}
-                className="blog-pickup-slider"
-              >
-                {pickupPosts.map((post, index) => (
-                  <SwiperSlide key={post.id}>
-                    <Link href={`/blog/${post.slug}`} className="block h-full">
-                      <article className="blog-pickup-card">
-                        {post.thumbnail_url && (
-                          <div className="aspect-w-16 aspect-h-9">
-                            <Image
-                              src={post.thumbnail_url}
-                              alt={post.title}
-                              width={600}
-                              height={338}
-                              className="blog-pickup-image"
-                              priority={index < 2}
-                              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                              quality={85}
-                              loading={index < 2 ? "eager" : "lazy"}
-                            />
-                          </div>
-                        )}
-                        <div className="blog-pickup-content">
-                          {post.category && (
-                            <span className="blog-category">{post.category.name}</span>
-                          )}
-                          <h3 className="blog-pickup-heading">{post.title}</h3>
-                          <div className="blog-pickup-meta">
-                            <time dateTime={post.published_at || post.created_at}>
-                              {new Date(post.published_at || post.created_at).toLocaleDateString('ja-JP')}
-                            </time>
-                          </div>
-                        </div>
-                      </article>
-                    </Link>
-                  </SwiperSlide>
-                ))}
-              </Swiper>
-              <div className="swiper-pagination-custom"></div>
+              <div className="blog-pickup-content">
+                {posts.length > 0 && (
+                  <Link href={`/blog/${posts[0].slug}/`} className="blog-pickup-card">
+                    {posts[0].thumbnail_url && (
+                      <div className="relative aspect-w-16 aspect-h-9">
+                        <Image
+                          src={posts[0].thumbnail_url}
+                          alt={posts[0].title}
+                          width={360}
+                          height={240}
+                          className="blog-pickup-image"
+                          priority={true}
+                          loading="eager"
+                          quality={75}
+                          sizes="360px"
+                          style={{
+                            objectFit: 'cover',
+                            willChange: 'auto'
+                          }}
+                        />
+                      </div>
+                    )}
+                    <div className="blog-pickup-content">
+                      {posts[0].category && (
+                        <span className="blog-category">{posts[0].category.name}</span>
+                      )}
+                      <h3 className="blog-pickup-heading">{posts[0].title}</h3>
+                    </div>
+                  </Link>
+                )}
+              </div>
             </div>
           </section>
 
@@ -348,7 +245,7 @@ const BlogContent = () => {
                 <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-12 h-0.5 bg-gradient-to-r from-orange-500 to-amber-500"></span>
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {posts.slice(0, 15).map((post, index) => (
+                {posts.slice(0, 6).map((post, index) => (
                   <Link key={post.slug} href={`/blog/${post.slug}`} className="block">
                     <article className="blog-pickup-card hover-effect-card">
                       {post.thumbnail_url && (
@@ -358,10 +255,12 @@ const BlogContent = () => {
                           width={360}
                           height={202}
                           className="blog-pickup-image"
-                          priority={index < 2}
-                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          priority={index === 0}
+                          sizes="360px"
                           quality={75}
-                          loading={index < 2 ? "eager" : "lazy"}
+                          loading={index === 0 ? "eager" : "lazy"}
+                          placeholder="blur"
+                          blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDABQODxIPDRQSEBIXFRQdHx4eHRseHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/2wBDAR4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAb/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                         />
                       )}
                       <div className="blog-pickup-content">

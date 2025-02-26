@@ -27,8 +27,8 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('WebGL Error caught by boundary:', error);
-    console.error('Error details:', errorInfo);
+    console.error('Error caught by boundary:', error);
+    console.error('Component stack:', errorInfo.componentStack);
   }
 
   render() {

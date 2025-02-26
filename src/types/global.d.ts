@@ -1,27 +1,7 @@
-/// <reference types="@react-three/fiber" />
-/// <reference types="three" />
 /// <reference types="react" />
 
 import { ReactNode } from 'react';
 import { HTMLMotionProps, MotionStyle, MotionValue } from 'framer-motion';
-import { Vector2 } from 'three';
-import { ChromaticAberrationEffect } from 'postprocessing';
-import { ThreeElements, Object3DNode } from '@react-three/fiber';
-import * as THREE from 'three';
-
-declare module '@react-three/fiber' {
-  interface ThreeElements {
-    effectComposer: any;
-    bloom: any;
-    chromaticAberration: {
-      offset?: Vector2 | [number, number];
-      radialModulation?: boolean;
-      modulationOffset?: number;
-    };
-    depthOfField: any;
-    vignette: any;
-  }
-}
 
 declare module 'framer-motion' {
   interface MotionProps {
@@ -79,7 +59,6 @@ declare module 'framer-motion' {
     isMobile: boolean
   }
 
-  // willChangeプロパティを明示的に型定義
   interface MotionStyle {
     willChange?: string;
   }
@@ -110,42 +89,7 @@ declare global {
       'motion.section': HTMLMotionProps<"section">;
       'motion.button': HTMLMotionProps<"button">;
       'motion.a': HTMLMotionProps<"a">;
-
-      // Three.js elements
-      ambientLight: Object3DNode<THREE.AmbientLight, typeof THREE.AmbientLight>;
-      directionalLight: Object3DNode<THREE.DirectionalLight, typeof THREE.DirectionalLight>;
-      group: Object3DNode<THREE.Group, typeof THREE.Group>;
-      line: Object3DNode<THREE.Line, typeof THREE.Line> & {
-        geometry?: THREE.BufferGeometry;
-        material?: THREE.LineBasicMaterial;
-      };
-      mesh: Object3DNode<THREE.Mesh, typeof THREE.Mesh>;
-      primitive: Object3DNode<THREE.Object3D, typeof THREE.Object3D>;
-      meshStandardMaterial: JSX.IntrinsicElements['mesh'] & {
-        color?: string | number;
-        emissive?: string | number;
-        emissiveIntensity?: number;
-        side?: number;
-        metalness?: number;
-        roughness?: number;
-      };
-      meshBasicMaterial: JSX.IntrinsicElements['mesh'] & {
-        color?: string | number;
-        transparent?: boolean;
-        opacity?: number;
-      };
-      sphereGeometry: JSX.IntrinsicElements['mesh'] & {
-        args?: [number, number, number];
-      };
     }
-  }
-}
-
-declare module '@react-three/postprocessing' {
-  interface ChromaticAberrationProps {
-    offset: Vector2 | [number, number];
-    radialModulation?: boolean;
-    modulationOffset?: number;
   }
 }
 
