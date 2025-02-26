@@ -78,7 +78,7 @@ const socialMessages = [
 ];
 
 // 初期値を設定して、APIが遅くても表示できるようにする
-const INITIAL_DIAGNOSIS_COUNTS = { totalCount: 1000, recentCount: 135 };
+const INITIAL_DIAGNOSIS_COUNTS = { totalCount: 1931, recentCount: 165 };
 
 const SocialProofSection = () => {
   const [messageIndex, setMessageIndex] = useState(0);
@@ -97,6 +97,7 @@ const SocialProofSection = () => {
   useEffect(() => {
     const fetchCounts = async () => {
       try {
+        // APIからのデータ取得を有効化
         // すでに初期値を設定しているので、バックグラウンドで非同期に取得
         const response = await fetch('/api/diagnosis/counts', {
           cache: 'no-store',
@@ -119,14 +120,13 @@ const SocialProofSection = () => {
       }
     };
 
-    // 初回レンダリング時にはAPIを即時実行せず、少し遅延させて負荷を分散
-    const initialFetchTimer = setTimeout(fetchCounts, 5000);
+    // 初回レンダリング時にはAPIを即時実行
+    fetchCounts();
     
     // 更新間隔を10分に設定
     const interval = setInterval(fetchCounts, 10 * 60 * 1000);
     
     return () => {
-      clearTimeout(initialFetchTimer);
       clearInterval(interval);
     };
   }, []);
@@ -142,7 +142,7 @@ const SocialProofSection = () => {
         </div>
         <div>
           <span className="text-xl font-bold text-gray-900">
-            現在 {diagnosisCounts.recentCount.toLocaleString()}
+            本日 {diagnosisCounts.recentCount.toLocaleString()}
           </span>
           <span className="text-sm ml-2 text-gray-900">名が退職に向けて準備中</span>
         </div>

@@ -13,17 +13,13 @@
   min-height: 100vh;
   width: 100%;
   position: relative;
-  padding-top: 60px;
-  overflow: hidden;
+  padding-top: 36px;
 }
 
 /* ブログコンテンツ */
-.blog-content-wrapper {
+.blog-content {
   position: relative;
-  z-index: 2;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+  width: 100%;
 }
 
 /* ピックアップバナー */
@@ -180,19 +176,34 @@
 
 /* 記事詳細ページのコンテナ */
 .blog-post-container {
-  padding-top: 116px;
+  position: relative;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding: 0 1rem;
+}
+
+/* パンくずリスト */
+.blog-breadcrumbs {
+  position: relative;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  margin-top: 64px; /* ヘッダーの高さ分だけマージンを設定 */
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 /* 記事コンテンツ */
 .blog-post-content {
-  padding-top: 0;
   margin: 0 auto;
   max-width: 800px;
+  padding-top: 1rem;
 }
 
 /* マーキーテキスト */
@@ -265,22 +276,6 @@
 /* マーキーテキストのホバー時にアニメーションを一時停止 */
 .blog-marquee-container:hover .blog-marquee-content {
   animation-play-state: paused;
-}
-
-/* パンくずリスト */
-.blog-breadcrumbs {
-  position: fixed;
-  top: 84px;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  background-color: white;
-  padding: 4px 0;
-  height: auto;
-  min-height: 24px;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* 記事ヘッダー */

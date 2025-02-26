@@ -1,6 +1,7 @@
 import { createServerClient } from '@/lib/supabase/server';
 import { headers } from 'next/headers';
 import { NextResponse } from 'next/server';
+import { v4 as uuidv4 } from 'uuid';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,6 +36,9 @@ export async function POST() {
     // Supabaseクライアントの初期化
     const supabase = createServerClient();
 
+    // 訪問者IDを生成
+    const visitorId = uuidv4();
+
     // 診断開始ログの記録
     const { data, error } = await supabase
       .from('analytics')
@@ -44,6 +48,7 @@ export async function POST() {
           page_type: 'diagnosis_start',
           user_agent: userAgent,
           referrer: referer,
+          visitor_id: visitorId,
           created_at: new Date().toISOString()
         }
       ])
@@ -77,6 +82,7 @@ export async function POST() {
 
     console.log('Successfully recorded diagnosis start:', {
       data,
+      visitorId,
       timestamp: new Date().toISOString()
     });
 
@@ -84,6 +90,7 @@ export async function POST() {
       { 
         success: true, 
         data,
+        visitorId,
         timestamp: new Date().toISOString()
       },
       {

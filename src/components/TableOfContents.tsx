@@ -164,7 +164,7 @@ export default function TableOfContents({ items }: Props) {
   // メモ化されたヘッダーリスト
   const memoizedHeaders = useMemo(() => {
     return headingElements.map((heading, index) => (
-      <li key={heading.id} className={`pl-${(heading.level - 2) * 4} py-1`}>
+      <li key={`toc-${heading.id}-${index}`} className={`pl-${(heading.level - 2) * 4} py-1`}>
         <a
           href={`#${heading.id}`}
           className={`block text-sm hover:text-primary-600 transition-colors ${
@@ -195,8 +195,8 @@ export default function TableOfContents({ items }: Props) {
       <h2 className="blog-toc-title">目次</h2>
       <div className="blog-toc-visible">
         <ul>
-          {visibleItems.map((item) => (
-            <li key={item.id}>
+          {visibleItems.map((item, index) => (
+            <li key={`visible-${item.id}-${index}`}>
               <a
                 href={`#${item.id}`}
                 onClick={(e) => handleClick(e, item.id)}
@@ -221,8 +221,8 @@ export default function TableOfContents({ items }: Props) {
             ref={contentRef}
           >
             <ul>
-              {hiddenItems.map((item) => (
-                <li key={item.id}>
+              {hiddenItems.map((item, index) => (
+                <li key={`hidden-${item.id}-${index}`}>
                   <a
                     href={`#${item.id}`}
                     onClick={(e) => handleClick(e, item.id)}
