@@ -302,7 +302,8 @@
 
 /* シェアボタン */
 .blog-share-buttons {
-  margin: 8px 0 !important;
+  @apply flex items-center justify-center gap-4;
+  margin: 0.5rem 0 1.5rem !important;
 }
 
 /* 目次 */
@@ -855,20 +856,22 @@ h2.blog-toc-title {
 
 /* 目次コンテンツ */
 .blog-toc-content {
-  height: 0;
+  max-height: 0;
   overflow: hidden;
   transition: all 0.3s ease;
   opacity: 0;
   margin-top: 0;
+  visibility: hidden;
 }
 
 /* 展開時のコンテンツ表示 */
 .blog-toc.expanded .blog-toc-content {
-  height: auto;
+  max-height: 1000px; /* 十分な高さを確保 */
   opacity: 1;
   margin-top: 0.5rem;
   padding-top: 0.5rem;
   border-top: 1px solid #f3f4f6;
+  visibility: visible;
 }
 
 .blog-toc ul {
@@ -927,16 +930,17 @@ h2.blog-toc-title {
 
 /* シェアボタン */
 .blog-share-buttons {
-  @apply flex items-center justify-center gap-2 my-6;
+  @apply flex items-center justify-center gap-4;
+  margin: 0.5rem 0 1.5rem !important;
 }
 
 .blog-share-button {
-  @apply flex items-center justify-center px-4 py-2 text-sm font-medium transition-all duration-200;
-  min-width: 120px;
+  @apply flex items-center justify-center px-6 py-3 text-base font-medium transition-all duration-200;
+  min-width: 160px;
 }
 
 .blog-share-button svg {
-  @apply w-4 h-4 mr-2;
+  @apply w-5 h-5 mr-2;
 }
 
 /* Xシェアボタン */
@@ -952,12 +956,12 @@ h2.blog-toc-title {
 /* スマホ対応 */
 @media (max-width: 768px) {
   .blog-share-buttons {
-    @apply flex-row justify-center;
+    @apply flex-row justify-center gap-3;
   }
 
   .blog-share-button {
-    @apply text-xs px-3 py-2;
-    min-width: 100px;
+    @apply text-sm px-4 py-2.5;
+    min-width: 130px;
   }
 }
 
