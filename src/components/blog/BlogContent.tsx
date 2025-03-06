@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import { createPortal } from 'react-dom';
 
 // 広告バナーを動的にインポート
 const AdBanner = dynamic(() => import('./AdBanner'), { ssr: false });
@@ -11,10 +12,20 @@ interface BlogContentProps {
   content: string;
 }
 
+// バナーの種類を型として定義
+type BannerVariant = 'horizontal' | 'vertical';
+
+// 広告位置の型を定義
+interface AdPosition {
+  position: number;
+  variant: BannerVariant;
+}
+
 export default function BlogContentProcessor({ content }: BlogContentProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [adPositions, setAdPositions] = useState<number[]>([]);
+  const [adPositions, setAdPositions] = useState<AdPosition[]>([]);
   const [isContentProcessed, setIsContentProcessed] = useState(false);
+  const [adMarkers, setAdMarkers] = useState<HTMLElement[]>([]);
 
   // コンテンツの初期処理
   useEffect(() => {
@@ -40,91 +51,70 @@ export default function BlogContentProcessor({ content }: BlogContentProps) {
       containerRef.current.querySelectorAll('h2:not(.blog-toc-title)')
     );
     
-    // h2要素が少なくとも3つ以上ある場合のみ広告を挿入
-    if (h2Elements.length >= 3) {
-      // ランダムに広告を挿入する位置を選択（最初と最後のh2は除外）
-      const availableIndices = Array.from({ length: h2Elements.length - 2 }, (_, i) => i + 1);
-      
-      // 記事の長さに応じて挿入する広告の数を決定
-      const numAdsToInsert = h2Elements.length >= 6 ? 2 : 1;
-      
-      // ランダムに広告を挿入する位置を選択
-      const selectedIndices = [];
-      for (let i = 0; i < numAdsToInsert && availableIndices.length > 0; i++) {
-        const randomIndex = Math.floor(Math.random() * availableIndices.length);
-        selectedIndices.push(availableIndices[randomIndex]);
-        availableIndices.splice(randomIndex, 1);
-      }
-      
-      // 選択された位置を状態として保存
-      setAdPositions(selectedIndices);
+    console.log(`Found ${h2Elements.length} h2 elements`);
+    
+    // 広告バナーを表示する位置を決定
+    const adPositionsToInsert: AdPosition[] = [];
+    const markersArray: HTMLElement[] = [];
+    
+    // 横長バナー（horizontal）: 4個目と8個目のh2タイトルの上に表示
+    if (h2Elements.length >= 4) {
+      adPositionsToInsert.push({ position: 3, variant: 'horizontal' as BannerVariant }); // 4個目（インデックスは3）
     }
     
-    setIsContentProcessed(true);
-  }, [content]);
-
-  // 広告バナーを挿入する処理
-  useEffect(() => {
-    if (!containerRef.current || !isContentProcessed || adPositions.length === 0) return;
-
-    const h2Elements = Array.from(
-      containerRef.current.querySelectorAll('h2:not(.blog-toc-title)')
-    );
-
+    if (h2Elements.length >= 8) {
+      adPositionsToInsert.push({ position: 7, variant: 'horizontal' as BannerVariant }); // 8個目（インデックスは7）
+    }
+    
+    // 縦長バナー（vertical）: 6個目と10個目のh2タイトルの上に表示
+    if (h2Elements.length >= 6) {
+      adPositionsToInsert.push({ position: 5, variant: 'vertical' as BannerVariant }); // 6個目（インデックスは5）
+    }
+    
+    if (h2Elements.length >= 10) {
+      adPositionsToInsert.push({ position: 9, variant: 'vertical' as BannerVariant }); // 10個目（インデックスは9）
+    }
+    
     // 各広告位置にマーカーを挿入
-    adPositions.forEach(index => {
-      if (index < h2Elements.length) {
-        const h2 = h2Elements[index];
-        
-        // すでにマーカーが挿入されていないか確認
-        const prevElement = h2.previousElementSibling;
-        if (prevElement && prevElement.classList.contains('ad-banner-marker')) {
-          return;
-        }
+    adPositionsToInsert.forEach(({ position, variant }) => {
+      if (position < h2Elements.length) {
+        const h2 = h2Elements[position];
         
         // 広告マーカーを挿入
         const marker = document.createElement('div');
-        marker.className = 'ad-banner-marker';
-        marker.dataset.position = index.toString();
-        h2.parentNode?.insertBefore(marker, h2);
+        marker.className = `ad-banner-marker ad-banner-${variant}`;
+        marker.dataset.position = position.toString();
+        marker.dataset.variant = variant;
+        marker.style.margin = '2rem 0';
+        
+        // h2の前に広告マーカーを挿入
+        if (h2.parentNode) {
+          h2.parentNode.insertBefore(marker, h2);
+          markersArray.push(marker);
+          console.log(`Inserted ${variant} banner marker before h2: ${h2.textContent}`);
+        }
       }
     });
-  }, [isContentProcessed, adPositions]);
+    
+    // 選択された位置を状態として保存
+    setAdPositions(adPositionsToInsert);
+    setAdMarkers(markersArray);
+    
+    setIsContentProcessed(true);
+  }, [content]);
 
   return (
     <div className="blog-content-processor">
       <div ref={containerRef} className="blog-content-html" />
       
       {/* 広告バナーをReactコンポーネントとしてレンダリング */}
-      {isContentProcessed && adPositions.map((position, index) => (
-        <AdBannerRenderer key={`ad-${position}`} position={position} />
-      ))}
-    </div>
-  );
-}
-
-// 広告バナーをレンダリングするコンポーネント
-function AdBannerRenderer({ position }: { position: number }) {
-  const [mounted, setMounted] = useState(false);
-  
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  
-  // クライアントサイドでのみレンダリング
-  if (!mounted) return null;
-  
-  // マーカー要素を探す
-  const marker = document.querySelector(`.ad-banner-marker[data-position="${position}"]`);
-  if (!marker) return null;
-  
-  // ランダムにバリエーションを選択
-  const variant = Math.random() > 0.5 ? 'horizontal' : 'vertical';
-  
-  // ReactPortalを使用してマーカー位置に広告を挿入
-  return (
-    <div className="my-8">
-      <AdBanner variant={variant} />
+      {isContentProcessed && adMarkers.map((marker, index) => {
+        const variant = marker.dataset.variant as BannerVariant;
+        return createPortal(
+          <AdBanner key={`ad-${index}`} variant={variant} />,
+          marker
+        );
+      })}
     </div>
   );
 }
