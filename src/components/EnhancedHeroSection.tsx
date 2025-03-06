@@ -59,9 +59,9 @@ const marqueeStyles = `
 const MainMessages = () => {
   return (
     <div className="blog-marquee">
-      <h2 className="blog-marquee-text" style={{ margin: 0 }}>
+      <div className="blog-marquee-text" style={{ margin: 0 }}>
         退職代行サービス 業界最安値2,980円で即日対応!!退職のノウハウから、キャリアプランまであなたの新しい一歩を、私たちがサポートします!!
-      </h2>
+      </div>
     </div>
   );
 };
