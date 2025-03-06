@@ -51,7 +51,7 @@ export default function ReviewSection() {
                 </div>
               </div>
 
-              {/* スマホ版でのタイトル配置 */}
+              {/* スマホ版でのタイトル配置 - h2をdivに変更 */}
               <div className="md:hidden flex-1">
                 <div className="mb-1.5">
                   <div className="inline-block relative">
@@ -59,7 +59,7 @@ export default function ReviewSection() {
                     <div className="relative bg-yellow-500 text-white px-2 py-0.5 text-sm font-bold rounded">5.0</div>
                   </div>
                 </div>
-                <h2 className="text-lg font-bold text-slate-800 leading-tight mb-1.5">ご利用者様の口コミ</h2>
+                <div className="text-lg font-bold text-slate-800 leading-tight mb-1.5">ご利用者様の口コミ</div>
                 <div className="flex justify-start">
                   <StarRating rating={5} />
                 </div>
@@ -102,7 +102,7 @@ export default function ReviewSection() {
           {/* Content Section */}
           <div className="space-y-3 md:space-y-8">
             <div>
-              <h2 className="text-[5px] md:text-2xl font-bold mb-1 md:mb-4 text-slate-800 text-center">退職代行サービスの口コミについて</h2>
+              <h3 className="text-[10px] md:text-2xl font-bold mb-1 md:mb-4 text-slate-800 text-center">退職代行サービスの口コミについて</h3>
               <p className="text-[10px] md:text-base text-slate-600 leading-relaxed">
                 本ページに掲載されている退職代行サービスの記事内容は、実際の利用者の口コミデータをもとに、
                 編集部が実際にサービスを利用したうえで事実関係や最新の状況を確認したうえで作成しています。
@@ -114,7 +114,7 @@ export default function ReviewSection() {
                 className="p-2 md:p-6 cursor-pointer hover:bg-yellow-100 transition-all duration-300"
                 onClick={() => setIsExpanded(!isExpanded)}
               >
-                <h3 className="text-[4px] md:text-lg font-bold flex items-center gap-2 md:gap-2">
+                <h3 className="text-[10px] md:text-lg font-bold flex items-center gap-2 md:gap-2">
                   <ChevronDown 
                     className={`w-4 h-4 md:w-5 md:h-5 text-yellow-500 transition-transform duration-300 ${isExpanded ? 'rotate-180' : ''}`} 
                   />

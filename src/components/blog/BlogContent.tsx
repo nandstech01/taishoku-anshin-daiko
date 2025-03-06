@@ -5,8 +5,14 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { createPortal } from 'react-dom';
 
-// 広告バナーを動的にインポート
+// コンポーネントを動的にインポート
 const AdBanner = dynamic(() => import('./AdBanner'), { ssr: false });
+const ReviewSection = dynamic(() => import('./ReviewSection'), { ssr: false });
+// 比較表コンポーネントを再定義
+const ComparisonTable = dynamic(() => import('./ComparisonTable'), { 
+  ssr: false,
+  loading: () => <div className="h-20 w-full animate-pulse bg-gray-100"></div>
+});
 
 interface BlogContentProps {
   content: string;
@@ -26,6 +32,8 @@ export default function BlogContentProcessor({ content }: BlogContentProps) {
   const [adPositions, setAdPositions] = useState<AdPosition[]>([]);
   const [isContentProcessed, setIsContentProcessed] = useState(false);
   const [adMarkers, setAdMarkers] = useState<HTMLElement[]>([]);
+  const [reviewMarker, setReviewMarker] = useState<HTMLElement | null>(null);
+  const [comparisonTableMarkers, setComparisonTableMarkers] = useState<HTMLElement[]>([]);
 
   // コンテンツの初期処理
   useEffect(() => {
@@ -56,6 +64,7 @@ export default function BlogContentProcessor({ content }: BlogContentProps) {
     // 広告バナーを表示する位置を決定
     const adPositionsToInsert: AdPosition[] = [];
     const markersArray: HTMLElement[] = [];
+    const comparisonMarkersArray: HTMLElement[] = [];
     
     // 横長バナー（horizontal）: 4個目と8個目のh2タイトルの上に表示
     if (h2Elements.length >= 4) {
@@ -96,9 +105,63 @@ export default function BlogContentProcessor({ content }: BlogContentProps) {
       }
     });
     
+    // 口コミセクションを5個目のh2タイトルの前に挿入
+    if (h2Elements.length >= 5) {
+      const fifthH2 = h2Elements[4]; // 5個目（インデックスは4）
+      
+      // 口コミセクションのマーカーを挿入
+      const reviewMarkerElement = document.createElement('div');
+      reviewMarkerElement.className = 'review-section-marker';
+      reviewMarkerElement.style.margin = '3rem 0';
+      
+      // h2の前に口コミセクションのマーカーを挿入
+      if (fifthH2.parentNode) {
+        fifthH2.parentNode.insertBefore(reviewMarkerElement, fifthH2);
+        setReviewMarker(reviewMarkerElement);
+        console.log(`Inserted review section marker before 5th h2: ${fifthH2.textContent}`);
+      }
+    }
+    
+    // 比較表を2個目のh2タイトルの前に挿入
+    if (h2Elements.length >= 2) {
+      const secondH2 = h2Elements[1]; // 2個目（インデックスは1）
+      
+      // 比較表のマーカーを挿入
+      const comparisonMarkerElement = document.createElement('div');
+      comparisonMarkerElement.className = 'comparison-table-marker';
+      comparisonMarkerElement.dataset.position = '1'; // 位置を識別するためのデータ属性
+      comparisonMarkerElement.style.margin = '3rem 0';
+      
+      // h2の前に比較表のマーカーを挿入
+      if (secondH2.parentNode) {
+        secondH2.parentNode.insertBefore(comparisonMarkerElement, secondH2);
+        comparisonMarkersArray.push(comparisonMarkerElement);
+        console.log(`Inserted comparison table marker before 2nd h2: ${secondH2.textContent}`);
+      }
+    }
+    
+    // 比較表を7個目のh2タイトルの前にも挿入
+    if (h2Elements.length >= 7) {
+      const seventhH2 = h2Elements[6]; // 7個目（インデックスは6）
+      
+      // 比較表のマーカーを挿入
+      const comparisonMarkerElement = document.createElement('div');
+      comparisonMarkerElement.className = 'comparison-table-marker';
+      comparisonMarkerElement.dataset.position = '6'; // 位置を識別するためのデータ属性
+      comparisonMarkerElement.style.margin = '3rem 0';
+      
+      // h2の前に比較表のマーカーを挿入
+      if (seventhH2.parentNode) {
+        seventhH2.parentNode.insertBefore(comparisonMarkerElement, seventhH2);
+        comparisonMarkersArray.push(comparisonMarkerElement);
+        console.log(`Inserted comparison table marker before 7th h2: ${seventhH2.textContent}`);
+      }
+    }
+    
     // 選択された位置を状態として保存
     setAdPositions(adPositionsToInsert);
     setAdMarkers(markersArray);
+    setComparisonTableMarkers(comparisonMarkersArray);
     
     setIsContentProcessed(true);
   }, [content]);
@@ -112,6 +175,20 @@ export default function BlogContentProcessor({ content }: BlogContentProps) {
         const variant = marker.dataset.variant as BannerVariant;
         return createPortal(
           <AdBanner key={`ad-${index}`} variant={variant} />,
+          marker
+        );
+      })}
+      
+      {/* 口コミセクションをReactコンポーネントとしてレンダリング */}
+      {isContentProcessed && reviewMarker && createPortal(
+        <ReviewSection key="review-section" />,
+        reviewMarker
+      )}
+      
+      {/* 比較表をReactコンポーネントとしてレンダリング */}
+      {isContentProcessed && comparisonTableMarkers.map((marker, index) => {
+        return createPortal(
+          <ComparisonTable key={`comparison-table-${index}`} />,
           marker
         );
       })}
