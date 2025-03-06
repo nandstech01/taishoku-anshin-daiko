@@ -59,7 +59,7 @@ export default function ReviewSection() {
                     <div className="relative bg-yellow-500 text-white px-2 py-0.5 text-sm font-bold rounded">5.0</div>
                   </div>
                 </div>
-                <h1 className="text-lg font-bold text-slate-800 leading-tight mb-1.5">ご利用者様の口コミ</h1>
+                <h2 className="text-lg font-bold text-slate-800 leading-tight mb-1.5">ご利用者様の口コミ</h2>
                 <div className="flex justify-start">
                   <StarRating rating={5} />
                 </div>
@@ -74,7 +74,7 @@ export default function ReviewSection() {
                 transition={{ duration: 0.5 }}
                 className="hidden md:flex items-center justify-center md:justify-start gap-6 mb-6"
               >
-                <h1 className="text-3xl md:text-4xl font-bold text-slate-800">ご利用者様の口コミ</h1>
+                <h2 className="text-3xl md:text-4xl font-bold text-slate-800">ご利用者様の口コミ</h2>
                 <div className="relative">
                   <div className="absolute inset-0 bg-yellow-300 transform rotate-3"></div>
                   <div className="relative bg-yellow-500 text-white px-4 py-1 text-lg font-bold">5.0</div>
