@@ -9,7 +9,8 @@ config({ path: '.env.local' });
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';
+// 末尾のスラッシュを確実に削除したURLを使用
+const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com').replace(/\/$/, '');
 
 async function generateSitemap() {
   try {
@@ -59,8 +60,14 @@ async function generateSitemap() {
     const robotsTxtPath = path.join(process.cwd(), 'public', 'robots.txt');
     const robotsTxt = `User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
+# 正規URLを指定
 Sitemap: ${baseUrl}/sitemap.xml
+
+# クロールレート制御
+Crawl-delay: 1
 `;
 
     fs.writeFileSync(robotsTxtPath, robotsTxt);

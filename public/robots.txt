@@ -1,4 +1,10 @@
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /api/
 
+# 正規URLを指定
 Sitemap: https://taishoku-anshin-daiko.com/sitemap.xml
+
+# クロールレート制御
+Crawl-delay: 1

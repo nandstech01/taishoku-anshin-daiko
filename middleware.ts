@@ -4,6 +4,14 @@ import type { NextRequest } from 'next/server';
 
 export async function middleware(req: NextRequest) {
   const res = NextResponse.next();
+  
+  // www to non-www リダイレクト
+  if (req.headers.get('host')?.startsWith('www.')) {
+    const newUrl = new URL(req.url);
+    newUrl.host = newUrl.host.replace(/^www\./, '');
+    return NextResponse.redirect(newUrl, { status: 301 });
+  }
+  
   const supabase = createMiddlewareClient({ req, res });
 
   // セッションの更新

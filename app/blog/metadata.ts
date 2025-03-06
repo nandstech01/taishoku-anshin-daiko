@@ -1,4 +1,4 @@
-const baseUrl = 'https://taishoku-anshin-daiko.com';
+const baseUrl = 'https://taishoku-anshin-daiko.com'.replace(/\/$/, '');
 
 const blogSchema = {
   '@context': 'https://schema.org',

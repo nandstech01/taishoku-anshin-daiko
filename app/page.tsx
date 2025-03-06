@@ -16,7 +16,6 @@ import ConsultationForm from '../src/components/ConsultationForm';
 import Footer from '../src/components/common/Footer';
 import HomePageBlogSection from '@/components/blog/HomePageBlogSection';
 import FixedButtons from '@/components/ui/FixedButtons';
-import LoadingScreen from '@/components/loading/LoadingScreen';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 
@@ -31,7 +30,6 @@ const EnhancedHeroSection = dynamic(
 export default function Home() {
   return (
     <>
-      <LoadingScreen />
       <div className="sticky top-0 z-[51]">
         <Header />
       </div>

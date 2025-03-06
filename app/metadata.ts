@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { generateServiceSchema } from '@/schemas/service';
 import { generateWebsiteSchema } from '@/schemas/website';
 
-const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://taishoku-anshin-daiko.com';
+// 末尾のスラッシュを確実に削除したURLを使用
+const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || 'https://taishoku-anshin-daiko.com').replace(/\/$/, '');
 
 // メインページのメタデータを定義
 export const metadata: Metadata = {

@@ -5,7 +5,7 @@ const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
   optimizeFonts: true,
-  trailingSlash: true,
+  trailingSlash: false,
   compress: true,
   productionBrowserSourceMaps: false,
   assetPrefix: process.env.NODE_ENV === 'production' ? process.env.NEXT_PUBLIC_SITE_URL : '',

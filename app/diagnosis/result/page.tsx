@@ -340,10 +340,10 @@ export default async function ResultPage({
           {/* 再診断ボタン */}
           <div className="mt-8 text-center px-2">
             <a
-              href="/blog"
+              href="https://taishoku-anshin-daiko.com/"
               className="inline-block px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              ブログトップに戻る
+              トップページに戻る
             </a>
           </div>
         </Suspense>

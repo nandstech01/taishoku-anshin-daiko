@@ -56,7 +56,7 @@ export function generateSitemapXml(
   // 固定ページのURL生成
   staticPages.forEach(({ path, priority, changefreq }) => {
     urls.push({
-      loc: `${baseUrl}/${path}`.replace(/\/$/, ''),
+      loc: `${baseUrl}${path ? `/${path}` : ''}`.replace(/\/$/, ''),
       lastmod: formatDateTime(now),
       changefreq,
       priority,
@@ -70,7 +70,7 @@ export function generateSitemapXml(
       const modDate = lastmod ? new Date(lastmod) : now;
       
       urls.push({
-        loc: `${baseUrl}/blog/${post.slug}`,
+        loc: `${baseUrl}/blog/${post.slug}`.replace(/\/$/, ''),
         lastmod: formatDateTime(modDate),
         changefreq: calculateChangeFreq(modDate.toISOString()),
         priority: 0.8,
@@ -81,7 +81,7 @@ export function generateSitemapXml(
         post.seo_keywords.forEach((tag) => {
           const normalizedTag = normalizeTag(tag);
           urls.push({
-            loc: `${baseUrl}/blog/tags/${encodeURIComponent(normalizedTag)}`,
+            loc: `${baseUrl}/blog/tags/${encodeURIComponent(normalizedTag)}`.replace(/\/$/, ''),
             lastmod: formatDateTime(modDate),
             changefreq: 'weekly',
             priority: 0.7,
@@ -95,7 +95,7 @@ export function generateSitemapXml(
   categories.forEach((category) => {
     const normalizedCategory = normalizeCategory(category.slug);
     urls.push({
-      loc: `${baseUrl}/blog/category/${normalizedCategory}`,
+      loc: `${baseUrl}/blog/category/${normalizedCategory}`.replace(/\/$/, ''),
       lastmod: formatDateTime(now),
       changefreq: 'weekly',
       priority: 0.7,
