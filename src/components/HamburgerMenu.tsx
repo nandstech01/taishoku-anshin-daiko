@@ -11,16 +11,16 @@ import Link from 'next/link';
 const MenuIcon = memo(({ isOpen, onClick }: { isOpen: boolean; onClick: () => void }) => {
     const iconVariants = {
         top: {
-            open: { rotate: 45, translateY: 6 },
-            closed: { rotate: 0, translateY: 0 }
+            open: { rotate: 45, translateY: 7, translateX: 0 },
+            closed: { rotate: 0, translateY: 0, translateX: 0 }
         },
         middle: {
             open: { opacity: 0 },
             closed: { opacity: 1 }
         },
         bottom: {
-            open: { rotate: -45, translateY: -6 },
-            closed: { rotate: 0, translateY: 0 }
+            open: { rotate: -45, translateY: -7, translateX: 0 },
+            closed: { rotate: 0, translateY: 0, translateX: 0 }
         }
     };
 
@@ -28,24 +28,24 @@ const MenuIcon = memo(({ isOpen, onClick }: { isOpen: boolean; onClick: () => vo
         <button
             onClick={onClick}
             className="p-2 text-gray-600 hover:text-gray-900 focus:outline-none w-10 h-10 flex items-center justify-center"
-            aria-label="メニューを開く"
+            aria-label={isOpen ? "メニューを閉じる" : "メニューを開く"}
         >
             <svg width="24" height="24" viewBox="0 0 24 24">
                 <motion.path
                     fill="transparent"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     stroke="currentColor"
                     strokeLinecap="round"
                     d="M 4 6 L 20 6"
                     initial="closed"
                     animate={isOpen ? "open" : "closed"}
                     variants={iconVariants.top}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                    transition={{ type: "spring", stiffness: 450, damping: 30 }}
                     style={{ transformOrigin: "center" }}
                 />
                 <motion.path
                     fill="transparent"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     stroke="currentColor"
                     strokeLinecap="round"
                     d="M 4 12 L 20 12"
@@ -57,20 +57,21 @@ const MenuIcon = memo(({ isOpen, onClick }: { isOpen: boolean; onClick: () => vo
                 />
                 <motion.path
                     fill="transparent"
-                    strokeWidth="2"
+                    strokeWidth="2.5"
                     stroke="currentColor"
                     strokeLinecap="round"
                     d="M 4 18 L 20 18"
                     initial="closed"
                     animate={isOpen ? "open" : "closed"}
                     variants={iconVariants.bottom}
-                    transition={{ type: "spring", stiffness: 400, damping: 40 }}
+                    transition={{ type: "spring", stiffness: 450, damping: 30 }}
                     style={{ transformOrigin: "center" }}
                 />
             </svg>
         </button>
     );
 });
+MenuIcon.displayName = 'MenuIcon';
 
 // ソーシャルアイコンコンポーネント
 const SocialIcon = memo(({ href, icon: Icon, name }: { href: string; icon: any; name: string }) => (
@@ -84,6 +85,7 @@ const SocialIcon = memo(({ href, icon: Icon, name }: { href: string; icon: any; 
         </div>
     </Link>
 ));
+SocialIcon.displayName = 'SocialIcon';
 
 // メニューアイテムの型定義を追加
 type MenuItem = {
@@ -119,6 +121,57 @@ const MenuItem = memo(({ item, onClose }: {
         }
     };
 
+    // スクロール処理を追加
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        onClose(); // メニューを閉じる
+        
+        // 内部リンク（#で始まるもの）の場合のみスクロール処理を行う
+        if (item.href && item.href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = item.href.substring(1);
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                // 少し遅延を入れてメニューが閉じた後にスクロールするようにする
+                setTimeout(() => {
+                    // スムーズスクロール
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80, // ヘッダーの高さを考慮
+                        behavior: 'smooth'
+                    });
+                }, 300);
+            }
+        }
+    };
+
+    // サブアイテムのクリックハンドラ
+    const handleSubItemClick = (e: React.MouseEvent<HTMLAnchorElement>, subItem: { href: string, isExternal?: boolean }) => {
+        onClose(); // メニューを閉じる
+        
+        // 外部リンクまたは通常のリンクの場合は通常の動作
+        if (subItem.isExternal || !subItem.href.startsWith('#')) {
+            return; // デフォルトの動作を許可
+        }
+        
+        // 内部リンク（#で始まるもの）の場合のみスクロール処理を行う
+        if (subItem.href.startsWith('#')) {
+            e.preventDefault();
+            const targetId = subItem.href.substring(1);
+            const targetElement = document.getElementById(targetId);
+            
+            if (targetElement) {
+                // 少し遅延を入れてメニューが閉じた後にスクロールするようにする
+                setTimeout(() => {
+                    // スムーズスクロール
+                    window.scrollTo({
+                        top: targetElement.offsetTop - 80, // ヘッダーの高さを考慮
+                        behavior: 'smooth'
+                    });
+                }, 300);
+            }
+        }
+    };
+
     if (item.subItems) {
         return (
             <motion.div 
@@ -138,7 +191,7 @@ const MenuItem = memo(({ item, onClose }: {
                             <ChevronRight className="w-4 h-4 text-orange-500 mr-1" />
                             <a
                                 href={subItem.href}
-                                onClick={onClose}
+                                onClick={(e) => handleSubItemClick(e, subItem)}
                                 className="text-gray-300 hover:text-orange-500 transition-colors"
                                 target={subItem.isExternal ? "_blank" : undefined}
                                 rel={subItem.isExternal ? "noopener noreferrer" : undefined}
@@ -159,7 +212,7 @@ const MenuItem = memo(({ item, onClose }: {
         >
             <a
                 href={item.href}
-                onClick={onClose}
+                onClick={handleClick}
                 className="text-lg font-medium text-white hover:text-orange-500 transition-colors"
             >
                 {item.title}
@@ -167,6 +220,7 @@ const MenuItem = memo(({ item, onClose }: {
         </motion.div>
     );
 });
+MenuItem.displayName = 'MenuItem';
 
 // メニューコンテナコンポーネント
 const MenuContainer = memo(({ isOpen, children }: {
@@ -210,6 +264,7 @@ const MenuContainer = memo(({ isOpen, children }: {
         </motion.div>
     );
 });
+MenuContainer.displayName = 'MenuContainer';
 
 // メインコンポーネント
 const HamburgerMenu = () => {

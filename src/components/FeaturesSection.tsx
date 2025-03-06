@@ -123,7 +123,10 @@ const additionalExplanations = [
  ******************************************************************************/
 export default function FeaturesSection() {
   return (
-    <section className="relative w-full min-h-screen bg-gradient-to-br from-white via-orange-50 to-amber-50">
+    <section 
+      className="relative w-full min-h-screen bg-gradient-to-br from-white via-orange-50 to-amber-50"
+      id="features"
+    >
       <div className="relative container mx-auto py-16 md:py-24 px-4">
         <motion.div
           className="text-center max-w-3xl mx-auto mb-10"

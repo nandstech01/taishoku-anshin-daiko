@@ -92,6 +92,7 @@ export default function ReasonsSection() {
             ref={sectionRef} 
             className="py-20 overflow-hidden"
             style={{ position: 'relative' }}
+            id="reasons"
         >
             <motion.div
                 initial={{ opacity: 0 }}
@@ -121,8 +122,7 @@ export default function ReasonsSection() {
                             選ばれる理由
                         </motion.div>
                         <h3 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                            多くのお客様に<br />
-                            <span className="text-white drop-shadow-md">選ばれる6つの理由</span>
+                            <span className="text-orange-400 drop-shadow-md">選ばれる6つの理由</span>
                         </h3>
                     </motion.div>
 
