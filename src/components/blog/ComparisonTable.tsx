@@ -135,10 +135,10 @@ export default function ComparisonTable() {
       <div className="overflow-x-auto p-2">
         <table className="w-full border-collapse text-xs">
           <thead>
-            <tr className="border-b text-gray-600">
-              <th className="p-2 text-left font-medium">サービス</th>
-              <th className="p-2 text-left font-medium">料金</th>
-              <th className="p-2 text-left font-medium">特徴</th>
+            <tr className="border-b">
+              <th className="p-2 text-left font-medium bg-blue-800 text-white">サービス</th>
+              <th className="p-2 text-left font-medium bg-blue-800 text-white">料金</th>
+              <th className="p-2 text-left font-medium bg-blue-800 text-white">特徴</th>
             </tr>
           </thead>
           <tbody>
