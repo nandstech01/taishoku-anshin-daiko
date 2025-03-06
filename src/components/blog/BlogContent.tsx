@@ -61,6 +61,11 @@ export default function BlogContentProcessor({ content }: BlogContentProps) {
     
     console.log(`Found ${h2Elements.length} h2 elements`);
     
+    // h2要素のテキストをログに出力（デバッグ用）
+    h2Elements.forEach((h2, index) => {
+      console.log(`H2 #${index + 1}: ${h2.textContent}`);
+    });
+    
     // 広告バナーを表示する位置を決定
     const adPositionsToInsert: AdPosition[] = [];
     const markersArray: HTMLElement[] = [];
@@ -143,6 +148,7 @@ export default function BlogContentProcessor({ content }: BlogContentProps) {
     // 比較表を7個目のh2タイトルの前にも挿入
     if (h2Elements.length >= 7) {
       const seventhH2 = h2Elements[6]; // 7個目（インデックスは6）
+      console.log(`Preparing to insert comparison table before 7th h2: ${seventhH2.textContent}`);
       
       // 比較表のマーカーを挿入
       const comparisonMarkerElement = document.createElement('div');
@@ -154,17 +160,30 @@ export default function BlogContentProcessor({ content }: BlogContentProps) {
       if (seventhH2.parentNode) {
         seventhH2.parentNode.insertBefore(comparisonMarkerElement, seventhH2);
         comparisonMarkersArray.push(comparisonMarkerElement);
-        console.log(`Inserted comparison table marker before 7th h2: ${seventhH2.textContent}`);
+        console.log(`Successfully inserted comparison table marker before 7th h2: ${seventhH2.textContent}`);
+      } else {
+        console.error('7th h2 element has no parent node');
       }
+    } else {
+      console.log(`Not enough h2 elements to insert comparison table before 7th h2. Found only ${h2Elements.length} h2 elements.`);
     }
     
     // 選択された位置を状態として保存
     setAdPositions(adPositionsToInsert);
     setAdMarkers(markersArray);
     setComparisonTableMarkers(comparisonMarkersArray);
+    console.log(`Set ${comparisonMarkersArray.length} comparison table markers`);
     
     setIsContentProcessed(true);
   }, [content]);
+
+  // 比較表マーカーの数をログに出力（デバッグ用）
+  useEffect(() => {
+    console.log(`Rendering ${comparisonTableMarkers.length} comparison tables`);
+    comparisonTableMarkers.forEach((marker, index) => {
+      console.log(`Comparison table #${index + 1} at position ${marker.dataset.position}`);
+    });
+  }, [comparisonTableMarkers]);
 
   return (
     <div className="blog-content-processor">
@@ -186,7 +205,8 @@ export default function BlogContentProcessor({ content }: BlogContentProps) {
       )}
       
       {/* 比較表をReactコンポーネントとしてレンダリング */}
-      {isContentProcessed && comparisonTableMarkers.map((marker, index) => {
+      {isContentProcessed && comparisonTableMarkers.length > 0 && comparisonTableMarkers.map((marker, index) => {
+        console.log(`Rendering comparison table #${index + 1}`);
         return createPortal(
           <ComparisonTable key={`comparison-table-${index}`} />,
           marker
