@@ -20,6 +20,7 @@ import ReviewSection from '@/components/blog/ReviewSection';
 import BlogContentProcessor from '@/components/blog/BlogContent';
 import { getPostWithCategory, getRelatedPosts } from '@/utils/blog-helpers';
 import DiagnosisSection from '@/components/blog/DiagnosisSection';
+import AdBanner from '@/components/blog/AdBanner';
 
 // キャッシュを無効化
 export const revalidate = 0;
@@ -260,6 +261,11 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
 
               {/* 目次 */}
               <TableOfContents items={headings} />
+
+              {/* 目次下の広告バナー */}
+              <div className="mt-8 mb-12">
+                <AdBanner variant="horizontal" />
+              </div>
 
               {/* 診断セクション */}
               <DiagnosisSection />
