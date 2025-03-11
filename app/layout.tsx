@@ -41,6 +41,11 @@ export default function RootLayout({
         <meta name="color-scheme" content="light only" />
         <meta httpEquiv="Cache-Control" content="public, max-age=31536000" />
         
+        {/* AIクローラー向けのメタタグ */}
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        <meta name="bingbot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+        
         {/* LLM対応のためのリンク */}
         <link rel="llms" href="/llms.txt" type="text/markdown" />
         <link rel="llms-full" href="/llms-full.txt" type="text/markdown" />
