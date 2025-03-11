@@ -41,6 +41,10 @@ export default function RootLayout({
         <meta name="color-scheme" content="light only" />
         <meta httpEquiv="Cache-Control" content="public, max-age=31536000" />
         
+        {/* LLM対応のためのリンク */}
+        <link rel="llms" href="/llms.txt" type="text/markdown" />
+        <link rel="llms-full" href="/llms-full.txt" type="text/markdown" />
+        
         <link 
           rel="preload" 
           href="/images/logo.svg" 

@@ -22,6 +22,15 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## LLM対応
+
+このプロジェクトは、LLM（大規模言語モデル）との互換性を持たせるために、以下のファイルを提供しています：
+
+- [llms.txt](/llms.txt) - プロジェクトの構造と主要機能の概要を提供するマークダウンファイル
+- [llms-full.txt](/llms-full.txt) - より詳細なプロジェクト情報を含むマークダウンファイル
+
+これらのファイルは、AIアシスタントがプロジェクトについて質問に答える際に正確な情報を提供するために使用されます。詳細については、[llms.txt標準](https://llmstxt.org/)を参照してください。
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
