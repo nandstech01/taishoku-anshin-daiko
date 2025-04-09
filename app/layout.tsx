@@ -74,15 +74,6 @@ export default function RootLayout({
             {children}
           </MenuProvider>
         </AuthProvider>
-        
-        {/* パフォーマンスモニタリングスクリプトを本番環境でのみ読み込む */}
-        {process.env.NODE_ENV === 'production' && (
-          <Script
-            src="/scripts/performance-monitor.js"
-            strategy="afterInteractive"
-            id="performance-monitor"
-          />
-        )}
       </body>
     </html>
   );

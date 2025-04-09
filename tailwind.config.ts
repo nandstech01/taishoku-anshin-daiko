@@ -18,6 +18,10 @@ const config: Config = {
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
       },
       keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(-100%)' }
+        },
         wave: {
           '0%, 100%': { transform: 'translateX(-100%)' },
           '50%': { transform: 'translateX(100%)' }
@@ -104,6 +108,7 @@ const config: Config = {
         }
       },
       animation: {
+        marquee: 'marquee 20s linear infinite',
         wave: 'wave 3s ease-in-out infinite',
         shimmer: 'shimmer 2s ease-in-out infinite',
         'spin-slow': 'spin-slow 3s linear infinite',
