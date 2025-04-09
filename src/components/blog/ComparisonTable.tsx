@@ -127,7 +127,7 @@ export default function ComparisonTable() {
           おすすめ退職代行サービスTOP5
         </h2>
         <p className="mt-2 text-xs text-gray-600">
-          多数のサービスから、実績・料金・サポート体制を徹底比較（2025年3月最新版）
+          多数のサービスから、実績・料金・サポート体制を徹底比較（2025年4月最新版）
         </p>
       </div>
 
