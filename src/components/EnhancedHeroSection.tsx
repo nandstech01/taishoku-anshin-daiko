@@ -36,24 +36,29 @@ const EnhancedHeroSection = () => (
     </div>
     <div className="w-full mt-24">
       <div className="relative w-full">
-        <Image
-          src="/images/hero/hero-bg-mobile.webp"
-          alt=""
-          width={1170}
-          height={585}
-          priority
-          quality={90}
-          className="w-full object-cover"
-          sizes="100vw"
-        />
+        {/* モバイル用の画像 */}
+        <div className="md:hidden">
+          <Image
+            src="/images/hero/hero-bg-mobile.webp"
+            alt=""
+            width={1170}
+            height={585}
+            priority
+            quality={90}
+            className="w-full object-cover"
+            sizes="100vw"
+          />
+        </div>
+        {/* PC用のグラデーション背景 */}
+        <div className="hidden md:block w-full h-[585px] bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-500" />
         <div className="absolute inset-0 flex z-30">
           <div className="w-full px-8 mt-32" style={{ paddingLeft: '4rem', marginTop: '19rem' }}>
-            <h1 className="text-xl font-bold mb-4 text-black relative">
+            <h1 className="text-xl font-bold mb-4 text-black relative md:text-white">
               退職代行サービス
               <span className="block mt-2">
-                <span className="block text-2xl text-black">業界最安値</span>
-                <span className="block text-7xl font-bold mt-1 [color:_#ffff00] [text-shadow:_-2px_-2px_0_#ff0000,_2px_-2px_0_#ff0000,_-2px_2px_0_#ff0000,_2px_2px_0_#ff0000]">2,980円</span>
-                <span className="block text-2xl mt-1 text-black">で即日対応</span>
+                <span className="block text-2xl text-black md:text-white">業界最安値</span>
+                <span className="block text-7xl font-bold mt-1 [color:_#ffff00] [text-shadow:_-2px_-2px_0_#ff0000,_2px_-2px_0_#ff0000,_-2px_2px_0_#ff0000,_2px_2px_0_#ff0000] md:[text-shadow:_-2px_-2px_0_#000000,_2px_-2px_0_#000000,_-2px_2px_0_#000000,_2px_2px_0_#000000]">2,980円</span>
+                <span className="block text-2xl mt-1 text-black md:text-white">で即日対応</span>
               </span>
             </h1>
             <p className="text-sm mt-1 text-black relative">
