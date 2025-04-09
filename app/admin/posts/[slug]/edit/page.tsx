@@ -90,6 +90,7 @@ export default function EditPostPage({
     }
 
     try {
+      const now = new Date().toISOString();
       const { error: postError } = await supabase
         .from('posts')
         .update({
@@ -98,7 +99,8 @@ export default function EditPostPage({
           status,
           category_slug: categorySlug,
           thumbnail_url: thumbnailUrl,
-          updated_at: new Date().toISOString(),
+          updated_at: now,
+          published_at: now,
           meta_description: metaDescription,
           seo_keywords: seoKeywords,
           is_indexable: isIndexable,

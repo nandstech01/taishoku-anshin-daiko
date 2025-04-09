@@ -66,13 +66,19 @@ export function generateSitemapXml(
   // ブログ記事のURL生成
   posts.forEach((post) => {
     if (post.status === 'published') {
+      // 最終更新日: updated_at → published_at → created_at の順で優先
       const lastmod = post.updated_at || post.published_at || post.created_at;
+      // 公開日: published_at → created_at の順で優先
+      const publishDate = post.published_at || post.created_at;
+      
       const modDate = lastmod ? new Date(lastmod) : now;
+      const pubDate = publishDate ? new Date(publishDate) : now;
       
       urls.push({
         loc: `${baseUrl}/blog/${post.slug}`.replace(/\/$/, ''),
         lastmod: formatDateTime(modDate),
-        changefreq: calculateChangeFreq(modDate.toISOString()),
+        // 更新頻度は公開日からの経過時間で計算
+        changefreq: calculateChangeFreq(pubDate.toISOString()),
         priority: 0.8,
       });
 

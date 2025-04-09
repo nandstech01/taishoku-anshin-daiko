@@ -24,6 +24,7 @@ interface DatabasePost {
   meta_description: string | null;
   thumbnail_url: string | null;
   created_at: string;
+  published_at: string | null;
   category_slug: string;
   status: string;
 }
@@ -34,6 +35,7 @@ interface Post {
   meta_description: string;
   thumbnail_url: string;
   created_at: string;
+  published_at: string | null;
 }
 
 type SortOption = {
@@ -107,7 +109,8 @@ export default function CategoryPosts({ slug }: { slug: string }) {
         title: String(post.title),
         meta_description: String(post.meta_description || ''),
         thumbnail_url: String(post.thumbnail_url || ''),
-        created_at: String(post.created_at)
+        created_at: String(post.created_at),
+        published_at: post.published_at ? String(post.published_at) : null
       }));
 
       setPosts(processedPosts);
@@ -206,8 +209,12 @@ export default function CategoryPosts({ slug }: { slug: string }) {
                   {post.meta_description}
                 </p>
                 <div className="flex justify-between items-center">
-                  <time className="blog-card-meta">
-                    {new Date(post.created_at).toLocaleDateString('ja-JP')}
+                  <time className="blog-card-meta" dateTime={post.published_at || post.created_at}>
+                    {new Date(post.published_at || post.created_at).toLocaleDateString('ja-JP', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit'
+                    }).replace(/\//g, '/')}
                   </time>
                 </div>
               </div>

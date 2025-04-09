@@ -122,6 +122,7 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
       .select('*')
       .eq('status', 'published')
       .or(`seo_keywords.cs.{"${decodedTag}"},seo_keywords.cs.{${decodedTag}}`)
+      .order('published_at', { ascending: false })
       .order('created_at', { ascending: false });
 
     if (postsError) {
@@ -156,10 +157,25 @@ export default async function TagPage({ params }: { params: { tag: string } }) {
       );
     }
 
-    const postsWithCategories = posts.map(post => ({
-      ...post,
-      category: categories?.find(cat => cat.slug === post.category_slug)
-    }));
+    // 日付でソート（published_at がない場合は created_at を使用）
+    const sortedPosts = [...(posts || [])].sort((a, b) => {
+      const dateA = a.published_at || a.created_at;
+      const dateB = b.published_at || b.created_at;
+      return new Date(dateB).getTime() - new Date(dateA).getTime();
+    });
+
+    const postsWithCategories = sortedPosts.map(post => {
+      // 日付の文字列を確実に処理
+      const published_at = post.published_at || null;
+      const created_at = post.created_at;
+      
+      return {
+        ...post,
+        category: categories?.find(cat => cat.slug === post.category_slug),
+        published_at,
+        created_at
+      };
+    });
 
     // 構造化データのパンくずリストを更新
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://taishoku-anshin-daiko.com';

@@ -119,7 +119,7 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
                 <h1 className="text-4xl font-bold mb-4">{postWithCategory.title}</h1>
                 <div className="blog-meta">
                   <div className="blog-date">
-                    {new Date(postWithCategory.created_at).toLocaleDateString('ja-JP', {
+                    {new Date(postWithCategory.published_at || postWithCategory.created_at).toLocaleDateString('ja-JP', {
                       year: 'numeric',
                       month: 'long',
                       day: 'numeric'

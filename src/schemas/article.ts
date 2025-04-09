@@ -32,7 +32,8 @@ export const generateArticleSchema = (post: Post, baseUrl: string) => {
   const imageUrls = post.thumbnail_url ? generateImageVariants(post.thumbnail_url) : undefined;
 
   // 日付の処理（ISO 8601形式でタイムゾーン付き）
-  const formatDate = (date: string) => {
+  const formatDate = (date: string | null) => {
+    if (!date) return new Date().toISOString();
     return new Date(date).toISOString();
   };
 

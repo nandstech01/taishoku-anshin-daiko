@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Post } from '@/types/blog';
+import { formatDate } from '@/utils/date';
 
 interface BlogCardProps {
   post?: Post;
@@ -15,6 +16,8 @@ interface BlogCardProps {
 }
 
 const BlogCard = ({ post, title, description, thumbnailUrl, date, href }: BlogCardProps) => {
+  const displayDate = post ? formatDate(post.published_at || post.created_at) : date;
+
   return (
     <Link href={post?.slug ? `/blog/${post.slug}` : href || '#'}>
       <article className="blog-card">
@@ -38,8 +41,8 @@ const BlogCard = ({ post, title, description, thumbnailUrl, date, href }: BlogCa
           <h3 className="blog-card-title">
             {post?.title || title}
           </h3>
-          <time className="blog-card-meta">
-            {post?.created_at ? new Date(post.created_at).toLocaleDateString('ja-JP') : date}
+          <time className="blog-card-meta" dateTime={post?.published_at || post?.created_at}>
+            {displayDate}
           </time>
         </div>
       </article>
