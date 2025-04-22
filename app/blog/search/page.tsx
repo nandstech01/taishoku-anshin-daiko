@@ -7,7 +7,7 @@ import BlogCard from '@/components/blog/BlogCard';
 
 function SearchResults() {
   const searchParams = useSearchParams();
-  const query = searchParams.get('q') || '';
+  const query = searchParams?.get('q') || '';
   const { posts } = usePostsStore();
 
   const searchResults = posts.filter(post => {

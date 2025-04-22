@@ -44,9 +44,11 @@ export function Pagination({ totalItems, itemsPerPage, currentPage }: Pagination
   const createPageUrl = (page: number) => {
     const params = new URLSearchParams();
     // 既存のパラメータをコピー
-    searchParams.forEach((value, key) => {
-      params.set(key, value);
-    });
+    if (searchParams) {
+      searchParams.forEach((value, key) => {
+        params.set(key, value);
+      });
+    }
     params.set('page', page.toString());
     return `${pathname}?${params.toString()}`;
   };

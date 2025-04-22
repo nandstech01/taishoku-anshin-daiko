@@ -4,9 +4,9 @@ import { useSearchParams } from 'next/navigation';
 
 export default function TokensPage() {
   const searchParams = useSearchParams();
-  const accessToken = searchParams.get('access_token');
-  const refreshToken = searchParams.get('refresh_token');
-  const success = searchParams.get('success') === 'true';
+  const accessToken = searchParams?.get('access_token');
+  const refreshToken = searchParams?.get('refresh_token');
+  const success = searchParams?.get('success') === 'true';
 
   if (!success) {
     return (

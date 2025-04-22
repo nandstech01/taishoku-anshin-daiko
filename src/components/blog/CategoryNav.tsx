@@ -13,7 +13,7 @@ export function CategoryNav() {
       <h2 className="text-lg font-semibold mb-4">カテゴリー</h2>
       <ul className="space-y-2">
         {BLOG_CATEGORIES.map((category: Category) => {
-          const isActive = pathname.includes(`/category/${category.slug}`);
+          const isActive = pathname?.includes(`/category/${category.slug}`) ?? false;
           return (
             <li key={category.id}>
               <Link

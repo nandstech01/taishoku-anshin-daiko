@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 export function SearchBox() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [query, setQuery] = useState(searchParams.get('q') || '');
+  const [query, setQuery] = useState(searchParams?.get('q') || '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
