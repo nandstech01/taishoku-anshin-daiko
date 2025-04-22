@@ -1,42 +1,49 @@
 import Link from 'next/link';
+import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
+import GradientText from '@/components/ui/GradientText';
 
 const RehireBand = () => {
   return (
-    <section className="w-full bg-gradient-to-b from-white via-[#F0F9FF] to-white py-6 sm:py-8 md:max-h-[200px]">
-      <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:gap-6">
-        {/* Left: Badge */}
-        <div className="hidden sm:block">
-          <span className="inline-block whitespace-nowrap rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-            退職エージェント
-          </span>
-        </div>
+    <section className="relative w-full bg-black text-white py-12 sm:py-16 overflow-hidden">
+      <div className="absolute inset-0 z-0">
+        <Image
+          src="/images/agent-hero-background.jpg"
+          alt="背景"
+          fill
+          className="object-cover object-center"
+          priority={false}
+          quality={80}
+        />
+        <div className="absolute inset-0 bg-black/55"></div>
+      </div>
 
-        {/* Center: Text Content */}
-        <div className="flex flex-grow flex-col items-center text-center sm:items-start sm:text-left">
-          <h2 className="text-lg font-bold text-gray-900">
-            退職 × AIスキルでキャリア再起動。
-          </h2>
-          <p className="mt-1 text-sm text-gray-600">
-            退職あんしんサポートプロが生んだ"退職エージェント"モデル
-          </p>
-          <p className="mt-2 text-xs text-gray-500">
-            例）元飲食スタッフが3か月でAI運用担当として年収＋120万円で再就職
-          </p>
-          {/* Badge for mobile */}
-          <div className="mt-3 sm:hidden">
-            <span className="inline-block whitespace-nowrap rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-              退職エージェント
-            </span>
-          </div>
-        </div>
-
-        {/* Right: CTA Button */}
-        <div className="mt-4 flex-shrink-0 sm:mt-0">
-          <Link
-            href="/agent"
-            className="inline-flex items-center rounded-md bg-emerald-500 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+      <div className="container relative z-10 mx-auto flex flex-col items-center justify-center gap-6 px-4 text-center">
+        <h2 className="flex justify-center items-center text-2xl md:text-4xl font-bold">
+          <GradientText 
+            colors={["#FDB813", "#FFFACD", "#FFD700", "#DAA520", "#FDB813"]}
+            className="mx-auto"
+            showBorder={false}
+            animationSpeed={5}
           >
-            詳しく見る →
+            退職エージェント
+          </GradientText>
+        </h2>
+        <p className="text-base text-gray-300 max-w-xl">
+          退職のその先へ。AIスキルを武器に、新しいキャリアと収入の可能性を広げましょう。
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 mt-4">
+          <Link 
+            href="/agent" 
+            className="inline-flex items-center justify-center rounded-md px-6 py-3 text-base font-semibold bg-white text-gray-900 hover:bg-gray-100 border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-12"
+          >
+            収入アップを目指す <ArrowRight className="ml-2 h-4 w-4" />
+          </Link>
+          <Link 
+            href="/fukugyo" 
+            className="inline-flex items-center justify-center rounded-md px-6 py-3 text-base font-semibold bg-transparent border-2 border-white/50 text-white hover:bg-white/10 hover:border-white transition-all duration-300 h-12"
+          >
+            副収入を構築する <ArrowRight className="ml-2 h-4 w-4" />
           </Link>
         </div>
       </div>

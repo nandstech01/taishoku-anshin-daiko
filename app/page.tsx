@@ -16,7 +16,7 @@ import ConsultationForm from '../src/components/ConsultationForm';
 import Footer from '../src/components/common/Footer';
 import HomePageBlogSection from '@/components/blog/HomePageBlogSection';
 import FixedButtons from '@/components/ui/FixedButtons';
-import RehireBand from '@/components/RehireBand';
+import RehireBand from '../components/RehireBand';
 import { Metadata } from 'next';
 import { Suspense } from 'react';
 

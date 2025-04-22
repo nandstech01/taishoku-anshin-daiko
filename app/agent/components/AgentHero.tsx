@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, MoveRight, Sparkles, CheckCircle2, ArrowUpRight, TrendingUp } from 'lucide-react';
-import GradientText from './GradientText';
+import GradientText from '@/components/ui/GradientText';
 
 export default function AgentHero() {
   const headingRef = useRef<HTMLHeadingElement>(null);

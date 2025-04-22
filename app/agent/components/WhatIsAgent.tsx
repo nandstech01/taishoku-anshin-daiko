@@ -3,7 +3,7 @@
 import { useRef, useEffect, useState } from 'react';
 import PixelCard from './PixelCard';
 import Image from 'next/image';
-import GradientText from './GradientText';
+import GradientText from '@/components/ui/GradientText';
 
 export default function WhatIsAgent() {
   const sectionRef = useRef<HTMLDivElement>(null);
