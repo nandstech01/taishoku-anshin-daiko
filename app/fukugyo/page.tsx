@@ -95,7 +95,7 @@ export const metadata: Metadata = {
 export default function FukugyoPage() { 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between pt-4 bg-gray-50">
-      <Header logoSrc="/images/logo.svg" /> {/* ロゴパス変更 */}
+      <Header logoSrc="/images/agent-logo.svg" /> {/* ロゴパスをagentページと同じに変更 */}
       <FukugyoHero /> {/* コンポーネント名変更 */}
       <WhatIsFukugyo /> {/* コンポーネント名変更 */}
       <FukugyoIncomePotential /> {/* コンポーネント名変更 */}
