@@ -49,20 +49,30 @@ const EnhancedHeroSection = () => (
             sizes="100vw"
           />
         </div>
-        {/* PC用のグラデーション背景 */}
-        <div className="hidden md:block w-full h-[585px] bg-gradient-to-br from-orange-500 via-orange-400 to-yellow-500" />
+        {/* PC用の背景画像 - オーバーレイなしで全体表示 */}
+        <div className="hidden md:block w-full h-[585px] relative overflow-hidden">
+          <Image
+            src="/images/hero/hero-bg-desktop.webp"
+            alt=""
+            fill
+            priority
+            quality={85}
+            className="object-contain object-center"
+            sizes="100vw"
+          />
+        </div>
         <div className="absolute inset-0 flex z-30">
-          <div className="w-full px-8 mt-32" style={{ paddingLeft: '4rem', marginTop: '19rem' }}>
-            <h1 className="text-xl font-bold mb-4 text-black relative md:text-white">
+          <div className="w-full px-8 mt-[19rem] md:pl-24 md:mt-0 md:pt-[14rem]" style={{ paddingLeft: '4rem' }}>
+            <h1 className="text-xl font-bold mb-4 text-black relative md:text-black md:text-3xl">
               退職代行サービス
               <span className="block mt-2">
-                <span className="block text-2xl text-black md:text-white">業界最安値</span>
-                <span className="block text-7xl font-bold mt-1 [color:_#ffff00] [text-shadow:_-2px_-2px_0_#ff0000,_2px_-2px_0_#ff0000,_-2px_2px_0_#ff0000,_2px_2px_0_#ff0000] md:[text-shadow:_-2px_-2px_0_#000000,_2px_-2px_0_#000000,_-2px_2px_0_#000000,_2px_2px_0_#000000]">2,980円</span>
-                <span className="block text-2xl mt-1 text-black md:text-white">で即日対応</span>
+                <span className="block text-2xl text-black md:text-black md:text-4xl">業界最安値</span>
+                <span className="block text-7xl font-bold mt-1 [color:_#ffff00] [text-shadow:_-2px_-2px_0_#ff0000,_2px_-2px_0_#ff0000,_-2px_2px_0_#ff0000,_2px_2px_0_#ff0000] md:[text-shadow:_-2px_-2px_0_#000000,_2px_-2px_0_#000000,_-2px_2px_0_#000000,_2px_2px_0_#000000] md:text-9xl">2,980円</span>
+                <span className="block text-2xl mt-1 text-black md:text-black md:text-4xl">で即日対応</span>
               </span>
             </h1>
-            <p className="text-sm mt-1 text-black relative">
-              <span className="bg-red-600 text-white px-2 py-1 inline-block">弁護士監修・あんしん退職サポート</span>
+            <p className="text-sm mt-1 text-black relative md:text-lg">
+              <span className="bg-red-600 text-white px-2 py-1 inline-block md:px-4 md:py-2">弁護士監修・あんしん退職サポート</span>
             </p>
           </div>
         </div>
