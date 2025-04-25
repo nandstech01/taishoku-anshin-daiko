@@ -4,6 +4,7 @@ import WhatIsFukugyo from './components/WhatIsAgent'; // コンポーネント�
 import FukugyoIncomePotential from './components/DemandSalary'; // コンポーネント名変更
 import FukugyoSuccessStories from './components/SuccessStories'; // コンポーネント名変更
 import FukugyoProcessFlow from './components/ProcessFlow'; // コンポーネント名変更
+import CourseSection from './components/CourseSection'; // 新しく追加
 import FukugyoFAQ from './components/FAQ'; // faqsをインポートしない
 import CallToAction from './components/CallToAction'; // CallToActionは一旦そのまま
 import Header from '@/components/common/Header';
@@ -101,6 +102,7 @@ export default function FukugyoPage() {
       <FukugyoIncomePotential /> {/* コンポーネント名変更 */}
       <FukugyoSuccessStories /> {/* コンポーネント名変更 */}
       <FukugyoProcessFlow /> {/* コンポーネント名変更 */}
+      <CourseSection /> {/* 新しく追加 */}
       <FukugyoFAQ /> {/* コンポーネント名変更 */}
       <CallToAction /> {/* CallToActionは一旦そのまま */}
     </main>

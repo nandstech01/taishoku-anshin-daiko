@@ -37,7 +37,7 @@ export default function CallToAction() {
   return (
     <section 
       ref={ctaRef}
-      className="relative w-full bg-gradient-to-r from-indigo-700 to-[#310076] text-white py-20 px-4 overflow-hidden"
+      className="relative w-full bg-black text-white py-20 px-4 overflow-hidden"
     >
       {/* Background Pattern */}
       <div 
@@ -69,23 +69,17 @@ export default function CallToAction() {
           あなたの新しいキャリアを完全サポートします。
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="flex justify-center">
           <Link 
             href="https://lin.ee/w105og9"
-            className="inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-md shadow-sm text-indigo-700 bg-white hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-12"
+            className="inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-md shadow-sm text-black bg-white hover:bg-white/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 h-12"
           >
             まずは退職相談する <PhoneCall className="ml-2 h-4 w-4" />
-          </Link>
-          <Link 
-            href="https://nands.tech/courses/ai-expert" 
-            className="inline-flex items-center justify-center px-6 py-3 text-base font-medium rounded-md shadow-sm text-white bg-transparent border border-white hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white h-12"
-          >
-            AIエキスパート講座を見る <LightbulbIcon className="ml-2 h-4 w-4" />
           </Link>
         </div>
         
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto">
-          {['退職支援', 'AIエンジニア', 'AIコンテンツクリエイター', 'プロンプトエンジニア', 'AI×SEO', 'データアナリスト'].map((service) => (
+          {['退職支援', 'AIエンジニア', 'AIコンテクリエイター', 'プロンプトエンジニア', 'AI×SEO', 'データアナリスト'].map((service) => (
             <div key={service} className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm">
               {service}
             </div>
