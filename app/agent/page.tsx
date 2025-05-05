@@ -4,6 +4,7 @@ import WhatIsAgent from './components/WhatIsAgent';
 import DemandSalary from './components/DemandSalary';
 import SuccessStories from './components/SuccessStories';
 import ProcessFlow from './components/ProcessFlow';
+import CourseSection from './components/CourseSection';
 import FAQ from './components/FAQ';
 import CallToAction from './components/CallToAction';
 import Header from '@/components/common/Header';
@@ -60,6 +61,7 @@ export default function AgentPage() {
       <DemandSalary />
       <SuccessStories />
       <ProcessFlow />
+      <CourseSection />
       <FAQ />
       <CallToAction />
     </main>

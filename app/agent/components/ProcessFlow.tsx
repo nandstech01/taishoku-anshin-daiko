@@ -24,11 +24,11 @@ const processSteps: ProcessStep[] = [
     description: '最短3ヶ月でAIスキルを習得',
     icon: <GraduationCap className="h-6 w-6 text-[#310076]" />,
     features: [
-      'AIエンジニアリング基礎',
-      'AIコンテンツ制作実践',
-      'プロンプトエンジニアリング',
-      'AI×SEO戦略立案',
-      'AI活用ビジネス戦略'
+      'SEO-WEBサイトのデジタル分析技術',
+      'AIリテラシー基礎習得',
+      'AIを活用したWEBコンテンツ制作',
+      '高度AI活用プロンプトエンジニア',
+      'AIエキスパート〜生成AIエンジニア'
     ]
   },
   {

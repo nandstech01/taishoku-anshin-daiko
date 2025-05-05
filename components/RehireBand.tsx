@@ -26,12 +26,18 @@ const RehireBand = () => {
             showBorder={false}
             animationSpeed={5}
           >
-            退職エージェント
+            「辞める」で終わらせない
           </GradientText>
         </h2>
-        <p className="text-base text-gray-300 max-w-xl">
-          退職のその先へ。AIスキルを武器に、新しいキャリアと収入の可能性を広げましょう。
-        </p>
+        <div className="text-base text-gray-300 max-w-xl">
+          <p className="block sm:hidden">
+            辞める・学ぶ・稼ぐ。までを並走<br />
+            『退職エージェント』
+          </p>
+          <p className="hidden sm:block">
+            辞める・学ぶ・稼ぐ。までを並走！『退職エージェント』
+          </p>
+        </div>
         <div className="flex flex-col sm:flex-row gap-4 mt-4">
           <Link 
             href="/agent" 
