@@ -89,6 +89,7 @@ const EnhancedHeroSection = () => (
               hover:shadow-2xl hover:scale-105
               transform transition-all duration-300
               relative overflow-hidden
+              md:hidden
               border-2 border-white/20
             "
           >

@@ -50,23 +50,28 @@ export default function RootLayout({
         <link rel="llms" href="/llms.txt" type="text/markdown" />
         <link rel="llms-full" href="/llms-full.txt" type="text/markdown" />
         
-        <link 
+        {/* Remove the preload link for the logo */}
+        {/* <link 
           rel="preload" 
           href="/images/logo.svg" 
           as="image" 
           type="image/svg+xml"
           fetchPriority="high"
-        />
-        <link
+        /> */}
+        
+        {/* 警告が出ているpreloadタグを削除 */}
+        {/* <link
           rel="preload"
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap"
           as="style"
           fetchPriority="high"
-        />
+        /> */}
         
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        {/* 通常のフォント読み込みを追加 */}
+        {/* next/fontですでに最適化されているため不要 */}
       </head>
       <body className="h-full">
         <AuthProvider>
